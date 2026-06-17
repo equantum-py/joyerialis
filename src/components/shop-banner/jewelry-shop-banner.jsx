@@ -21,7 +21,7 @@ function BannerItem({ cls, bg_clr, bg, content, title,isBtn=false}) {
         </h3>
         {isBtn && <div className="tp-banner-btn-4">
           <Link href="/shop" className="tp-btn tp-btn-border">
-            Shop Now {" "} <ArrowRightLong/>
+            Explorar {" "} <ArrowRightLong/>
           </Link>
         </div>}
       </div>
@@ -38,15 +38,15 @@ const JewelryShopBanner = () => {
             <div className="col-xl-6 col-lg-7">
               <div className="row">
                 <div className="col-xl-12">
-                  <BannerItem cls="mb-25" bg_clr="F3F7FF" bg={banner_bg_1} content="Collection" 
-                  title={<>Ardeco pearl <br /> Rings style 2023</>} isBtn={true} />
+                  <BannerItem cls="mb-25" bg_clr="F3F7FF" bg={banner_bg_1} content="Elegancia que perdura"
+                  title="ANILLOS" isBtn={true} />
                 </div>
                 <div className="col-md-6 col-sm-6">
-                <BannerItem cls="has-green sm-banner" bg_clr="F0F6EF" bg={banner_bg_2} content="Trending" title="Tropical Set" />
+                <BannerItem cls="has-green sm-banner" bg_clr="F0F6EF" bg={banner_bg_2} content="Diseños atemporales" title="COLLARES" />
   
                 </div>
                 <div className="col-md-6 col-sm-6">
-                <BannerItem cls="has-brown sm-banner" bg_clr="F8F1E6" bg={banner_bg_3} content="New Arrival" title="Gold Jewelry" />
+                <BannerItem cls="has-brown sm-banner" bg_clr="F8F1E6" bg={banner_bg_3} content="Sutileza en cada detalle" title="PULSERAS" />
                 </div>
               </div>
             </div>
@@ -55,13 +55,13 @@ const JewelryShopBanner = () => {
                 <div className="tp-banner-full-thumb include-bg black-bg transition-3" 
                 style={{backgroundImage:`url(${banner_bg_4.src})`}}></div>
                 <div className="tp-banner-full-content">
-                  <span>Collection</span>
+                  <span>Brillo para cada ocasión</span>
                   <h3 className="tp-banner-full-title">
-                    <Link href="/shop">Ring gold with <br /> diamonds</Link>
+                    <Link href="/shop">ARETES</Link>
                   </h3>
                   <div className="tp-banner-full-btn">
                     <Link href="/shop" className="tp-btn tp-btn-border">
-                      Shop Now{" "}<ArrowRightLong/>
+                      Explorar{" "}<ArrowRightLong/>
                     </Link>
                   </div>
                 </div>

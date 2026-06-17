@@ -10,6 +10,7 @@ import Timer from "@/components/common/timer";
 import { handleProductModal } from "@/redux/features/productModalSlice";
 import { add_cart_product } from "@/redux/features/cartSlice";
 import { add_to_wishlist } from "@/redux/features/wishlist-slice";
+import { formatGs, formatGsDiscount } from '@/utils/price';
 
 const ProductItem = ({ product, offer_style = false }) => {
   const { _id, img, category, title, reviews, price, discount,status,offerDate } = product || {};
@@ -131,13 +132,13 @@ const ProductItem = ({ product, offer_style = false }) => {
           <div className="tp-product-price-wrapper">
             {discount > 0 ? (
               <>
-                <span className="tp-product-price old-price">${price}</span>
+                <span className="tp-product-price old-price">{formatGs(price)}</span>
                 <span className="tp-product-price new-price">
-                  {" "} ${(Number(price) - (Number(price) * Number(discount)) / 100).toFixed(2)}
+                  {" "}{formatGsDiscount(price, discount)}
                 </span>
               </>
             ) : (
-              <span className="tp-product-price new-price">${parseFloat(price).toFixed(2)}</span>
+              <span className="tp-product-price new-price">{formatGs(price)}</span>
             )}
           </div>
           {offer_style && (

@@ -1,5 +1,6 @@
 import React from "react";
 import useCartInfo from "@/hooks/use-cart-info";
+import { formatGs } from '@/utils/price';
 
 const RenderCartProgress = () => {
   const { total } = useCartInfo();
@@ -9,9 +10,7 @@ const RenderCartProgress = () => {
     const remainingAmount = freeShippingThreshold - total;
     return (
       <>
-        <p>{`Add $${remainingAmount.toFixed(
-          2
-        )} more to qualify for free shipping`}</p>
+        <p>{`Add ${formatGs(remainingAmount)} more to qualify for free shipping`}</p>
         <div className="progress">
           <div
             className="progress-bar progress-bar-striped progress-bar-animated"

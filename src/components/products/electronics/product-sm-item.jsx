@@ -3,6 +3,8 @@ import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { Rating } from "react-simple-star-rating";
 
+import { formatGs } from '@/utils/price';
+
 const ProductSmItem = ({ product }) => {
   const {_id, img, category, title,price, reviews } = product || {};
   const [ratingVal, setRatingVal] = useState(0);
@@ -46,7 +48,7 @@ const ProductSmItem = ({ product }) => {
           </div>
         </div>
         <div className="tp-product-price-wrapper">
-          <span className="tp-product-price">${price.toFixed(2)}</span>
+          <span className="tp-product-price">{formatGs(price)}</span>
         </div>
       </div>
     </div>

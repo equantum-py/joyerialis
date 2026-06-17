@@ -7,6 +7,7 @@ import { handleProductModal } from "@/redux/features/productModalSlice";
 import { add_cart_product } from "@/redux/features/cartSlice";
 import { add_to_wishlist } from "@/redux/features/wishlist-slice";
 import { notifyError } from "@/utils/toast";
+import { formatGs } from '@/utils/price';
 
 const ProductSliderItem = ({ product }) => {
   const { _id, title, price, img,status } = product || {};
@@ -82,7 +83,7 @@ const ProductSliderItem = ({ product }) => {
           <Link href={`/product-details/${_id}`}>{title}</Link>
         </h3>
         <div className="tp-category-price-wrapper-4">
-          <span className="tp-category-price-4">${price.toFixed(2)}</span>
+          <span className="tp-category-price-4">{formatGs(price)}</span>
           <div className="tp-category-add-to-cart">
             {isAddedToCart ? (
               <Link href="/cart" className="tp-category-add-to-cart-4">

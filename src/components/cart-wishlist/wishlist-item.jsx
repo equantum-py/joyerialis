@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Close, Minus, Plus } from "@/svg";
 import {add_cart_product,quantityDecrement} from "@/redux/features/cartSlice";
 import { remove_wishlist_product } from "@/redux/features/wishlist-slice";
+import { formatGs } from '@/utils/price';
 
 const WishlistItem = ({ product }) => {
   const { _id, img, title, price } = product || {};
@@ -36,7 +37,7 @@ const WishlistItem = ({ product }) => {
         <Link href={`/product-details/${_id}`}>{title}</Link>
       </td>
       <td className="tp-cart-price">
-        <span>${price.toFixed(2)}</span>
+        <span>{formatGs(price)}</span>
       </td>
       <td className="tp-cart-quantity">
         <div className="tp-product-quantity mt-10 mb-10">

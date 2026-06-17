@@ -8,6 +8,7 @@ import { useGetProductTypeQuery } from '@/redux/features/productApi';
 import { ArrowRightLong, NextLongArr, PrevLongArr, TextShapeLine } from '@/svg';
 import ErrorMsg from '@/components/common/error-msg';
 import { HomeTwoFeaturedPrdLoader } from '@/components/loader';
+import { formatGs, formatGsDiscount } from '@/utils/price';
 
 // slider setting 
 const slider_setting = {
@@ -69,13 +70,13 @@ const WeeksFeatured = () => {
                 <div className="tp-featured-price-wrapper">
                   {discount > 0 ? (
                     <>
-                      <span className="tp-featured-price new-price">${price}</span>
+                      <span className="tp-featured-price new-price">{formatGs(price)}</span>
                       <span className="tp-featured-price old-price">
-                        {" "} $ {(Number(price) - (Number(price) * Number(discount)) / 100).toFixed(2)}
+                        {" "}{formatGsDiscount(price, discount)}
                       </span>
                     </>
                   ) : (
-                    <span className="tp-featured-price new-price">${price}</span>
+                    <span className="tp-featured-price new-price">{formatGs(price)}</span>
                   )}
                 </div>
                 <div className="tp-product-rating-icon tp-product-rating-icon-2">

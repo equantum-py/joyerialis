@@ -7,6 +7,7 @@ import { Cart, QuickView, Wishlist } from "@/svg";
 import { handleProductModal } from "@/redux/features/productModalSlice";
 import { add_cart_product } from "@/redux/features/cartSlice";
 import { add_to_wishlist } from "@/redux/features/wishlist-slice";
+import { formatGs } from '@/utils/price';
 
 const ProductItem = ({ product, prdCenter = false,primary_style=false }) => {
   const { _id, img, title, discount, price, tags,status } = product || {};
@@ -105,7 +106,7 @@ const ProductItem = ({ product, prdCenter = false,primary_style=false }) => {
           <Link href={`/product-details/${_id}`}>{title}</Link>
         </h3>
         <div className="tp-product-price-wrapper-3">
-          <span className="tp-product-price-3">${price.toFixed(2)}</span>
+          <span className="tp-product-price-3">{formatGs(price)}</span>
         </div>
       </div>
     </div>

@@ -5,6 +5,7 @@ import Link from "next/link";
 // internal
 import { Close, Minus, Plus } from "@/svg";
 import { add_cart_product, quantityDecrement, remove_product } from "@/redux/features/cartSlice";
+import { formatGs } from '@/utils/price';
 
 const CartItem = ({product}) => {
   const {_id, img,title,price, orderQuantity = 0 } = product || {};
@@ -39,7 +40,7 @@ const CartItem = ({product}) => {
       </td>
       {/* price */}
       <td className="tp-cart-price">
-        <span>${(price * orderQuantity).toFixed(2)}</span>
+        <span>{formatGs(price * orderQuantity)}</span>
       </td>
       {/* quantity */}
       <td className="tp-cart-quantity">

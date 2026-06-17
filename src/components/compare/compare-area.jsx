@@ -6,6 +6,7 @@ import { Rating } from "react-simple-star-rating";
 // internal
 import { add_cart_product } from "@/redux/features/cartSlice";
 import { remove_compare_product } from "@/redux/features/compareSlice";
+import { formatGs } from '@/utils/price';
 
 const CompareArea = () => {
   const { compareItems } = useSelector((state) => state.compare);
@@ -78,7 +79,7 @@ const CompareArea = () => {
                         {compareItems.map(item => (
                           <td key={item._id}>
                             <div className="tp-compare-price">
-                              <span>${item.price.toFixed(2)}</span>
+                              <span>{formatGs(item.price)}</span>
                             </div>
                           </td>
                         ))}

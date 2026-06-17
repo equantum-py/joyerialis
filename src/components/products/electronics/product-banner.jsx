@@ -8,6 +8,7 @@ import offer_img from '@assets/img/banner/banner-slider-offer.png';
 import banner_img_1 from '@assets/img/banner/banner-slider-1.png';
 import banner_img_2 from '@assets/img/banner/banner-slider-2.png';
 import banner_img_3 from '@assets/img/banner/banner-slider-3.png';
+import { formatGs } from '@/utils/price';
 
 // banner products
 const bannerProducts = [
@@ -67,8 +68,8 @@ const ProductBanner = () => {
                         <span className="tp-product-banner-subtitle">{item.subtitle}</span>
                         <h3 className="tp-product-banner-title">{item.title}</h3>
                         <div className="tp-product-banner-price mb-40">
-                          <span className="old-price">${item.oldPrice.toFixed(2)}</span>
-                          <p className="new-price">${item.newPrice.toFixed(2)}</p>
+                          <span className="old-price">{formatGs(item.oldPrice)}</span>
+                          <p className="new-price">{formatGs(item.newPrice)}</p>
                         </div>
                         <div className="tp-product-banner-btn">
                           <Link href="/shop" className="tp-btn tp-btn-2">Shop now</Link>

@@ -13,6 +13,7 @@ import b_bg_2 from '@assets/img/product/gadget/gadget-banner-2.jpg';
 import { useGetProductTypeQuery } from '@/redux/features/productApi';
 import gadget_girl from '@assets/img/product/gadget/gadget-girl.png';
 import HomeGadgetPrdLoader from '@/components/loader/home/home-gadget-prd-loader';
+import { formatGs } from '@/utils/price';
 
 const ProductGadgetArea = () => {
   const { data: products, isError, isLoading } = useGetProductTypeQuery({type:'electronics'});
@@ -62,7 +63,7 @@ const ProductGadgetArea = () => {
           <SwiperSlide key={i} className="tp-product-gadget-banner-item include-bg" 
           style={{ backgroundImage: `url(${b.bg.src})`}}>
             <div className="tp-product-gadget-banner-content">
-              <span className="tp-product-gadget-banner-price">Only ${b.price.toFixed(2)}</span>
+              <span className="tp-product-gadget-banner-price">Only {formatGs(b.price)}</span>
               <h3 className="tp-product-gadget-banner-title">
                 <Link href="/shop">{b.title}</Link>
               </h3>

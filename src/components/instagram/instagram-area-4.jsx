@@ -21,16 +21,8 @@ const instagram_data = [
 const InstagramAreaFour = () => {
   return (
     <>
-      <section className="tp-instagram-area tp-instagram-style-4 pt-110 pb-10">
+      <section className="tp-instagram-area tp-instagram-style-4 pb-10">
         <div className="container-fluid pl-20 pr-20">
-          <div className="row">
-            <div className="col-xl-12">
-              <div className="tp-section-title-wrapper-4 mb-50 text-center">
-                <h3 className="tp-section-title-4">Trends on image feed</h3>
-                <p>After many months design and development of a modern online retailer</p>
-              </div>
-            </div>
-          </div>
           <div className="row row-cols-lg-6 row-cols-sm-2 row-cols-1 gx-2 gy-2 gy-lg-0">
             {instagram_data.map((item, i) => (
               <div className="col" key={i}>

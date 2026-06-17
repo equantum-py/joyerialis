@@ -10,6 +10,7 @@ import PopularProducts from '@/components/products/jewelry/popular-products';
 import ProductArea from '@/components/products/jewelry/product-area';
 
 import JewelryMiddleBanner from '@/components/banner/jewelry-middle-banner';
+import BestSellersNewArrivals from '@/components/products/jewelry/best-sellers-new-arrivals';
 
 import JewelryCollectionBanner from '@/components/shop-banner/jewelry-collection-banner';
 
@@ -33,6 +34,8 @@ export default function Home() {
       <ProductArea />
 
       <JewelryMiddleBanner />
+
+      <BestSellersNewArrivals />
 
       <JewelryCollectionBanner />
 

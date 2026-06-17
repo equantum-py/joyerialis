@@ -9,8 +9,8 @@ import { HomeTwoPopularPrdLoader } from '@/components/loader';
 
 // slider setting
 const slider_setting = {
-  slidesPerView: 4,
-  spaceBetween: 30,
+  slidesPerView: 5,
+  spaceBetween: 24,
   pagination: {
     el: ".tp-category-slider-dot-4",
     clickable: true,
@@ -23,13 +23,13 @@ const slider_setting = {
   },
   breakpoints: {
     '1400': {
-      slidesPerView: 4,
+      slidesPerView: 5,
     },
     '1200': {
-      slidesPerView: 4,
+      slidesPerView: 5,
     },
     '992': {
-      slidesPerView: 3,
+      slidesPerView: 4,
     },
     '768': {
       slidesPerView: 2,
@@ -64,7 +64,7 @@ const PopularProducts = () => {
   }
 
   if (!isLoading && !isError && products?.data?.length > 0) {
-    const product_items = products.data.slice(0, 4);
+    const product_items = products.data.slice(0, 5);
 
     content = (
       <Swiper
@@ -84,18 +84,18 @@ const PopularProducts = () => {
   return (
     <section
       className="tp-category-area pt-115 pb-105 tp-category-plr-85"
-      style={{ backgroundColor: '#F5F5F5' }}
+      style={{ backgroundColor: '#FFFFFF' }}
     >
       <div className="container-fluid">
         <div className="row">
           <div className="col-xl-12">
             <div className="tp-section-title-wrapper-4 mb-60 text-center">
-              <span className="tp-section-title-pre-4">
-                Selección exclusiva
+                      <span className="tp-section-title-pre-4">
+                Comprar por categoria
               </span>
 
               <h3 className="tp-section-title-4">
-                Colección Destacada
+                Lo más popular en Joyerialis.
               </h3>
             </div>
           </div>

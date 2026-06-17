@@ -82,11 +82,11 @@ const ProductArea = () => {
           <div className="col-xl-6 col-lg-6">
             <div className="tp-section-title-wrapper-4 mb-40 text-center text-lg-start">
               <span className="tp-section-title-pre-4">
-                JOYERIALIS
+                Product Collection
               </span>
 
               <h3 className="tp-section-title-4">
-                Nuestra Colección
+                Discover our Products
               </h3>
             </div>
           </div>
@@ -145,7 +145,7 @@ const ProductArea = () => {
   return (
     <section
       className="tp-product-area pt-115 pb-80"
-      style={{ backgroundColor: '#F5F5F5' }}
+      style={{ backgroundColor: '#FFFFFF' }}
     >
       <div className="container">
         {content}

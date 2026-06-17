@@ -1,26 +1,19 @@
 import React from 'react';
+import Image from 'next/image';
+import bannerImg from '@assets/img/banner/4/banner-1.jpg';
 
-const JewelryMiddleBanner = () => {
-return (
-<section
-style={{
-height: '380px',
-background: '#EDEDED',
-marginTop: '40px',
-marginBottom: '40px',
-display: 'flex',
-alignItems: 'center',
-justifyContent: 'center',
-}}
->
-<h2
-style={{
-fontSize: '40px',
-color: '#999',
-}}
->
-BANNER INTERMEDIO </h2> </section>
+const JewelryMiddleBanner = () => (
+  <section style={{ position: 'relative', width: '100%', overflow: 'hidden' }}>
+    <div style={{ position: 'relative', height: '480px', width: '100%' }}>
+      <Image
+        src={bannerImg}
+        alt="Joyerialis Collection"
+        fill
+        style={{ objectFit: 'cover', objectPosition: 'center top' }}
+        priority={false}
+      />
+    </div>
+  </section>
 );
-};
 
 export default JewelryMiddleBanner;

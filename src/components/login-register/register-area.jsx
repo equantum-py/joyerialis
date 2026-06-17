@@ -16,11 +16,11 @@ const RegisterArea = () => {
             <div className="col-xl-6 col-lg-8">
               <div className="tp-login-wrapper">
                 <div className="tp-login-top text-center mb-30">
-                  <h3 className="tp-login-title">Sign Up Shofy.</h3>
+                  <h3 className="tp-login-title">Regístrate en Joyerialis.</h3>
                   <p>
-                    Already have an account?{" "}
+                    ¿Ya tienes una cuenta?{" "}
                     <span>
-                      <Link href="/login">Sign In</Link>
+                      <Link href="/login">Inicia sesión</Link>
                     </span>
                   </p>
                 </div>
@@ -32,7 +32,7 @@ const RegisterArea = () => {
                   </div>
                   <div className="tp-login-mail text-center mb-40">
                     <p>
-                      or Sign up with <a href="#">Email</a>
+                      o regístrate con <a href="#">Email</a>
                     </p>
                   </div>
                   {/* form start */}

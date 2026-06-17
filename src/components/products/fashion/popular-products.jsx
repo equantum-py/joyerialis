@@ -100,14 +100,14 @@ const PopularProducts = () => {
                     href="/cart"
                     className="tp-btn tp-btn-border cursor-pointer"
                   >
-                    View Cart
+                    Ver carrito
                   </Link>
                 ) : (
                   <a
                     onClick={() => handleAddProduct(item)}
                     className="tp-btn tp-btn-border cursor-pointer"
                   >
-                    Add to Cart
+                    Agregar al carrito
                   </a>
                 )}
               </div>
@@ -125,11 +125,11 @@ const PopularProducts = () => {
             <div className="col-xl-12">
               <div className="tp-section-title-wrapper-2 text-center mb-50">
                 <span className="tp-section-title-pre-2">
-                  Shop by Popular
+                  Los más populares
                   <TextShapeLine />
                 </span>
                 <h3 className="tp-section-title-2">
-                  Popular on the Shofy store.
+                  Lo más popular en Joyerialis.
                 </h3>
               </div>
             </div>

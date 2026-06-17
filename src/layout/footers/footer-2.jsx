@@ -24,8 +24,8 @@ const FooterTwo = () => {
                     </div>
                     <div className="tp-footer-widget-content">
                       <div className="tp-footer-talk mb-20">
-                        <span>Got Questions? Call us</span>
-                        <h4><a href="tel:670-413-90-762">+670 413 90 762</a></h4>
+                        <span>¿Tienes preguntas? Llámanos</span>
+                        <h4><a href="tel:+595210000000">+595 21 000 000</a></h4>
                       </div>
                       <div className="tp-footer-contact">
                         <div className="tp-footer-contact-item d-flex align-items-start">
@@ -35,7 +35,7 @@ const FooterTwo = () => {
                             </span>
                           </div>
                           <div className="tp-footer-contact-content">
-                            <p><a href="mailto:shofy@support.com">swe.hamedhasan@gmail.com</a></p>
+                            <p><a href="mailto:contacto@joyerialis.com">contacto@joyerialis.com</a></p>
                           </div>
                         </div>
                         <div className="tp-footer-contact-item d-flex align-items-start">
@@ -45,7 +45,7 @@ const FooterTwo = () => {
                             </span>
                           </div>
                           <div className="tp-footer-contact-content">
-                            <p><a href="https://www.google.com/maps/place/Sleepy+Hollow+Rd,+Gouverneur,+NY+13642,+USA/@44.3304966,-75.4552367,17z/data=!3m1!4b1!4m6!3m5!1s0x4cccddac8972c5eb:0x56286024afff537a!8m2!3d44.3304928!4d-75.453048!16s%2Fg%2F1tdsjdj4" target="_blank">79 Sleepy Hollow St. <br /> Jamaica, New York 1432</a></p>
+                            <p>Asunción, Paraguay</p>
                           </div>
                         </div>
                       </div>
@@ -54,50 +54,50 @@ const FooterTwo = () => {
                 </div>
                 <div className="col-xl-2 col-lg-3 col-md-4 col-sm-6">
                   <div className="tp-footer-widget footer-col-4-2 mb-50">
-                    <h4 className="tp-footer-widget-title">My Account</h4>
+                    <h4 className="tp-footer-widget-title">Mi cuenta</h4>
                     <div className="tp-footer-widget-content">
                       <ul>
-                        <li><a href="#">Track Orders</a></li>
-                        <li><a href="#">Shipping</a></li>
-                        <li><a href="#">Wishlist</a></li>
-                        <li><a href="#">My Account</a></li>
-                        <li><a href="#">Order History</a></li>
-                        <li><a href="#">Returns</a></li>
+                        <li><a href="#">Rastrear pedidos</a></li>
+                        <li><a href="#">Envíos</a></li>
+                        <li><a href="#">Lista de deseos</a></li>
+                        <li><a href="#">Mi cuenta</a></li>
+                        <li><a href="#">Historial de pedidos</a></li>
+                        <li><a href="#">Devoluciones</a></li>
                       </ul>
                     </div>
                   </div>
                 </div>
                 <div className="col-xl-3 col-lg-2 col-md-4 col-sm-5">
                   <div className="tp-footer-widget footer-col-4-3 mb-50">
-                    <h4 className="tp-footer-widget-title">Infomation</h4>
+                    <h4 className="tp-footer-widget-title">Información</h4>
                     <div className="tp-footer-widget-content">
                       <ul>
-                        <li><a href="#">Our Story</a></li>
-                        <li><a href="#">Careers</a></li>
-                        <li><a href="#">Privacy Policy</a></li>
-                        <li><a href="#">Terms & Conditions</a></li>
-                        <li><a href="#">Latest News</a></li>
-                        <li><a href="#">Contact Us</a></li>
+                        <li><a href="#">Nuestra historia</a></li>
+                        <li><a href="#">Empleos</a></li>
+                        <li><a href="#">Política de privacidad</a></li>
+                        <li><a href="#">Términos y condiciones</a></li>
+                        <li><a href="#">Últimas noticias</a></li>
+                        <li><a href="#">Contáctanos</a></li>
                       </ul>
                     </div>
                   </div>
                 </div>
                 <div className="col-xl-4 col-lg-4 col-md-6 col-sm-7">
                   <div className="tp-footer-widget footer-col-4-4 mb-50">
-                    <h4 className="tp-footer-widget-title">Subcribe.</h4>
+                    <h4 className="tp-footer-widget-title">Suscríbete.</h4>
                     <div className="tp-footer-widget-content">
                       <div className="tp-footer-subscribe">
-                        <p>Our conversation is just getting started</p>
+                        <p>Mantente informado de nuestras novedades</p>
                         <div className="tp-footer-subscribe-form mb-30">
                           <form action="#">
                             <div className="tp-footer-subscribe-input">
-                              <input type="email" placeholder="Enter Your Email" />
-                              <button type="submit">Subscribe</button>
+                              <input type="email" placeholder="Ingresa tu correo" />
+                              <button type="submit">Suscribirse</button>
                             </div>
                           </form>
                         </div>
                         <div className="tp-footer-social-4 tp-footer-social">
-                          <h4 className="tp-footer-social-title-4">Follow Us On</h4>
+                          <h4 className="tp-footer-social-title-4">Síguenos en</h4>
                           {social_data.map(s => <a href={s.link} key={s.id} target="_blank">
                             <i className={s.icon}></i>
                           </a>
@@ -116,9 +116,7 @@ const FooterTwo = () => {
                 <div className="row align-items-center">
                   <div className="col-md-6">
                     <div className="tp-footer-copyright">
-                      <p>© {new Date().getFullYear()} All Rights Reserved  |  Next js Template by
-                        <Link href="/">❤</Link>.
-                      </p>
+                      <p>© {new Date().getFullYear()} Todos los derechos reservados | <Link href="/">Joyerialis</Link>.</p>
                     </div>
                   </div>
                   <div className="col-md-6">

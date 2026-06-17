@@ -16,28 +16,27 @@ import JewelryCollectionBanner from '@/components/shop-banner/jewelry-collection
 import FooterTwo from '@/layout/footers/footer-2';
 
 export default function Home() {
-return ( <Wrapper> <SEO pageTitle="Joyerialis" />
+  return (
+    <Wrapper>
+      <SEO pageTitle="Joyerialis" />
 
-```
-  <HeaderFour />
+      <HeaderFour />
 
-  <JewelryBanner />
+      <JewelryBanner />
 
-  <FeatureAreaThree />
+      <FeatureAreaThree />
 
-  <InstagramAreaFour />
+      <InstagramAreaFour />
 
-  <PopularProducts />
+      <PopularProducts />
 
-  <ProductArea />
+      <ProductArea />
 
-  <JewelryMiddleBanner />
+      <JewelryMiddleBanner />
 
-  <JewelryCollectionBanner />
+      <JewelryCollectionBanner />
 
-  <FooterTwo />
-</Wrapper>
-```
-
-);
+      <FooterTwo />
+    </Wrapper>
+  );
 }

@@ -24,11 +24,18 @@ const HeaderFour = () => {
   return (
     <>
       <header>
-        <div id="header-sticky" className={`tp-header-area tp-header-style-transparent-white tp-header-sticky tp-header-transparent has-dark-logo tp-header-height ${sticky ? 'header-sticky' : ''}`}>
-          <div className="tp-header-bottom-3 pl-85 pr-85">
+        <div id="header-sticky" className={`tp-header-area tp-header-style-transparent-white tp-header-sticky tp-header-transparent has-dark-logo tp-header-height tp-header-luxury ${sticky ? 'header-sticky' : ''}`}>
+          <div className="tp-header-bottom-3 pl-40 pr-40">
             <div className="container-fluid">
               <div className="row align-items-center">
-                <div className="col-xl-2 col-lg-2 col-6">
+                <div className="col-xl-4 col-lg-4 d-none d-lg-flex align-items-center">
+                  <div className="main-menu menu-style-3 menu-style-4 p-relative">
+                    <nav className="tp-main-menu-content">
+                      <Menus />
+                    </nav>
+                  </div>
+                </div>
+                <div className="col-xl-4 col-lg-4 col-6 text-center">
                   <div className="logo">
                     <Link href="/">
                       <Image className="logo-light" src={logo_white} alt="logo" />
@@ -36,16 +43,8 @@ const HeaderFour = () => {
                     </Link>
                   </div>
                 </div>
-                <div className="col-xl-8 col-lg-8 d-none d-lg-block">
-                  <div className="main-menu menu-style-3 menu-style-4 p-relative">
-                    <nav className="tp-main-menu-content">
-                      <Menus />
-                    </nav>
-                  </div>
-                </div>
-                <div className="col-xl-2 col-lg-2 col-6">
-                  <div className="tp-header-action d-flex align-items-center justify-content-end ml-50">
-
+                <div className="col-xl-4 col-lg-4 col-6">
+                  <div className="tp-header-action d-flex align-items-center justify-content-end gap-3">
                     <div className="tp-header-action-item d-none d-sm-block">
                       <button onClick={() => setIsSearchOpen(true)} type="button" className="tp-header-action-btn tp-search-open-btn">
                         <Search />
@@ -54,13 +53,13 @@ const HeaderFour = () => {
                     <div className="tp-header-action-item d-none d-sm-block">
                       <Link href="/wishlist" className="tp-header-action-btn">
                         <Wishlist />
-                        <span className="tp-header-action-badge">{wishlist.length}</span>
+                        {wishlist.length > 0 && <span className="tp-header-action-badge">{wishlist.length}</span>}
                       </Link>
                     </div>
                     <div className="tp-header-action-item d-none d-sm-block">
                       <button onClick={() => dispatch(openCartMini())} type="button" className="tp-header-action-btn cartmini-open-btn">
                         <CartTwo />
-                        <span className="tp-header-action-badge">{quantity}</span>
+                        {quantity > 0 && <span className="tp-header-action-badge">{quantity}</span>}
                       </button>
                     </div>
                     <div className="tp-header-action-item d-lg-none">

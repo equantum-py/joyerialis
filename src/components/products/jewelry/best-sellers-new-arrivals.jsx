@@ -17,7 +17,7 @@ const CompactCard = ({ product, badgeLabel, badgeBg }) => {
           <img
             src={img}
             alt={title}
-            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', transform: 'scale(1.35)' }}
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain', transform: 'scale(1)' }}
           />
           {badgeLabel && (
             <span style={{
@@ -37,7 +37,13 @@ const CompactCard = ({ product, badgeLabel, badgeBg }) => {
             </span>
           )}
         </div>
-        <div style={{ padding: '12px 8px 8px', textAlign: 'center' }}>
+        <div
+  style={{
+    padding: '12px 8px 8px',
+    textAlign: 'center',
+    minHeight: '90px'
+  }}
+>
           <p style={{
             fontFamily: "'Jost', sans-serif",
             fontSize: '13px',
@@ -45,7 +51,7 @@ const CompactCard = ({ product, badgeLabel, badgeBg }) => {
             marginBottom: '4px',
             lineHeight: 1.3,
             overflow: 'hidden',
-            whiteSpace: 'nowrap',
+            whiteSpace: 'normal',
             textOverflow: 'ellipsis',
           }}>
             {title}
@@ -146,10 +152,10 @@ const BestSellersNewArrivals = () => {
   return (
     <section style={{ backgroundColor: '#F5F5F5', padding: '60px 0' }}>
       <div className="container">
-        <div className="row gx-5">
+        <div>
 
           {/* LOS MÁS VENDIDOS */}
-          <div className="col-xl-6 col-lg-6 mb-5 mb-lg-0">
+          <div style={{ marginBottom: '80px' }}>
             <SectionHeader title="Los Más Vendidos" href="/shop" />
             <TabBar tabs={BEST_TABS} active={bestTab} onSelect={setBestTab} />
             {be ? (
@@ -168,7 +174,7 @@ const BestSellersNewArrivals = () => {
           </div>
 
           {/* NUEVAS LLEGADAS */}
-          <div className="col-xl-6 col-lg-6">
+          <div>
             <SectionHeader title="Nuevas Llegadas" href="/shop" />
             <TabBar tabs={NEW_TABS} active={newTab} onSelect={setNewTab} />
             {ne ? (
@@ -178,7 +184,7 @@ const BestSellersNewArrivals = () => {
             ) : newItems.length === 0 ? (
               <ErrorMsg msg="No hay productos" />
             ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '12px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px', marginBottom: '12px' }}>
                 {newItems.map(p => (
                   <CompactCard key={p._id} product={p} badgeLabel="Nuevo" badgeBg="#B8956A" />
                 ))}

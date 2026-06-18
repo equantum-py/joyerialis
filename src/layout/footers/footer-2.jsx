@@ -57,12 +57,12 @@ const FooterTwo = () => {
                     <h4 className="tp-footer-widget-title">Mi cuenta</h4>
                     <div className="tp-footer-widget-content">
                       <ul>
-                        <li><a href="#">Rastrear pedidos</a></li>
-                        <li><a href="#">Envíos</a></li>
-                        <li><a href="#">Lista de deseos</a></li>
-                        <li><a href="#">Mi cuenta</a></li>
-                        <li><a href="#">Historial de pedidos</a></li>
-                        <li><a href="#">Devoluciones</a></li>
+                        <li><Link href="/profile">Rastrear pedidos</Link></li>
+                        <li><Link href="/contact">Envíos</Link></li>
+                        <li><Link href="/wishlist">Lista de deseos</Link></li>
+                        <li><Link href="/profile">Mi cuenta</Link></li>
+                        <li><Link href="/profile">Historial de pedidos</Link></li>
+                        <li><Link href="/contact">Devoluciones</Link></li>
                       </ul>
                     </div>
                   </div>
@@ -72,12 +72,12 @@ const FooterTwo = () => {
                     <h4 className="tp-footer-widget-title">Información</h4>
                     <div className="tp-footer-widget-content">
                       <ul>
-                        <li><a href="#">Nuestra historia</a></li>
-                        <li><a href="#">Empleos</a></li>
-                        <li><a href="#">Política de privacidad</a></li>
-                        <li><a href="#">Términos y condiciones</a></li>
-                        <li><a href="#">Últimas noticias</a></li>
-                        <li><a href="#">Contáctanos</a></li>
+                        <li><Link href="/blog">Nuestra historia</Link></li>
+                        <li><Link href="/contact">Empleos</Link></li>
+                        <li><Link href="/contact">Política de privacidad</Link></li>
+                        <li><Link href="/contact">Términos y condiciones</Link></li>
+                        <li><Link href="/blog">Últimas noticias</Link></li>
+                        <li><Link href="/contact">Contáctanos</Link></li>
                       </ul>
                     </div>
                   </div>

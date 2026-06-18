@@ -26,10 +26,10 @@ const CompactCard = ({ product, badgeLabel, badgeBg }) => {
               left: 7,
               background: badgeBg || '#C4956A',
               color: '#fff',
-              fontSize: '9px',
+              fontSize: '10px',
               fontWeight: 700,
               letterSpacing: '0.07em',
-              padding: '3px 7px',
+              padding: '4px 8px',
               textTransform: 'uppercase',
               lineHeight: 1.3,
             }}>
@@ -37,12 +37,12 @@ const CompactCard = ({ product, badgeLabel, badgeBg }) => {
             </span>
           )}
         </div>
-        <div style={{ padding: '8px 2px 4px', textAlign: 'center' }}>
+        <div style={{ padding: '12px 8px 8px', textAlign: 'center' }}>
           <p style={{
             fontFamily: "'Jost', sans-serif",
-            fontSize: '11px',
+            fontSize: '13px',
             color: '#444',
-            marginBottom: '3px',
+            marginBottom: '4px',
             lineHeight: 1.3,
             overflow: 'hidden',
             whiteSpace: 'nowrap',
@@ -52,7 +52,7 @@ const CompactCard = ({ product, badgeLabel, badgeBg }) => {
           </p>
           <span style={{
             fontFamily: "'Jost', sans-serif",
-            fontSize: '12px',
+            fontSize: '14px',
             fontWeight: 600,
             color: '#1A1A1A',
           }}>
@@ -140,8 +140,8 @@ const BestSellersNewArrivals = () => {
   const { data: newArrivals, isLoading: nl, isError: ne } =
     useGetProductTypeQuery({ type: 'jewelry', query: 'new=true' });
 
-  const bestItems = (bestSellers?.data || []).slice(0, 5);
-  const newItems = (newArrivals?.data || []).slice(0, 5);
+  const bestItems = (bestSellers?.data || []).slice(0, 4);
+  const newItems = (newArrivals?.data || []).slice(0, 4);
 
   return (
     <section style={{ backgroundColor: '#F5F5F5', padding: '60px 0' }}>
@@ -159,7 +159,7 @@ const BestSellersNewArrivals = () => {
             ) : bestItems.length === 0 ? (
               <ErrorMsg msg="No hay productos" />
             ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
                 {bestItems.map(p => (
                   <CompactCard key={p._id} product={p} badgeLabel="Más Vendido" badgeBg="#9E6845" />
                 ))}
@@ -178,7 +178,7 @@ const BestSellersNewArrivals = () => {
             ) : newItems.length === 0 ? (
               <ErrorMsg msg="No hay productos" />
             ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
                 {newItems.map(p => (
                   <CompactCard key={p._id} product={p} badgeLabel="Nuevo" badgeBg="#B8956A" />
                 ))}

@@ -47,6 +47,18 @@ const iconBase = {
   transition: 'color 0.25s ease',
 };
 
+const wordmarkStyle = {
+  fontFamily: "'Cormorant Garamond', Garamond, Georgia, serif",
+  fontSize: '21px',
+  fontWeight: '300',
+  letterSpacing: '0.44em',
+  color: COPPER,
+  textDecoration: 'none',
+  display: 'inline-block',
+  lineHeight: 1,
+  paddingRight: '0.44em',
+};
+
 const HeaderFour = () => {
   const [isSearchOpen, setIsSearchOpen]   = useState(false);
   const [isOffCanvasOpen, setIsCanvasOpen] = useState(false);
@@ -113,6 +125,11 @@ const HeaderFour = () => {
           #header-sticky .jy-icon:hover {
             color: ${COPPER} !important;
           }
+
+          /* Single-row nav: prevent wrapping */
+          #header-sticky .main-menu.menu-style-1 > nav > ul {
+            white-space: nowrap;
+          }
         `}</style>
       </Head>
 
@@ -130,10 +147,10 @@ const HeaderFour = () => {
           {/* Inner wrapper — controls horizontal rhythm */}
           <div style={{ padding: '0 48px' }}>
             <div className="container-fluid">
-              <div className="row align-items-center" style={{ minHeight: '68px' }}>
+              <div className="row align-items-center" style={{ minHeight: '68px', position: 'relative' }}>
 
-                {/* ── LEFT  Navigation ─────────────────────────────────── */}
-                <div className="col-xl-4 col-lg-4 d-none d-lg-flex align-items-center">
+                {/* ── LEFT  Navigation (xl+) ───────────────────────────── */}
+                <div className="col-xl-6 d-none d-xl-flex align-items-center">
                   <div className="main-menu menu-style-1 p-relative">
                     <nav className="tp-main-menu-content">
                       <Menus />
@@ -141,29 +158,29 @@ const HeaderFour = () => {
                   </div>
                 </div>
 
-                {/* ── CENTER  Wordmark ──────────────────────────────────── */}
-                <div className="col-xl-4 col-lg-4 col-6 text-center">
-                  <Link
-                    href="/"
-                    style={{
-                      fontFamily: "'Cormorant Garamond', Garamond, Georgia, serif",
-                      fontSize: '21px',
-                      fontWeight: '300',
-                      letterSpacing: '0.44em',
-                      color: COPPER,
-                      textDecoration: 'none',
-                      display: 'inline-block',
-                      lineHeight: 1,
-                      // compensate trailing space created by letter-spacing
-                      paddingRight: '0.44em',
-                    }}
-                  >
+                {/* ── CENTER  Wordmark — mobile: en grid (col-6) ───────── */}
+                <div className="d-xl-none col-6 text-center">
+                  <Link href="/" style={wordmarkStyle}>JOYERIALIS</Link>
+                </div>
+
+                {/* ── CENTER  Wordmark — desktop: centrado absoluto ─────── */}
+                <div
+                  className="d-none d-xl-block text-center"
+                  style={{
+                    position: 'absolute',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    zIndex: 5,
+                    pointerEvents: 'none',
+                  }}
+                >
+                  <Link href="/" style={{ ...wordmarkStyle, pointerEvents: 'auto' }}>
                     JOYERIALIS
                   </Link>
                 </div>
 
                 {/* ── RIGHT  Search / Wishlist / Cart ──────────────────── */}
-                <div className="col-xl-4 col-lg-4 col-6">
+                <div className="col-6 col-xl-6">
                   <div
                     className="d-flex align-items-center justify-content-end"
                     style={{ gap: '24px' }}
@@ -213,8 +230,8 @@ const HeaderFour = () => {
                       </button>
                     </div>
 
-                    {/* Mobile — hamburger only */}
-                    <div className="d-lg-none">
+                    {/* Hamburger — debajo de xl (sin nav horizontal) */}
+                    <div className="d-xl-none">
                       <button
                         onClick={() => setIsCanvasOpen(true)}
                         type="button"

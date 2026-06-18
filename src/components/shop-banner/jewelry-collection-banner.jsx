@@ -19,15 +19,15 @@ const JewelryCollectionBanner = () => {
                   <div className="tp-collection-thumb-4 include-bg black-bg" 
                     style={{backgroundImage:`url(${thumb_bg.src})`}}>
                   </div>
-                  <span className="tp-collection-thumb-info-4">WITH NEW LOOK & NEW COLLECTION</span>
+                  <span className="tp-collection-thumb-info-4">NUEVA IMAGEN & NUEVA COLECCIÓN</span>
 
                   <div className="tp-collection-hotspot-item tp-collection-hotspot-1">
                     <span className="tp-hotspot tp-pulse-border ">
                       <PlusTwo />
                     </span>
                     <div className="tp-collection-hotspot-content">
-                      <h3 className="tp-collection-hotspot-title">Skincare Product</h3>
-                      <p>Lorem ipsum dolor sit amet consectetur.</p>
+                      <h3 className="tp-collection-hotspot-title">Joya Destacada</h3>
+                      <p>Diseño artesanal de alta calidad.</p>
                     </div>
                   </div>
 
@@ -36,8 +36,8 @@ const JewelryCollectionBanner = () => {
                       <PlusTwo />
                     </span>
                     <div className="tp-collection-hotspot-content on-top">
-                      <h3 className="tp-collection-hotspot-title">Skincare Product</h3>
-                      <p>Lorem ipsum dolor sit amet consectetur.</p>
+                      <h3 className="tp-collection-hotspot-title">Pieza Exclusiva</h3>
+                      <p>Colección de edición limitada.</p>
                     </div>
                   </div>
 
@@ -52,19 +52,19 @@ const JewelryCollectionBanner = () => {
                   <div className="row justify-content-center">
                     <div className="col-xl-6 col-lg-8">
                       <div className="tp-collection-item-4 text-center">
-                        <span className="tp-collection-subtitle-4">BUILD YOUR OWN SETS</span>
+                        <span className="tp-collection-subtitle-4">CREA TU PROPIO CONJUNTO</span>
                         <div className="tp-collection-thumb-banner-4 m-img">
                           <Link href="/shop">
-                            <Image src={collection_sm} alt="collection_sm img" />
+                            <Image src={collection_sm} alt="imagen de colección" />
                           </Link>
                         </div>
                         <div className="tp-collection-content-4">
                           <h3 className="tp-collection-title-4">
-                            <Link href="/shop">Our finest jewelry</Link>
+                            <Link href="/shop">Nuestra Joyería Exclusiva</Link>
                           </h3>
                           <div className="tp-collection-btn-4">
                             <Link href="/shop" className="tp-link-btn-line-2">
-                              Shop this collection {" "} <ArrowRightSm />
+                              Explorar esta colección {" "} <ArrowRightSm />
                             </Link>
                           </div>
                         </div>

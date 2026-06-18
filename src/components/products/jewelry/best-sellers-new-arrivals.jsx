@@ -180,7 +180,7 @@ const BestSellersNewArrivals = () => {
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px' }}>
                 {newItems.map(p => (
-                  <CompactCard key={p._id} product={p} badgeLabel="New" badgeBg="#B8956A" />
+                  <CompactCard key={p._id} product={p} badgeLabel="Nuevo" badgeBg="#B8956A" />
                 ))}
               </div>
             )}

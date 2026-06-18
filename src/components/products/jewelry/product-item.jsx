@@ -31,10 +31,10 @@ const ProductItem = ({ product }) => {
     <div className="tp-product-item-4 p-relative mb-40">
       <div className="tp-product-thumb-4 p-relative fix">
         <Link href={`/product-details/${_id}`}>
-          <Image src={img} alt="product img" width={284} height={352} />
+          <Image src={img} alt="imagen del producto" width={284} height={352} />
         </Link>
         <div className="tp-product-badge">
-          {status === 'out-of-stock' && <span className="product-hot">out-stock</span>}
+          {status === 'out-of-stock' && <span className="product-hot">Agotado</span>}
         </div>
         <div className="tp-product-action-3 tp-product-action-4 has-shadow tp-product-action-blackStyle tp-product-action-brownStyle">
           <div className="tp-product-action-item-3 d-flex flex-column">
@@ -44,7 +44,7 @@ const ProductItem = ({ product }) => {
                 className={`tp-product-action-btn-3 ${isAddedToCart ? 'active' : ''} tp-product-add-cart-btn text-center`}
               >
                 <Cart />
-                <span className="tp-product-tooltip">View Cart</span>
+                <span className="tp-product-tooltip">Ver Carrito</span>
               </Link>
             ) : (
               <button
@@ -54,7 +54,7 @@ const ProductItem = ({ product }) => {
                 disabled={status === 'out-of-stock'}
               >
                 <Cart />
-                <span className="tp-product-tooltip">Add to Cart</span>
+                <span className="tp-product-tooltip">Agregar al Carrito</span>
               </button>
             )}
             <button
@@ -63,7 +63,7 @@ const ProductItem = ({ product }) => {
               onClick={() => dispatch(handleProductModal(product))}
             >
               <QuickView />
-              <span className="tp-product-tooltip">Quick View</span>
+              <span className="tp-product-tooltip">Vista Rápida</span>
             </button>
             <button
               type="button"
@@ -72,7 +72,7 @@ const ProductItem = ({ product }) => {
               disabled={status === 'out-of-stock'}
             >
               <Wishlist />
-              <span className="tp-product-tooltip">Add To Wishlist</span>
+              <span className="tp-product-tooltip">Agregar a Favoritos</span>
             </button>
           </div>
         </div>
@@ -91,9 +91,9 @@ const ProductItem = ({ product }) => {
           </div>
           <div className="tp-product-price-add-to-cart">
             {isAddedToCart ? <Link href="/cart" className="tp-product-add-to-cart-4">
-              <AddCart /> View Cart
+              <AddCart /> Ver Carrito
             </Link> : <button disabled={status === 'out-of-stock'} onClick={()=> handleAddProduct(product)} className="tp-product-add-to-cart-4">
-              <AddCart /> Add to Cart
+              <AddCart /> Agregar al Carrito
             </button>}
           </div>
         </div>

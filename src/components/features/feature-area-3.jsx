@@ -38,10 +38,10 @@ const SupportIcon = () => (
 );
 
 const trust_items = [
-  { icon: <TruckIcon />, title: 'Free Delivery', subtitle: 'Orders from all item' },
-  { icon: <RefundIcon />, title: 'Return & Refund', subtitle: 'Money back guarantee' },
-  { icon: <DiscountIcon />, title: 'Member Discount', subtitle: 'Overseas order over $140.00' },
-  { icon: <SupportIcon />, title: 'Support 24/7', subtitle: 'Contact us 24 hours a day' },
+  { icon: <TruckIcon />, title: 'Envío Gratuito', subtitle: 'En todos tus pedidos' },
+  { icon: <RefundIcon />, title: 'Devoluciones', subtitle: 'Garantía de reembolso' },
+  { icon: <DiscountIcon />, title: 'Descuento Exclusivo', subtitle: 'Pedidos desde $140.00' },
+  { icon: <SupportIcon />, title: 'Soporte 24/7', subtitle: 'Atención las 24 horas' },
 ];
 
 const FeatureAreaThree = () => (

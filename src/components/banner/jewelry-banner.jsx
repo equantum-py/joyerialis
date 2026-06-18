@@ -98,10 +98,10 @@ const JewelryBanner = () => (
           <div className="row">
             <div className="col-xl-5 col-lg-6 col-md-7">
               <h1 className="jy-hero-h1">
-                Crafted for<br />her moment
+                Creada para<br />tu momento
               </h1>
               <Link href="/shop" className="jy-discover-btn">
-                Discover Now
+                Explorar Colección
               </Link>
             </div>
           </div>

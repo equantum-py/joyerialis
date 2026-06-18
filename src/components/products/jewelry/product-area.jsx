@@ -82,11 +82,11 @@ const ProductArea = () => {
           <div className="col-xl-6 col-lg-6">
             <div className="tp-section-title-wrapper-4 mb-40 text-center text-lg-start">
               <span className="tp-section-title-pre-4">
-                Product Collection
+                Nuestra Colección
               </span>
 
               <h3 className="tp-section-title-4">
-                Discover our Products
+                Descubre Nuestras Joyas
               </h3>
             </div>
           </div>

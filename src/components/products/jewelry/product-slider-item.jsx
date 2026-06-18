@@ -20,7 +20,7 @@ const ProductSliderItem = ({ product }) => {
   // handle add product
   const handleAddProduct = (prd) => {
     if (prd.status === 'out-of-stock') {
-      notifyError(`This product out-of-stock`)
+      notifyError(`Este producto está agotado`)
     }
     else {
       dispatch(add_cart_product(prd));
@@ -48,7 +48,7 @@ const ProductSliderItem = ({ product }) => {
               className={`tp-product-action-btn-3 ${isAddedToCart ? 'active' : ''} tp-product-add-cart-btn`}
             >
               <Cart />
-              <span className="tp-product-tooltip">View Cart</span>
+              <span className="tp-product-tooltip">Ver Carrito</span>
             </Link>
           ) : (
             <button
@@ -57,7 +57,7 @@ const ProductSliderItem = ({ product }) => {
               className={`tp-product-action-btn-3 ${isAddedToCart ? 'active' : ''} tp-product-add-cart-btn`}
             >
               <Cart />
-              <span className="tp-product-tooltip">Add to Cart</span>
+              <span className="tp-product-tooltip">Agregar al Carrito</span>
             </button>
           )}
           <button
@@ -66,7 +66,7 @@ const ProductSliderItem = ({ product }) => {
             onClick={() => dispatch(handleProductModal(product))}
           >
             <QuickView />
-            <span className="tp-product-tooltip">Quick View</span>
+            <span className="tp-product-tooltip">Vista Rápida</span>
           </button>
           <button
             type="button"
@@ -74,7 +74,7 @@ const ProductSliderItem = ({ product }) => {
             className={`tp-product-action-btn-3 ${isAddedToWishlist ? 'active' : ''} tp-product-add-to-wishlist-btn`}
           >
             <Wishlist />
-            <span className="tp-product-tooltip">Add To Wishlist</span>
+            <span className="tp-product-tooltip">Agregar a Favoritos</span>
           </button>
         </div>
       </div>
@@ -87,11 +87,11 @@ const ProductSliderItem = ({ product }) => {
           <div className="tp-category-add-to-cart">
             {isAddedToCart ? (
               <Link href="/cart" className="tp-category-add-to-cart-4">
-                <AddCart />{" "}View Cart
+                <AddCart />{" "}Ver Carrito
               </Link>
             ) : (
               <button onClick={() => handleAddProduct(product)} className="tp-category-add-to-cart-4">
-                <AddCart />{" "}Add to Cart
+                <AddCart />{" "}Agregar al Carrito
               </button>
             )}
           </div>

@@ -83,7 +83,7 @@ const ReviewForm = ({product_id}) => {
               name="name"
               id="name"
               type="text"
-              placeholder="Shahnewaz Sakil"
+              placeholder="Nombre Apellido"
             />
           </div>
           <div className="tp-product-details-review-input-title">
@@ -98,7 +98,7 @@ const ReviewForm = ({product_id}) => {
               name="email"
               id="email"
               type="email"
-              placeholder="shofy@mail.com"
+              placeholder="correo@joyerialis.com"
             />
           </div>
           <div className="tp-product-details-review-input-title">

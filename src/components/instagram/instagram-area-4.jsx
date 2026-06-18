@@ -46,14 +46,23 @@ const InstagramAreaFour = () => {
       </div>
 
       {/* Mobile: Swiper horizontal — 2 categorías visibles, scroll táctil */}
-      <div className="d-block d-md-none" style={{ paddingLeft: '16px', paddingRight: '4px', overflow: 'hidden' }}>
+      <div
+  className="d-block d-md-none"
+  style={{
+    paddingLeft: '12px',
+    paddingRight: '12px',
+    width: '100%',
+    overflowX: 'hidden'
+  }}
+>
         <Swiper
-          modules={[FreeMode]}
-          slidesPerView={2.15}
-          spaceBetween={10}
-          freeMode={true}
-          grabCursor={true}
-        >
+  modules={[FreeMode]}
+  slidesPerView={2}
+  spaceBetween={8}
+  freeMode={true}
+  grabCursor={true}
+  style={{ overflow: 'hidden' }}
+>
           {category_data.map(item => (
             <SwiperSlide key={item.id}>
               <CategoryCard item={item} />

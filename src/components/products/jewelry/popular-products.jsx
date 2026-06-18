@@ -9,8 +9,8 @@ import { HomeTwoPopularPrdLoader } from '@/components/loader';
 
 // slider setting
 const slider_setting = {
-  slidesPerView: 5,
-  spaceBetween: 24,
+  slidesPerView: 2,
+  spaceBetween: 10,
   pagination: {
     el: ".tp-category-slider-dot-4",
     clickable: true,
@@ -85,10 +85,10 @@ const PopularProducts = () => {
 
   return (
     <section
-      className="tp-category-area pt-115 pb-105 tp-category-plr-85"
+      className="tp-category-area pt-80 pb-80"
       style={{ backgroundColor: '#FFFFFF' }}
     >
-      <div className="container-fluid">
+      <div className="container">
         <div className="row">
           <div className="col-xl-12">
             <div className="tp-section-title-wrapper-4 mb-60 text-center">

@@ -127,29 +127,9 @@ const HeaderFour = () => {
           }
 
           /* Single-row nav: prevent wrapping */
-#header-sticky .main-menu.menu-style-1 > nav > ul {
-  white-space: nowrap;
-}
-
-/* Responsive Header */
-.jy-header-wrapper {
-  padding: 0 48px;
-}
-
-@media (max-width: 767px) {
-  .jy-header-wrapper {
-    padding: 0 12px;
-  }
-
-  body,
-  html {
-    overflow-x: hidden;
-  }
-
-  #header-sticky {
-    overflow-x: hidden;
-  }
-}
+          #header-sticky .main-menu.menu-style-1 > nav > ul {
+            white-space: nowrap;
+          }
         `}</style>
       </Head>
 
@@ -165,7 +145,7 @@ const HeaderFour = () => {
           }}
         >
           {/* Inner wrapper — controls horizontal rhythm */}
-          <div className="jy-header-wrapper">
+          <div style={{ padding: '0 48px' }}>
             <div className="container-fluid">
               <div className="row align-items-center" style={{ minHeight: '68px', position: 'relative' }}>
 

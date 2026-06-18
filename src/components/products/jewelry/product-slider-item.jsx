@@ -35,10 +35,12 @@ const ProductSliderItem = ({ product }) => {
       <div
         className="tp-category-thumb-4 include-bg"
         style={{
-          backgroundImage: `url(${img})`,
-          backgroundColor: "#FFFFFF",
-          backgroundPosition: "0px -80px",
-        }}
+  backgroundImage: `url(${img})`,
+  backgroundColor: "#FFFFFF",
+  backgroundPosition: "center",
+  backgroundSize: "contain",
+  backgroundRepeat: "no-repeat",
+}}
       ></div>
       <div className="tp-product-action-3 tp-product-action-4 tp-product-action-blackStyle tp-product-action-brownStyle">
         <div className="tp-product-action-item-3 d-flex flex-column">

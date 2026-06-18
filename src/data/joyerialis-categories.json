@@ -1,0 +1,99 @@
+{
+  "result": [
+    {
+      "_id": "cat-01",
+      "parent": "Rings",
+      "productType": "jewelry",
+      "img": "/assets/img/category/category-1.jpg",
+      "children": [],
+      "products": [
+        { "_id": "joy-001" },
+        { "_id": "joy-002" },
+        { "_id": "joy-003" },
+        { "_id": "joy-004" },
+        { "_id": "joy-005" },
+        { "_id": "joy-006" },
+        { "_id": "joy-007" },
+        { "_id": "joy-008" },
+        { "_id": "joy-009" },
+        { "_id": "joy-010" }
+      ]
+    },
+    {
+      "_id": "cat-02",
+      "parent": "Earrings",
+      "productType": "jewelry",
+      "img": "/assets/img/category/category-2.jpg",
+      "children": [],
+      "products": [
+        { "_id": "joy-011" },
+        { "_id": "joy-012" },
+        { "_id": "joy-013" },
+        { "_id": "joy-014" },
+        { "_id": "joy-015" },
+        { "_id": "joy-016" },
+        { "_id": "joy-017" },
+        { "_id": "joy-018" },
+        { "_id": "joy-019" },
+        { "_id": "joy-020" }
+      ]
+    },
+    {
+      "_id": "cat-03",
+      "parent": "Bracelets",
+      "productType": "jewelry",
+      "img": "/assets/img/category/category-3.jpg",
+      "children": [],
+      "products": [
+        { "_id": "joy-021" },
+        { "_id": "joy-022" },
+        { "_id": "joy-023" },
+        { "_id": "joy-024" },
+        { "_id": "joy-025" },
+        { "_id": "joy-026" },
+        { "_id": "joy-027" },
+        { "_id": "joy-028" },
+        { "_id": "joy-029" },
+        { "_id": "joy-030" }
+      ]
+    },
+    {
+      "_id": "cat-04",
+      "parent": "Necklaces",
+      "productType": "jewelry",
+      "img": "/assets/img/category/category-4.jpg",
+      "children": [],
+      "products": [
+        { "_id": "joy-031" },
+        { "_id": "joy-032" },
+        { "_id": "joy-033" },
+        { "_id": "joy-034" },
+        { "_id": "joy-035" },
+        { "_id": "joy-036" },
+        { "_id": "joy-037" },
+        { "_id": "joy-038" },
+        { "_id": "joy-039" },
+        { "_id": "joy-040" }
+      ]
+    },
+    {
+      "_id": "cat-05",
+      "parent": "Medals",
+      "productType": "jewelry",
+      "img": "/assets/img/category/category-5.jpg",
+      "children": [],
+      "products": [
+        { "_id": "joy-041" },
+        { "_id": "joy-042" },
+        { "_id": "joy-043" },
+        { "_id": "joy-044" },
+        { "_id": "joy-045" },
+        { "_id": "joy-046" },
+        { "_id": "joy-047" },
+        { "_id": "joy-048" },
+        { "_id": "joy-049" },
+        { "_id": "joy-050" }
+      ]
+    }
+  ]
+}

@@ -1,26 +1,15 @@
-import { apiSlice } from "../api/apiSlice";
+import categoriesData from '@/data/joyerialis-categories.json';
 
-export const categoryApi = apiSlice.injectEndpoints({
-  overrideExisting:true,
-  endpoints: (builder) => ({
-    addCategory: builder.mutation({
-      query: (data) => ({
-        url: "https://shofy-backend.vercel.app/api/category/add",
-        method: "POST",
-        body: data,
-      }),
-    }),
-    getShowCategory: builder.query({
-      query: () => `https://shofy-backend.vercel.app/api/category/show`
-    }),
-    getProductTypeCategory: builder.query({
-      query: (type) => `https://shofy-backend.vercel.app/api/category/show/${type}`
-    }),
-  }),
-});
+const allCategories = categoriesData.result;
 
-export const {
- useAddCategoryMutation,
- useGetProductTypeCategoryQuery,
- useGetShowCategoryQuery,
-} = categoryApi;
+export function useGetShowCategoryQuery() {
+  return { data: { result: allCategories }, isLoading: false, isError: false };
+}
+
+export function useGetProductTypeCategoryQuery(type) {
+  return { data: { result: allCategories }, isLoading: false, isError: false };
+}
+
+export function useAddCategoryMutation() {
+  return [() => {}, { isLoading: false }];
+}

@@ -1,52 +1,50 @@
-import { apiSlice } from "../api/apiSlice";
+import productsData from '@/data/joyerialis-products.json';
 
-export const productApi = apiSlice.injectEndpoints({
-  overrideExisting: true,
-  endpoints: (builder) => ({
-    getAllProducts: builder.query({
-      query: () => `https://shofy-backend.vercel.app/api/product/all`,
-      providesTags:['Products']
-    }),
-    getProductType: builder.query({
-      query: ({ type, query }) => `https://shofy-backend.vercel.app/api/product/${type}?${query}`,
-      providesTags:['ProductType']
-    }),
-    getOfferProducts: builder.query({
-      query: (type) => `https://shofy-backend.vercel.app/api/product/offer?type=${type}`,
-      providesTags:['OfferProducts']
-    }),
-    getPopularProductByType: builder.query({
-      query: (type) => `https://shofy-backend.vercel.app/api/product/popular/${type}`,
-      providesTags:['PopularProducts']
-    }),
-    getTopRatedProducts: builder.query({
-      query: () => `https://shofy-backend.vercel.app/api/product/top-rated`,
-      providesTags:['TopRatedProducts']
-    }),
-    // get single product
-    getProduct: builder.query({
-      query: (id) => `https://shofy-backend.vercel.app/api/product/single-product/${id}`,
-      providesTags: (result, error, arg) => [{ type: "Product", id: arg }],
-      invalidatesTags: (result, error, arg) => [
-        { type: "RelatedProducts", id:arg },
-      ],
-    }),
-    // get related products
-    getRelatedProducts: builder.query({
-      query: (id) => `https://shofy-backend.vercel.app/api/product/related-product/${id}`,
-      providesTags: (result, error, arg) => [
-        { type: "RelatedProducts", id: arg },
-      ],
-    }),
-  }),
-});
+const allProducts = productsData.data;
 
-export const {
-  useGetAllProductsQuery,
-  useGetProductTypeQuery,
-  useGetOfferProductsQuery,
-  useGetPopularProductByTypeQuery,
-  useGetTopRatedProductsQuery,
-  useGetProductQuery,
-  useGetRelatedProductsQuery,
-} = productApi;
+function applyQueryFilter(products, queryString) {
+  if (!queryString) return products;
+  const params = new URLSearchParams(queryString);
+  let result = products;
+  if (params.get('new') === 'true')        result = result.filter(p => p.new === true);
+  if (params.get('topSeller') === 'true')  result = result.filter(p => p.topSeller === true);
+  if (params.get('featured') === 'true')   result = result.filter(p => p.featured === true);
+  return result;
+}
+
+export function useGetAllProductsQuery() {
+  return { data: { data: allProducts }, isLoading: false, isError: false };
+}
+
+export function useGetProductTypeQuery({ type, query } = {}) {
+  const filtered = applyQueryFilter(allProducts, query);
+  return { data: { data: filtered }, isLoading: false, isError: false };
+}
+
+export function useGetOfferProductsQuery(type) {
+  const filtered = allProducts.filter(p => p.discount > 0);
+  return { data: { data: filtered }, isLoading: false, isError: false };
+}
+
+export function useGetPopularProductByTypeQuery(type) {
+  const filtered = allProducts.filter(p => p.topSeller || p.new).slice(0, 10);
+  return { data: { data: filtered }, isLoading: false, isError: false };
+}
+
+export function useGetTopRatedProductsQuery() {
+  const sorted = [...allProducts].sort((a, b) => b.rating - a.rating);
+  return { data: { data: sorted }, isLoading: false, isError: false };
+}
+
+export function useGetProductQuery(id) {
+  const product = allProducts.find(p => p._id === id) ?? null;
+  return { data: product, isLoading: false, isError: product === null };
+}
+
+export function useGetRelatedProductsQuery(id) {
+  const source = allProducts.find(p => p._id === id);
+  const related = source
+    ? allProducts.filter(p => p.category.name === source.category.name && p._id !== id).slice(0, 4)
+    : [];
+  return { data: { data: related }, isLoading: false, isError: false };
+}

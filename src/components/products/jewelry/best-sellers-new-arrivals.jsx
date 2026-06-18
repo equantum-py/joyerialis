@@ -17,7 +17,7 @@ const CompactCard = ({ product, badgeLabel, badgeBg }) => {
           <img
             src={img}
             alt={title}
-            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', transform: 'scale(1.18)' }}
           />
           {badgeLabel && (
             <span style={{
@@ -159,7 +159,7 @@ const BestSellersNewArrivals = () => {
             ) : bestItems.length === 0 ? (
               <ErrorMsg msg="No hay productos" />
             ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '12px' }}>
                 {bestItems.map(p => (
                   <CompactCard key={p._id} product={p} badgeLabel="Más Vendido" badgeBg="#9E6845" />
                 ))}
@@ -178,7 +178,7 @@ const BestSellersNewArrivals = () => {
             ) : newItems.length === 0 ? (
               <ErrorMsg msg="No hay productos" />
             ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '12px' }}>
                 {newItems.map(p => (
                   <CompactCard key={p._id} product={p} badgeLabel="Nuevo" badgeBg="#B8956A" />
                 ))}

@@ -36,9 +36,11 @@ const slider_setting = {
     },
     '576': {
       slidesPerView: 2,
+      spaceBetween: 12,
     },
     '0': {
-      slidesPerView: 1,
+      slidesPerView: 2,
+      spaceBetween: 10,
     },
   }
 };

@@ -1,6 +1,8 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { FreeMode } from 'swiper';
 // internal
 import insta_1 from '@assets/img/instagram/4/instagram-1.jpg';
 import insta_2 from '@assets/img/instagram/4/instagram-2.jpg';
@@ -18,6 +20,17 @@ const category_data = [
   { id: 6, name: 'Medallas',  link: '/shop?category=medals',    img: insta_6 },
 ];
 
+const CategoryCard = ({ item }) => (
+  <Link href={item.link}>
+    <div className="tp-instagram-item-2 tp-category-card w-img">
+      <Image src={item.img} alt={item.name} style={{ width: '100%', height: '100%' }} />
+      <div className="tp-category-label">
+        <span>{item.name}</span>
+      </div>
+    </div>
+  </Link>
+);
+
 const InstagramAreaFour = () => {
   return (
     <section className="tp-instagram-area tp-instagram-style-4 pt-60 pb-10">
@@ -31,20 +44,34 @@ const InstagramAreaFour = () => {
           </div>
         </div>
       </div>
-      <div className="container-fluid pl-20 pr-20">
-        <div className="row row-cols-lg-6 row-cols-sm-2 row-cols-1 gx-2 gy-2 gy-lg-0">
-          {category_data.map((item) => (
-            <div className="col" key={item.id}>
-              <Link href={item.link}>
-                <div className="tp-instagram-item-2 tp-category-card w-img">
-                  <Image src={item.img} alt={item.name} style={{ width: '100%', height: '100%' }} />
-                  <div className="tp-category-label">
-                    <span>{item.name}</span>
-                  </div>
-                </div>
-              </Link>
-            </div>
+
+      {/* Mobile: Swiper horizontal — 2 categorías visibles, scroll táctil */}
+      <div className="d-block d-md-none" style={{ paddingLeft: '16px', paddingRight: '4px', overflow: 'hidden' }}>
+        <Swiper
+          modules={[FreeMode]}
+          slidesPerView={2.15}
+          spaceBetween={10}
+          freeMode={true}
+          grabCursor={true}
+        >
+          {category_data.map(item => (
+            <SwiperSlide key={item.id}>
+              <CategoryCard item={item} />
+            </SwiperSlide>
           ))}
+        </Swiper>
+      </div>
+
+      {/* Desktop / Tablet: Grid original sin modificar */}
+      <div className="d-none d-md-block">
+        <div className="container-fluid pl-20 pr-20">
+          <div className="row row-cols-lg-6 row-cols-sm-2 gx-2 gy-2 gy-lg-0">
+            {category_data.map(item => (
+              <div className="col" key={item.id}>
+                <CategoryCard item={item} />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>

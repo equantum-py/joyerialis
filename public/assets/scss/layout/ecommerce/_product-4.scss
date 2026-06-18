@@ -124,6 +124,108 @@
     }
 }
 
+/* ── Mobile overrides: product cards (< 768px) ── */
+@media (max-width: 767px) {
+  /* Product grid card (product-item.jsx) */
+  .#{$theme-prifix}-product-item-4 {
+    margin-bottom: 20px !important;
+  }
+  .#{$theme-prifix}-product-thumb-4 {
+    margin-bottom: 10px;
+  }
+  .#{$theme-prifix}-product-title-4 {
+    font-size: 13px;
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .#{$theme-prifix}-product-info-4 p {
+    font-size: 11px;
+    margin-bottom: 1px;
+  }
+  .#{$theme-prifix}-product-price-4 {
+    visibility: visible !important;
+    opacity: 1 !important;
+    font-size: 13px;
+  }
+  /* Ocultar action buttons hover (no aplican en touch) */
+  .#{$theme-prifix}-product-action-4 {
+    display: none !important;
+  }
+  /* Hacer el botón "Agregar al Carrito" siempre visible en mobile */
+  .#{$theme-prifix}-product-add-to-cart-4 {
+    position: static !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    transform: none !important;
+    display: block !important;
+    font-size: 11px !important;
+    font-weight: 500;
+    padding: 7px 4px !important;
+    background: transparent !important;
+    color: var(--tp-common-black) !important;
+    border-top: 1px solid #EBEBEB;
+    margin-top: 6px;
+    width: 100%;
+    text-align: center;
+    white-space: nowrap;
+    & svg {
+      width: 12px;
+      height: 12px;
+      margin-right: 3px;
+    }
+  }
+
+  /* Popular products Swiper card (product-slider-item.jsx) */
+  .#{$theme-prifix}-category-item-4 {
+    min-height: 230px !important;
+  }
+  .#{$theme-prifix}-category-title-4 {
+    font-size: 13px;
+    line-height: 1.3;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+  .#{$theme-prifix}-category-price-4 {
+    font-size: 13px;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+  .#{$theme-prifix}-category-add-to-cart-4 {
+    position: static !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    transform: none !important;
+    display: block !important;
+    font-size: 11px !important;
+    padding: 6px 4px !important;
+    background: transparent !important;
+    color: var(--tp-common-black) !important;
+    border-top: 1px solid #EBEBEB;
+    margin-top: 4px;
+    width: 100%;
+    text-align: center;
+    white-space: nowrap;
+    & svg {
+      width: 12px;
+      height: 12px;
+    }
+  }
+  .#{$theme-prifix}-category-content-4 {
+    position: absolute;
+    bottom: 20px;
+    left: 10px;
+    right: 10px;
+  }
+  .#{$theme-prifix}-product-action-3.tp-product-action-4 {
+    display: none !important;
+  }
+}
+
 .#{$theme-prifix}-best{
     $selfbe : &;
     &-slider{

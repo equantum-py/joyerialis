@@ -7,7 +7,7 @@ const menu_data = [
   {
     id: 1,
     homes: true,
-    title: 'Home',
+    title: 'Inicio',
     link: '/',
     home_pages: [
       {
@@ -35,46 +35,46 @@ const menu_data = [
   {
     id: 2,
     products: true,
-    title: 'Products',
+    title: 'Productos',
     link: '/shop',
     product_pages: [
       {
-        title: 'Shop Page',
+        title: 'Tienda',
         link: '/shop',
         mega_menus: [
-          { title: 'Only Categories', link: '/shop-category' },
-          { title: 'Shop Grid with Sideber', link: '/shop' },
-          { title: 'Product Details', link: '/product-details' },
+          { title: 'Categorías', link: '/shop-category' },
+          { title: 'Catálogo', link: '/shop' },
+          { title: 'Detalle del Producto', link: '/product-details' },
         ]
       },
       {
-        title: 'Products',
+        title: 'Productos',
         link: '/product-details',
         mega_menus: [
-          { title: 'Product Simple', link: '/product-details' },
-          { title: 'With Video', link: '/product-details-video' },
-          { title: 'With Countdown Timer', link: '/product-details-countdown' },
-          { title: 'Variations Swatches', link: '/product-details-swatches' },
+          { title: 'Producto', link: '/product-details' },
+          { title: 'Con Video', link: '/product-details-video' },
+          { title: 'Oferta Especial', link: '/product-details-countdown' },
+          { title: 'Variaciones', link: '/product-details-swatches' },
         ]
       },
       {
-        title: 'eCommerce',
+        title: 'Mi Compra',
         link: '/shop',
         mega_menus: [
-          { title: 'Shopping Cart', link: '/cart' },
-          { title: 'Compare', link: '/compare' },
-          { title: 'Wishlist', link: '/wishlist' },
-          { title: 'Checkout', link: '/checkout' },
-          { title: 'My account', link: '/profile' },
+          { title: 'Carrito', link: '/cart' },
+          { title: 'Comparar', link: '/compare' },
+          { title: 'Favoritos', link: '/wishlist' },
+          { title: 'Finalizar Compra', link: '/checkout' },
+          { title: 'Mi Cuenta', link: '/profile' },
         ]
       },
       {
-        title: 'More Pages',
+        title: 'Mi Cuenta',
         link: '/shop',
         mega_menus: [
-          { title: 'Login', link: '/login' },
-          { title: 'Register', link: '/register' },
-          { title: 'Forgot Password', link: '/forgot' },
+          { title: 'Iniciar Sesión', link: '/login' },
+          { title: 'Registrarse', link: '/register' },
+          { title: 'Recuperar Contraseña', link: '/forgot' },
           { title: '404 Error', link: '/404' },
         ]
       },
@@ -83,18 +83,18 @@ const menu_data = [
   {
     id: 3,
     sub_menu: true,
-    title: 'Shop',
+    title: 'Tienda',
     link: '/shop',
     sub_menus: [
-      { title: 'Shop', link: '/shop' },
-      { title: 'Right Sidebar', link: '/shop-right-sidebar' },
-      { title: 'Hidden Sidebar', link: '/shop-hidden-sidebar' },
+      { title: 'Tienda', link: '/shop' },
+      { title: 'Barra Lateral Derecha', link: '/shop-right-sidebar' },
+      { title: 'Barra Lateral Oculta', link: '/shop-hidden-sidebar' },
     ],
   },
   {
     id: 4,
     single_link: true,
-    title: 'Coupons',
+    title: 'Promociones',
     link: '/coupon',
   },
   {
@@ -113,7 +113,7 @@ const menu_data = [
   {
     id: 6,
     single_link: true,
-    title: 'Contact',
+    title: 'Contacto',
     link: '/contact',
   },
 ]
@@ -125,7 +125,7 @@ export const mobile_menu = [
   {
     id: 1,
     homes: true,
-    title: 'Home',
+    title: 'Inicio',
     link: '/',
     home_pages: [
       {
@@ -153,48 +153,48 @@ export const mobile_menu = [
   {
     id: 2,
     sub_menu: true,
-    title: 'Products',
+    title: 'Productos',
     link: '/shop',
     sub_menus: [
-      { title: 'Shop', link: '/shop' },
-      { title: 'Right Sidebar', link: '/shop-right-sidebar' },
-      { title: 'Hidden Sidebar', link: '/shop-hidden-sidebar' },
-      { title: 'Only Categories', link: '/shop-category' },
-      { title: 'Product Simple', link: '/product-details' },
-      { title: 'With Video', link: '/product-details-video' },
-      { title: 'With Countdown Timer', link: '/product-details-countdown' },
-      { title: 'Variations Swatches', link: '/product-details-swatches' },
+      { title: 'Tienda', link: '/shop' },
+{ title: 'Barra Lateral Derecha', link: '/shop-right-sidebar' },
+{ title: 'Barra Lateral Oculta', link: '/shop-hidden-sidebar' },
+{ title: 'Categorías', link: '/shop-category' },
+{ title: 'Producto', link: '/product-details' },
+{ title: 'Con Video', link: '/product-details-video' },
+{ title: 'Oferta Especial', link: '/product-details-countdown' },
+{ title: 'Variaciones', link: '/product-details-swatches' },
     ],
   },
   {
     id: 3,
     sub_menu: true,
-    title: 'eCommerce',
+    title: 'Mi Compra',
     link: '/cart',
     sub_menus: [
-      { title: 'Shopping Cart', link: '/cart' },
-      { title: 'Compare', link: '/compare' },
-      { title: 'Wishlist', link: '/wishlist' },
-      { title: 'Checkout', link: '/checkout' },
-      { title: 'My account', link: '/profile' },
+      { title: 'Carrito', link: '/cart' },
+      { title: 'Comparar', link: '/compare' },
+      { title: 'Favoritos', link: '/wishlist' },
+      { title: 'Finalizar Compra', link: '/checkout' },
+      { title: 'Mi Cuenta', link: '/profile' },
     ],
   },
   {
     id: 4,
     sub_menu: true,
-    title: 'More Pages',
+    title: 'Mi cuenta',
     link: '/login',
     sub_menus: [
-      { title: 'Login', link: '/login' },
-      { title: 'Register', link: '/register' },
-      { title: 'Forgot Password', link: '/forgot' },
+      { title: 'Iniciar Sesión', link: '/login' },
+      { title: 'Registrarse', link: '/register' },
+      { title: 'Recuperar Contraseña', link: '/forgot' },
       { title: '404 Error', link: '/404' },
     ],
   },
   {
     id: 4,
     single_link: true,
-    title: 'Coupons',
+    title: 'Promociones',
     link: '/coupon',
   },
   {
@@ -213,7 +213,7 @@ export const mobile_menu = [
   {
     id: 6,
     single_link: true,
-    title: 'Contact',
+    title: 'Contacto',
     link: '/contact',
   },
 ]

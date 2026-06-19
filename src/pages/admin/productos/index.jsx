@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Layout from '@/components/admin/layout/Layout';
+import ProductImage from '@/components/admin/shared/ProductImage';
 import productsData from '@/data/joyerialis-products.json';
+import { notifySuccess } from '@/utils/toast';
 import styles from '@/components/admin/layout/admin.module.css';
 
 export default function Productos() {
@@ -15,7 +17,7 @@ export default function Productos() {
   // Get unique categories from products for filtering
   const categories = Array.from(new Set(products.map(p => p.category?.name).filter(Boolean)));
 
-  // Simulate loading state on search/filter change to look professional
+  // Simulate loading state on search/filter change
   useEffect(() => {
     setLoading(true);
     const timer = setTimeout(() => {
@@ -25,6 +27,10 @@ export default function Productos() {
 
     return () => clearTimeout(timer);
   }, [searchTerm, selectedCategory]);
+
+  const handleActionClick = (action, itemTitle) => {
+    notifySuccess(`Acción "${action}" simulada con éxito para: ${itemTitle}`);
+  };
 
   // Filter products based on search and category
   const filteredProducts = products.filter(p => {
@@ -48,7 +54,7 @@ export default function Productos() {
         </div>
         <button 
           className="btn btn-dark d-flex align-items-center gap-2"
-          onClick={() => alert('La creación de productos se implementará en la siguiente fase de desarrollo.')}
+          onClick={() => handleActionClick('Crear Producto', 'Nuevo Producto')}
           style={{ borderRadius: '8px', backgroundColor: '#1e293b', border: 'none' }}
         >
           <i className="fa-light fa-plus"></i> Añadir Producto
@@ -61,13 +67,15 @@ export default function Productos() {
           {/* Search */}
           <div className="col-12 col-md-8">
             <div className="position-relative">
+              <label htmlFor="productSearchInput" className="visually-hidden">Buscar Producto</label>
               <input
+                id="productSearchInput"
                 type="text"
                 className="form-control form-control-md ps-5"
                 placeholder="Buscar por nombre o SKU..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                style={{ borderRadius: '8px' }}
+                style={{ borderRadius: '8px', fontSize: '16px' }}
               />
               <i className="fa-light fa-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
             </div>
@@ -75,11 +83,13 @@ export default function Productos() {
           
           {/* Category Filter */}
           <div className="col-12 col-md-4">
+            <label htmlFor="productCategorySelect" className="visually-hidden">Filtrar por Categoría</label>
             <select
+              id="productCategorySelect"
               className="form-select form-select-md"
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              style={{ borderRadius: '8px' }}
+              style={{ borderRadius: '8px', fontSize: '16px' }}
             >
               <option value="">Todas las Categorías</option>
               {categories.map((cat, idx) => (
@@ -119,22 +129,8 @@ export default function Productos() {
               {filteredProducts.map((product, idx) => (
                 <tr key={product._id || idx} style={{ fontSize: '0.875rem' }}>
                   <td>
-                    {/* Fallback image logic using local CSS Module elements and NO external URLs */}
-                    <div className="position-relative" style={{ width: '48px', height: '48px' }}>
-                      <img
-                        src={product.img}
-                        alt={product.title}
-                        className="rounded border"
-                        style={{ width: '48px', height: '48px', objectFit: 'cover' }}
-                        onError={(e) => {
-                          e.target.style.display = 'none';
-                          e.target.nextSibling.style.display = 'flex';
-                        }}
-                      />
-                      <div className={styles.placeholderBox} style={{ display: 'none', width: '48px', height: '48px' }}>
-                        <i className="fa-light fa-gem" style={{ fontSize: '1rem' }}></i>
-                      </div>
-                    </div>
+                    {/* Reusable ProductImage component with fallback logic */}
+                    <ProductImage src={product.img} title={product.title} size="md" />
                   </td>
                   <td>
                     <div className="font-weight-semibold text-dark">{product.title}</div>
@@ -159,14 +155,14 @@ export default function Productos() {
                     <div className="d-flex justify-content-center gap-2">
                       <button 
                         className="btn btn-sm btn-outline-secondary p-1 border-0" 
-                        onClick={() => alert('La edición de productos se implementará en la siguiente fase de desarrollo.')}
+                        onClick={() => handleActionClick('Editar', product.title)}
                         title="Editar"
                       >
                         <i className="fa-light fa-pen-to-square fs-6"></i>
                       </button>
                       <button 
                         className="btn btn-sm btn-outline-danger p-1 border-0" 
-                        onClick={() => alert('La eliminación de productos se implementará en la siguiente fase de desarrollo.')}
+                        onClick={() => handleActionClick('Eliminar', product.title)}
                         title="Eliminar"
                       >
                         <i className="fa-light fa-trash fs-6"></i>
@@ -176,7 +172,7 @@ export default function Productos() {
                 </tr>
               ))}
               
-              {/* Professional empty state layout */}
+              {/* Professional empty state */}
               {filteredProducts.length === 0 && !loading && (
                 <tr>
                   <td colSpan="8" className="text-center py-5 text-muted">

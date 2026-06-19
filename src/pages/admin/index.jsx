@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import Layout from '@/components/admin/layout/Layout';
+import ProductImage from '@/components/admin/shared/ProductImage';
 import productsData from '@/data/joyerialis-products.json';
 import categoriesData from '@/data/joyerialis-categories.json';
-import styles from '@/components/admin/layout/admin.module.css';
 
 export default function Dashboard() {
   const [loading, setLoading] = useState(true);
@@ -42,14 +42,21 @@ export default function Dashboard() {
         <title>Dashboard - Joyerialis Admin</title>
       </Head>
 
-      {/* Welcome banner */}
-      <div className="card shadow-sm border-0 mb-4 p-4" style={{ borderRadius: '10px', background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)', color: '#fff' }}>
-        <h4 className="mb-1">¡Bienvenido de nuevo, Super Admin!</h4>
-        <p className="mb-0 text-white-50 small">Aquí tienes un resumen de la actividad comercial y catálogo de Joyerialis.</p>
+      {/* Welcome banner (Shopify-like premium layout with white background and gold badge) */}
+      <div className="card shadow-sm border-0 mb-4 p-4" style={{ borderRadius: '8px', borderLeft: '4px solid #d4af37', backgroundColor: '#fff' }}>
+        <div className="d-flex align-items-center justify-content-between flex-wrap gap-2">
+          <div>
+            <h4 className="mb-1 text-dark font-weight-bold">¡Bienvenido de nuevo, Super Admin!</h4>
+            <p className="mb-0 text-muted small">Aquí tienes un resumen de la actividad comercial y catálogo de tu tienda Joyerialis.</p>
+          </div>
+          <span className="badge text-dark py-2 px-3 font-weight-semibold" style={{ backgroundColor: '#fef3c7', borderRadius: '20px', border: '1px solid #fde68a' }}>
+            <i className="fa-light fa-sparkles text-warning me-1"></i> Joyería Activa
+          </span>
+        </div>
       </div>
 
       {loading ? (
-        // Loading skeleton for dashboard
+        // Loading spinner
         <div className="d-flex flex-column justify-content-center align-items-center py-5">
           <div className="spinner-border text-dark mb-3" role="status">
             <span className="visually-hidden">Cargando...</span>
@@ -58,63 +65,67 @@ export default function Dashboard() {
         </div>
       ) : (
         <>
-          {/* KPI Cards Row */}
+          {/* KPI Cards Row (Shopify Style: clean white background, clear typography) */}
           <div className="row g-4 mb-4">
             {/* KPI 1: Products */}
             <div className="col-12 col-md-6 col-lg-3">
-              <div className="card shadow-sm border-0 h-100 p-3" style={{ borderRadius: '10px' }}>
-                <div className="d-flex justify-content-between align-items-center mb-2">
-                  <span className="text-muted small uppercase font-weight-bold">Total Productos</span>
-                  <div className="bg-light p-2 rounded text-dark">
+              <div className="card shadow-sm border-0 h-100 p-4" style={{ borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                <div className="d-flex justify-content-between align-items-start mb-3">
+                  <span className="text-muted small text-uppercase font-weight-bold" style={{ letterSpacing: '0.5px' }}>Productos Totales</span>
+                  <div className="p-2 rounded text-dark" style={{ backgroundColor: '#f8fafc' }}>
                     <i className="fa-light fa-gem fs-5 text-warning"></i>
                   </div>
                 </div>
-                <h3 className="mb-1 text-dark font-weight-bold">{totalProducts}</h3>
-                <span className="text-success small">
-                  <i className="fa-light fa-arrow-trend-up me-1"></i> +4 nuevos este mes
+                <h2 className="mb-1 text-dark font-weight-bold" style={{ fontSize: '2rem' }}>{totalProducts}</h2>
+                <span className="text-success small font-weight-semibold">
+                  <i className="fa-light fa-arrow-trend-up me-1"></i> +4 este mes
                 </span>
               </div>
             </div>
 
             {/* KPI 2: Categories */}
             <div className="col-12 col-md-6 col-lg-3">
-              <div className="card shadow-sm border-0 h-100 p-3" style={{ borderRadius: '10px' }}>
-                <div className="d-flex justify-content-between align-items-center mb-2">
-                  <span className="text-muted small uppercase font-weight-bold">Categorías</span>
-                  <div className="bg-light p-2 rounded">
+              <div className="card shadow-sm border-0 h-100 p-4" style={{ borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                <div className="d-flex justify-content-between align-items-start mb-3">
+                  <span className="text-muted small text-uppercase font-weight-bold" style={{ letterSpacing: '0.5px' }}>Categorías</span>
+                  <div className="p-2 rounded text-dark" style={{ backgroundColor: '#f8fafc' }}>
                     <i className="fa-light fa-tags fs-5 text-info"></i>
                   </div>
                 </div>
-                <h3 className="mb-1 text-dark font-weight-bold">{totalCategories}</h3>
-                <span className="text-muted small">Organización del catálogo</span>
+                <h2 className="mb-1 text-dark font-weight-bold" style={{ fontSize: '2rem' }}>{totalCategories}</h2>
+                <span className="text-muted small">Estructura del catálogo</span>
               </div>
             </div>
 
             {/* KPI 3: Low Stock Alerts */}
             <div className="col-12 col-md-6 col-lg-3">
-              <div className="card shadow-sm border-0 h-100 p-3" style={{ borderRadius: '10px' }}>
-                <div className="d-flex justify-content-between align-items-center mb-2">
-                  <span className="text-muted small uppercase font-weight-bold">Stock Crítico</span>
-                  <div className="bg-light p-2 rounded">
+              <div className="card shadow-sm border-0 h-100 p-4" style={{ borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                <div className="d-flex justify-content-between align-items-start mb-3">
+                  <span className="text-muted small text-uppercase font-weight-bold" style={{ letterSpacing: '0.5px' }}>Stock Bajo</span>
+                  <div className="p-2 rounded text-dark" style={{ backgroundColor: '#f8fafc' }}>
                     <i className="fa-light fa-triangle-exclamation fs-5 text-danger"></i>
                   </div>
                 </div>
-                <h3 className="mb-1 text-danger font-weight-bold">{lowStockProducts.length}</h3>
-                <span className="text-danger small">Requieren reabastecimiento</span>
+                <h2 className={`mb-1 font-weight-bold ${lowStockProducts.length > 0 ? 'text-danger' : 'text-dark'}`} style={{ fontSize: '2rem' }}>
+                  {lowStockProducts.length}
+                </h2>
+                <span className={`${lowStockProducts.length > 0 ? 'text-danger' : 'text-muted'} small font-weight-semibold`}>
+                  {lowStockProducts.length > 0 ? 'Requieren atención' : 'Inventario al día'}
+                </span>
               </div>
             </div>
 
             {/* KPI 4: Users */}
             <div className="col-12 col-md-6 col-lg-3">
-              <div className="card shadow-sm border-0 h-100 p-3" style={{ borderRadius: '10px' }}>
-                <div className="d-flex justify-content-between align-items-center mb-2">
-                  <span className="text-muted small uppercase font-weight-bold">Usuarios Admin</span>
-                  <div className="bg-light p-2 rounded">
+              <div className="card shadow-sm border-0 h-100 p-4" style={{ borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                <div className="d-flex justify-content-between align-items-start mb-3">
+                  <span className="text-muted small text-uppercase font-weight-bold" style={{ letterSpacing: '0.5px' }}>Administradores</span>
+                  <div className="p-2 rounded text-dark" style={{ backgroundColor: '#f8fafc' }}>
                     <i className="fa-light fa-users-gear fs-5 text-primary"></i>
                   </div>
                 </div>
-                <h3 className="mb-1 text-dark font-weight-bold">3</h3>
-                <span className="text-muted small">Super Admin, Admin, Editor</span>
+                <h2 className="mb-1 text-dark font-weight-bold" style={{ fontSize: '2rem' }}>3</h2>
+                <span className="text-muted small">Cuentas activas</span>
               </div>
             </div>
           </div>
@@ -122,7 +133,7 @@ export default function Dashboard() {
           <div className="row g-4">
             {/* Left column: Low stock alert table */}
             <div className="col-12 col-xl-8">
-              <div className="card shadow-sm border-0 h-100 p-4" style={{ borderRadius: '10px' }}>
+              <div className="card shadow-sm border-0 h-100 p-4" style={{ borderRadius: '8px', border: '1px solid #e2e8f0' }}>
                 <div className="d-flex justify-content-between align-items-center mb-3">
                   <h5 className="mb-0 text-dark font-weight-bold">Alertas de Stock Bajo</h5>
                   <Link href="/admin/productos" className="btn btn-outline-dark btn-sm rounded-pill font-weight-semibold">
@@ -145,22 +156,8 @@ export default function Dashboard() {
                         <tr key={product.id || idx} style={{ fontSize: '0.875rem' }}>
                           <td>
                             <div className="d-flex align-items-center gap-2">
-                              {/* Local-only fallback layout for image without external calls */}
-                              <div className="position-relative" style={{ width: '36px', height: '36px', flexShrink: 0 }}>
-                                <img
-                                  src={product.img}
-                                  alt={product.title}
-                                  className="rounded border"
-                                  style={{ width: '36px', height: '36px', objectFit: 'cover' }}
-                                  onError={(e) => {
-                                    e.target.style.display = 'none';
-                                    e.target.nextSibling.style.display = 'flex';
-                                  }}
-                                />
-                                <div className={styles.placeholderBoxSm} style={{ display: 'none', width: '36px', height: '36px' }}>
-                                  <i className="fa-light fa-gem" style={{ fontSize: '0.8rem' }}></i>
-                                </div>
-                              </div>
+                              {/* Reusable ProductImage component with fallback logic */}
+                              <ProductImage src={product.img} title={product.title} size="sm" />
                               <span className="font-weight-medium text-dark text-truncate" style={{ maxWidth: '180px' }}>{product.title}</span>
                             </div>
                           </td>
@@ -195,7 +192,7 @@ export default function Dashboard() {
 
             {/* Right column: Recent activity log & quick actions */}
             <div className="col-12 col-xl-4">
-              <div className="card shadow-sm border-0 p-4 mb-4" style={{ borderRadius: '10px' }}>
+              <div className="card shadow-sm border-0 p-4 mb-4" style={{ borderRadius: '8px', border: '1px solid #e2e8f0' }}>
                 <h5 className="mb-3 text-dark font-weight-bold">Acciones Rápidas</h5>
                 <div className="d-grid gap-2">
                   <Link href="/admin/productos" className="btn btn-outline-dark text-start py-2 font-weight-medium d-flex align-items-center justify-content-between" style={{ borderRadius: '8px' }}>
@@ -213,7 +210,7 @@ export default function Dashboard() {
                 </div>
               </div>
 
-              <div className="card shadow-sm border-0 p-4" style={{ borderRadius: '10px' }}>
+              <div className="card shadow-sm border-0 p-4" style={{ borderRadius: '8px', border: '1px solid #e2e8f0' }}>
                 <h5 className="mb-3 text-dark font-weight-bold">Actividad Reciente</h5>
                 <div className="d-flex flex-column gap-3">
                   {recentLogs.map((log, idx) => (

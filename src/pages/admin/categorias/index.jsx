@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Layout from '@/components/admin/layout/Layout';
+import ProductImage from '@/components/admin/shared/ProductImage';
 import categoriesData from '@/data/joyerialis-categories.json';
+import { notifySuccess } from '@/utils/toast';
 import styles from '@/components/admin/layout/admin.module.css';
 
 export default function Categorias() {
@@ -20,6 +22,10 @@ export default function Categorias() {
 
     return () => clearTimeout(timer);
   }, [searchTerm]);
+
+  const handleActionClick = (action, itemTitle) => {
+    notifySuccess(`Acción "${action}" simulada con éxito para: ${itemTitle}`);
+  };
 
   // Filter categories based on search term
   const filteredCategories = categories.filter(c => {
@@ -40,7 +46,7 @@ export default function Categorias() {
         </div>
         <button 
           className="btn btn-dark d-flex align-items-center gap-2"
-          onClick={() => alert('La creación de categorías se implementará en la siguiente fase de desarrollo.')}
+          onClick={() => handleActionClick('Crear Categoría', 'Nueva Categoría')}
           style={{ borderRadius: '8px', backgroundColor: '#1e293b', border: 'none' }}
         >
           <i className="fa-light fa-plus"></i> Añadir Categoría
@@ -50,13 +56,15 @@ export default function Categorias() {
       {/* Search Input Card */}
       <div className="card shadow-sm border-0 mb-4 p-3" style={{ borderRadius: '10px' }}>
         <div className="position-relative">
+          <label htmlFor="categorySearchInput" className="visually-hidden">Buscar Categoría</label>
           <input
+            id="categorySearchInput"
             type="text"
             className="form-control form-control-md ps-5"
             placeholder="Buscar por nombre de categoría..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            style={{ borderRadius: '8px' }}
+            style={{ borderRadius: '8px', fontSize: '16px' }}
           />
           <i className="fa-light fa-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
         </div>
@@ -89,22 +97,8 @@ export default function Categorias() {
               {filteredCategories.map((category, idx) => (
                 <tr key={category._id || idx} style={{ fontSize: '0.875rem' }}>
                   <td>
-                    {/* Fallback image logic using local CSS Module elements and NO external URLs */}
-                    <div className="position-relative" style={{ width: '48px', height: '48px' }}>
-                      <img
-                        src={category.img}
-                        alt={category.parent}
-                        className="rounded border"
-                        style={{ width: '48px', height: '48px', objectFit: 'cover' }}
-                        onError={(e) => {
-                          e.target.style.display = 'none';
-                          e.target.nextSibling.style.display = 'flex';
-                        }}
-                      />
-                      <div className={styles.placeholderBox} style={{ display: 'none', width: '48px', height: '48px' }}>
-                        <i className="fa-light fa-tags" style={{ fontSize: '1rem' }}></i>
-                      </div>
-                    </div>
+                    {/* Reusable ProductImage component with fallback logic */}
+                    <ProductImage src={category.img} title={category.parent} size="md" />
                   </td>
                   <td>
                     <div className="font-weight-semibold text-dark">{category.parent}</div>
@@ -123,14 +117,14 @@ export default function Categorias() {
                     <div className="d-flex justify-content-center gap-2">
                       <button 
                         className="btn btn-sm btn-outline-secondary p-1 border-0" 
-                        onClick={() => alert('La edición de categorías se implementará en la siguiente fase de desarrollo.')}
+                        onClick={() => handleActionClick('Editar', category.parent)}
                         title="Editar"
                       >
                         <i className="fa-light fa-pen-to-square fs-6"></i>
                       </button>
                       <button 
                         className="btn btn-sm btn-outline-danger p-1 border-0" 
-                        onClick={() => alert('La eliminación de categorías se implementará en la siguiente fase de desarrollo.')}
+                        onClick={() => handleActionClick('Eliminar', category.parent)}
                         title="Eliminar"
                       >
                         <i className="fa-light fa-trash fs-6"></i>
@@ -140,7 +134,7 @@ export default function Categorias() {
                 </tr>
               ))}
               
-              {/* Professional empty state layout */}
+              {/* Professional empty state */}
               {filteredCategories.length === 0 && !loading && (
                 <tr>
                   <td colSpan="6" className="text-center py-5 text-muted">

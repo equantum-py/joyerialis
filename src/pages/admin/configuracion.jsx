@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Head from 'next/head';
 import Layout from '@/components/admin/layout/Layout';
+import { notifySuccess } from '@/utils/toast';
 import styles from '@/components/admin/layout/admin.module.css';
 
 export default function Configuracion() {
@@ -19,7 +20,7 @@ export default function Configuracion() {
     // Simulate save transition
     setTimeout(() => {
       setSaving(false);
-      alert('Configuraciones guardadas exitosamente en la interfaz de demostración.');
+      notifySuccess('Configuraciones guardadas exitosamente en la interfaz de demostración.');
     }, 800);
   };
 
@@ -54,36 +55,39 @@ export default function Configuracion() {
               </h5>
               
               <div className="mb-3">
-                <label className="form-label small text-dark font-weight-semibold">Nombre de la Tienda</label>
+                <label htmlFor="cfgStoreNameInput" className="form-label small text-dark font-weight-semibold">Nombre de la Tienda</label>
                 <input
+                  id="cfgStoreNameInput"
                   type="text"
                   className="form-control"
                   value={storeName}
                   onChange={(e) => setStoreName(e.target.value)}
                   required
-                  style={{ borderRadius: '8px' }}
+                  style={{ borderRadius: '8px', fontSize: '16px' }}
                 />
               </div>
 
               <div className="mb-3">
-                <label className="form-label small text-dark font-weight-semibold">Correo de Contacto</label>
+                <label htmlFor="cfgStoreEmailInput" className="form-label small text-dark font-weight-semibold">Correo de Contacto</label>
                 <input
+                  id="cfgStoreEmailInput"
                   type="email"
                   className="form-control"
                   value={storeEmail}
                   onChange={(e) => setStoreEmail(e.target.value)}
                   required
-                  style={{ borderRadius: '8px' }}
+                  style={{ borderRadius: '8px', fontSize: '16px' }}
                 />
               </div>
 
               <div className="mb-3">
-                <label className="form-label small text-dark font-weight-semibold">Moneda Principal</label>
+                <label htmlFor="cfgCurrencySelect" className="form-label small text-dark font-weight-semibold">Moneda Principal</label>
                 <select
+                  id="cfgCurrencySelect"
                   className="form-select"
                   value={currency}
                   onChange={(e) => setCurrency(e.target.value)}
-                  style={{ borderRadius: '8px' }}
+                  style={{ borderRadius: '8px', fontSize: '16px' }}
                 >
                   <option value="CLP">CLP ($) - Peso Chileno</option>
                   <option value="USD">USD ($) - Dólar Estadounidense</option>
@@ -116,8 +120,9 @@ export default function Configuracion() {
               </div>
               
               <div className="mb-3">
-                <label className="form-label small text-dark font-weight-semibold">Número de WhatsApp</label>
+                <label htmlFor="cfgWhatsappNumberInput" className="form-label small text-dark font-weight-semibold">Número de WhatsApp</label>
                 <input
+                  id="cfgWhatsappNumberInput"
                   type="text"
                   className="form-control"
                   placeholder="+56912345678"
@@ -125,21 +130,22 @@ export default function Configuracion() {
                   onChange={(e) => setWhatsappNumber(e.target.value)}
                   disabled={!whatsappEnabled}
                   required={whatsappEnabled}
-                  style={{ borderRadius: '8px' }}
+                  style={{ borderRadius: '8px', fontSize: '16px' }}
                 />
                 <small className="text-muted text-xs">Incluye el código de país (ej: +569... o +549...).</small>
               </div>
 
               <div className="mb-3">
-                <label className="form-label small text-dark font-weight-semibold">Mensaje por Defecto</label>
+                <label htmlFor="cfgWhatsappMessageTextarea" className="form-label small text-dark font-weight-semibold">Mensaje por Defecto</label>
                 <textarea
+                  id="cfgWhatsappMessageTextarea"
                   className="form-control"
                   rows="3"
                   value={whatsappMessage}
                   onChange={(e) => setWhatsappMessage(e.target.value)}
                   disabled={!whatsappEnabled}
                   required={whatsappEnabled}
-                  style={{ borderRadius: '8px' }}
+                  style={{ borderRadius: '8px', fontSize: '16px' }}
                 />
                 <small className="text-muted text-xs">Este mensaje se enviará automáticamente al iniciar el chat.</small>
               </div>

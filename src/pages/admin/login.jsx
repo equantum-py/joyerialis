@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
+import { signIn } from 'next-auth/react';
+import { notifySuccess, notifyError } from '@/utils/toast';
 
 export default function Login() {
   const router = useRouter();
@@ -9,20 +11,31 @@ export default function Login() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
-    // Simulated auth check
-    setTimeout(() => {
-      if (email === 'admin@joyerialis.com' && password === 'admin123') {
-        router.push('/admin');
-      } else {
-        setError('Credenciales inválidas. Usa admin@joyerialis.com y admin123 para entrar.');
+    try {
+      const res = await signIn('credentials', {
+        email,
+        password,
+        redirect: false,
+      });
+
+      if (res?.error) {
+        setError(res.error);
+        notifyError(res.error);
         setLoading(false);
+      } else {
+        notifySuccess('¡Sesión iniciada con éxito!');
+        router.push('/admin');
       }
-    }, 800);
+    } catch (err) {
+      setError('Ocurrió un error inesperado al iniciar sesión.');
+      notifyError('Error inesperado.');
+      setLoading(false);
+    }
   };
 
   return (
@@ -55,30 +68,32 @@ export default function Login() {
 
           <form onSubmit={handleSubmit}>
             <div className="mb-3">
-              <label className="form-label small text-dark font-weight-semibold">Correo Electrónico</label>
+              <label htmlFor="adminEmailInput" className="form-label small text-dark font-weight-semibold">Correo Electrónico</label>
               <div className="position-relative">
                 <input
+                  id="adminEmailInput"
                   type="email"
                   className="form-control form-control-md"
                   placeholder="ejemplo@joyerialis.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  style={{ borderRadius: '8px' }}
+                  style={{ borderRadius: '8px', fontSize: '16px' }}
                 />
               </div>
             </div>
 
             <div className="mb-4">
-              <label className="form-label small text-dark font-weight-semibold">Contraseña</label>
+              <label htmlFor="adminPasswordInput" className="form-label small text-dark font-weight-semibold">Contraseña</label>
               <input
+                id="adminPasswordInput"
                 type="password"
                 className="form-control form-control-md"
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                style={{ borderRadius: '8px' }}
+                style={{ borderRadius: '8px', fontSize: '16px' }}
               />
             </div>
 
@@ -100,10 +115,12 @@ export default function Login() {
           </form>
 
           <div className="text-center mt-4 border-top pt-3">
-            <small className="text-muted">
-              Demo Credentials:<br />
-              <strong>admin@joyerialis.com</strong> / <strong>admin123</strong>
-            </small>
+            <small className="text-muted d-block mb-1">Credenciales de Demostración (Pass: admin123):</small>
+            <div className="d-flex flex-column gap-1 small text-start bg-light p-2 rounded border border-light">
+              <div><span className="badge bg-danger">SUPER_ADMIN</span>: super@joyerialis.com</div>
+              <div><span className="badge bg-primary">ADMIN</span>: admin@joyerialis.com</div>
+              <div><span className="badge bg-secondary">EDITOR</span>: editor@joyerialis.com</div>
+            </div>
           </div>
         </div>
       </div>

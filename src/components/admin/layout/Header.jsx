@@ -1,9 +1,11 @@
 import React from 'react';
 import { useRouter } from 'next/router';
+import { useSession, signOut } from 'next-auth/react';
 import styles from './admin.module.css';
 
 export default function Header({ onToggleSidebar }) {
   const router = useRouter();
+  const { data: session } = useSession();
 
   // Dinamically determine page title based on path
   const getPageTitle = () => {
@@ -15,9 +17,19 @@ export default function Header({ onToggleSidebar }) {
     return 'Administración';
   };
 
-  const handleLogout = (e) => {
+  const handleLogout = async (e) => {
     e.preventDefault();
-    router.push('/admin/login');
+    await signOut({ callbackUrl: '/admin/login' });
+  };
+
+  const getInitials = (name) => {
+    if (!name) return 'AD';
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .slice(0, 2)
+      .toUpperCase();
   };
 
   return (
@@ -73,11 +85,11 @@ export default function Header({ onToggleSidebar }) {
             aria-expanded="false"
           >
             <div className={styles.avatar}>
-              SA
+              {getInitials(session?.user?.name)}
             </div>
             <div className="d-none d-lg-block text-start" style={{ lineHeight: '1.2' }}>
-              <div className="font-weight-bold text-dark" style={{ fontSize: '0.85rem' }}>Super Admin</div>
-              <small className="text-muted" style={{ fontSize: '0.7rem' }}>super@joyerialis.com</small>
+              <div className="font-weight-bold text-dark" style={{ fontSize: '0.85rem' }}>{session?.user?.name || 'Administrador'}</div>
+              <small className="text-muted" style={{ fontSize: '0.7rem' }}>{session?.user?.email || 'admin@joyerialis.com'}</small>
             </div>
           </div>
           <ul className="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2" aria-labelledby="adminProfileDropdown">

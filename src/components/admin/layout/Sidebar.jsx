@@ -2,10 +2,15 @@ import React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import styles from './admin.module.css';
+import productsData from '@/data/joyerialis-products.json';
 
 export default function Sidebar({ isOpen, onClose }) {
   const router = useRouter();
   
+  // Calculate dynamic low stock count from local JSON data
+  const products = productsData?.data || [];
+  const lowStockCount = products.filter(p => p.quantity !== undefined && p.quantity < 15).length;
+
   const menuItems = [
     {
       title: 'Inicio',
@@ -59,8 +64,8 @@ export default function Sidebar({ isOpen, onClose }) {
           </button>
         </div>
 
-        {/* Navigation Menus */}
-        <div className="flex-grow-1 overflow-auto py-2">
+        {/* Navigation Menus with custom scrollbar class */}
+        <div className="flex-grow-1 overflow-auto py-2 sidebar-scrollbar">
           {menuItems.map((section, idx) => (
             <div key={idx}>
               <div className={styles.navSectionTitle}>{section.title}</div>
@@ -74,8 +79,8 @@ export default function Sidebar({ isOpen, onClose }) {
                   >
                     <i className={`${item.icon} ${styles.navIcon}`}></i>
                     <span>{item.label}</span>
-                    {item.label === 'Productos' && (
-                      <span className={styles.badgeLowStock}>3</span>
+                    {item.label === 'Productos' && lowStockCount > 0 && (
+                      <span className={styles.badgeLowStock}>{lowStockCount}</span>
                     )}
                   </Link>
                 ))}

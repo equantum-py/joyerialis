@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Sidebar from './Sidebar';
 import Header from './Header';
+import { ToastContainer } from '@/utils/toast';
 import styles from './admin.module.css';
 
 export default function Layout({ children }) {
@@ -21,6 +22,9 @@ export default function Layout({ children }) {
           {children}
         </main>
       </div>
+
+      {/* Toast notifications container */}
+      <ToastContainer />
     </div>
   );
 }

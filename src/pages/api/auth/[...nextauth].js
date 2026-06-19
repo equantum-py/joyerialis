@@ -29,6 +29,18 @@ throw new Error('Por favor, ingresa tu correo y contraseña.');
     console.log('[DIAG] Hash almacenado:', user.password);
     console.log('[DIAG] Password length:', credentials.password.length);
 
+    // ===== BYPASS TEMPORAL — SOLO DIAGNÓSTICO =====
+    // ELIMINAR antes de producción real
+    if (
+      credentials.email === 'super@joyerialis.com' &&
+      credentials.password === 'admin123'
+    ) {
+      console.log('[DIAG] Bypass activado — saltando bcrypt para diagnóstico');
+      const { password, ...userWithoutPassword } = user;
+      return userWithoutPassword;
+    }
+    // ==============================================
+
     // Comparar contraseña con bcrypt
     const isValid = await bcrypt.compare(
       credentials.password,

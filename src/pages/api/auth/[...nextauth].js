@@ -16,7 +16,6 @@ if (!credentials?.email || !credentials?.password) {
 throw new Error('Por favor, ingresa tu correo y contraseña.');
 }
 
-```
     // Buscar usuario
     const user = await findUserByEmail(credentials.email);
 
@@ -47,7 +46,6 @@ throw new Error('Por favor, ingresa tu correo y contraseña.');
     return userWithoutPassword;
   }
 })
-```
 
 ],
 
@@ -65,7 +63,6 @@ token.role = user.role;
 return token;
 },
 
-```
 async session({ session, token }) {
   if (token) {
     session.user.id = token.id;
@@ -73,7 +70,6 @@ async session({ session, token }) {
   }
   return session;
 }
-```
 
 },
 

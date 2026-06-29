@@ -1,0 +1,171 @@
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ==========================================
+// SEGURIDAD Y AUDITORÍA
+// ==========================================
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  EDITOR
+}
+
+model User {
+  id           String        @id @default(cuid())
+  name         String
+  email        String        @unique
+  password     String
+  role         Role          @default(EDITOR)
+  activityLogs ActivityLog[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model ActivityLog {
+  id        String   @id @default(cuid())
+  action    String   // ej: "CREATE_PRODUCT", "UPDATE_SETTINGS"
+  details   String?  // Detalles o cambios en formato JSON/texto
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+// ==========================================
+// CATALOGO DE PRODUCTOS, MULTIMEDIA Y SEO
+// ==========================================
+
+model Category {
+  id              String    @id @default(cuid())
+  name            String    @unique // Corresponde al campo "parent" del JSON
+  slug            String    @unique
+  productType     String    @default("jewelry")
+  img             String?
+  metaTitle       String?   // SEO
+  metaDescription String?   // SEO
+  products        Product[]
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model Product {
+  id              String              @id @default(cuid())
+  sku             String?             @unique
+  title           String
+  slug            String              @unique
+  price           Decimal             @db.Decimal(10, 2)
+  discount        Int                 @default(0)
+  description     String?             @db.Text
+  status          String              @default("in-stock") // in-stock, out-of-stock, draft
+  rating          Float               @default(4.5)
+  quantity        Int                 @default(0) // Equivale a "quantity" (stock) del JSON
+  topSeller       Boolean             @default(false)
+  new             Boolean             @default(false)
+  featured        Boolean             @default(false)
+  tags            String[]            @default([])
+  brandName       String              @default("Joyerialis")
+  
+  // Relaciones
+  categoryId      String?
+  category        Category?           @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  images          ProductImage[]      // Relación normalizada para ordenamiento y SEO
+  collections     Collection[]
+  orderItems      OrderItem[]
+  
+  // SEO
+  metaTitle       String?
+  metaDescription String?
+  
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+}
+
+model ProductImage {
+  id        String  @id @default(cuid())
+  url       String
+  alt       String? // Para accesibilidad web y SEO
+  sortOrder Int     @default(0) // Orden de visualización
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model Collection {
+  id              String    @id @default(cuid())
+  name            String    @unique
+  slug            String    @unique
+  description     String?
+  metaTitle       String?   // SEO
+  metaDescription String?   // SEO
+  products        Product[]
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+// ==========================================
+// VENTAS Y PEDIDOS (Shopify Lite)
+// ==========================================
+
+model Order {
+  id                String      @id @default(cuid())
+  orderNumber       String      @unique // ej: "#JOY-1001"
+  customerName      String
+  customerEmail     String
+  shippingAddress   String
+  paymentStatus     String      @default("pending")     // pending, paid, failed, refunded
+  fulfillmentStatus String      @default("unfulfilled") // unfulfilled, fulfilled, shipped, delivered
+  total             Decimal     @db.Decimal(10, 2)
+  items             OrderItem[]
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+}
+
+model OrderItem {
+  id           String   @id @default(cuid())
+  productId    String?  // Nullable para no romper reportes contables si se elimina el producto
+  productTitle String   // Snapshot del nombre al momento de la venta
+  productPrice Decimal  @db.Decimal(10, 2) // Snapshot del precio al momento de la venta
+  quantity     Int
+  orderId      String
+  order        Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product      Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+}
+
+// ==========================================
+// CMS HOME BUILDER & AJUSTES
+// ==========================================
+
+model HomeSection {
+  id        String   @id @default(cuid())
+  title     String
+  type      String   // ej: "FEATURED_PRODUCTS", "COLLECTION_HIGHLIGHT", "BANNER_STRIP"
+  config    Json     @default("{}") // Almacena parámetros dinámicos del Home Builder
+  sortOrder Int      @default(0)    // Reordenamiento visual de secciones
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model HeroSlide {
+  id         String   @id @default(cuid())
+  title      String
+  subtitle   String?
+  image      String
+  link       String?
+  sortOrder  Int      @default(0)
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Setting {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String @db.Text
+}

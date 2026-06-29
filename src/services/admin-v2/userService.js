@@ -1,64 +1,44 @@
-let usersCollection = [
-  { id: 'USR-001', name: 'Super Admin', email: 'super@joyerialis.com', role: 'SUPER_ADMIN', status: 'Activo', lastLogin: '2026-06-29 11:30' },
-  { id: 'USR-002', name: 'Admin Pedidos', email: 'admin@joyerialis.com', role: 'ADMIN', status: 'Activo', lastLogin: '2026-06-28 15:45' },
-  { id: 'USR-003', name: 'Editor Catálogo', email: 'editor@joyerialis.com', role: 'EDITOR', status: 'Activo', lastLogin: '2026-06-27 09:12' },
-];
-
 export const userService = {
   async getAll({ search = '', role = '', page = 1, limit = 10 } = {}) {
-    let result = [...usersCollection];
-
-    if (search) {
-      const q = search.toLowerCase();
-      result = result.filter(u => u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q));
-    }
-
-    if (role) {
-      result = result.filter(u => u.role === role);
-    }
-
-    const total = result.length;
-    const totalPages = Math.ceil(total / limit);
-    const startIndex = (page - 1) * limit;
-    const paginatedData = result.slice(startIndex, startIndex + limit);
-
-    return {
-      data: paginatedData,
-      total,
-      page,
-      limit,
-      totalPages,
-    };
+    const params = new URLSearchParams({ search, role, page, limit });
+    const res = await fetch(`/api/admin-v2/users?${params}`);
+    if (!res.ok) throw new Error('Error al obtener usuarios');
+    return await res.json();
   },
 
   async getById(id) {
-    const user = usersCollection.find(u => u.id === id);
-    if (!user) throw new Error('Usuario no encontrado');
-    return { ...user };
+    const res = await fetch(`/api/admin-v2/users?id=${encodeURIComponent(id)}`);
+    if (!res.ok) throw new Error('Usuario no encontrado');
+    return await res.json();
   },
 
   async create(data) {
-    const newUser = {
-      id: `USR-${Date.now().toString().slice(-3)}`,
-      name: data.name,
-      email: data.email,
-      role: data.role || 'EDITOR',
-      status: data.status || 'Activo',
-      lastLogin: 'Nunca',
-    };
-    usersCollection = [newUser, ...usersCollection];
-    return newUser;
+    const res = await fetch('/api/admin-v2/users', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error('Error al crear usuario');
+    return await res.json();
   },
 
   async update(id, data) {
-    const index = usersCollection.findIndex(u => u.id === id);
-    if (index === -1) throw new Error('Usuario no encontrado');
-    usersCollection[index] = { ...usersCollection[index], ...data };
-    return usersCollection[index];
+    const res = await fetch('/api/admin-v2/users', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, ...data }),
+    });
+    if (!res.ok) throw new Error('Error al actualizar usuario');
+    return await res.json();
   },
 
   async delete(id) {
-    usersCollection = usersCollection.filter(u => u.id !== id);
-    return { success: true };
+    const res = await fetch('/api/admin-v2/users', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
+    });
+    if (!res.ok) throw new Error('Error al eliminar usuario');
+    return await res.json();
   }
 };

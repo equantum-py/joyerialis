@@ -33,8 +33,12 @@ model ActivityLog {
   id        String   @id @default(cuid())
   action    String   // ej: "CREATE_PRODUCT", "UPDATE_SETTINGS"
   details   String?  // Detalles o cambios en formato JSON/texto
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userName  String?
+  target    String?
+  ip        String?
+  module    String?
   createdAt DateTime @default(now())
 }
 
@@ -50,6 +54,9 @@ model Category {
   img             String?
   metaTitle       String?   // SEO
   metaDescription String?   // SEO
+  status          String    @default("active")
+  parent          String?   @default("Ninguna")
+  order           Int       @default(1)
   products        Product[]
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
@@ -63,7 +70,7 @@ model Product {
   price           Decimal             @db.Decimal(10, 2)
   discount        Int                 @default(0)
   description     String?             @db.Text
-  status          String              @default("in-stock") // in-stock, out-of-stock, draft
+  status          String              @default("in-stock") // in-stock, out-of-stock, draft, active, inactive
   rating          Float               @default(4.5)
   quantity        Int                 @default(0) // Equivale a "quantity" (stock) del JSON
   topSeller       Boolean             @default(false)
@@ -71,6 +78,10 @@ model Product {
   featured        Boolean             @default(false)
   tags            String[]            @default([])
   brandName       String              @default("Joyerialis")
+  categoryName    String?
+  img             String?
+  seoTitle        String?
+  seoDesc         String?
   
   // Relaciones
   categoryId      String?
@@ -121,6 +132,10 @@ model Order {
   paymentStatus     String      @default("pending")     // pending, paid, failed, refunded
   fulfillmentStatus String      @default("unfulfilled") // unfulfilled, fulfilled, shipped, delivered
   total             Decimal     @db.Decimal(10, 2)
+  status            String      @default("Completado")
+  notes             String?     @db.Text
+  paymentMethod     String?     @default("Tarjeta de Crédito")
+  tracking          String?
   items             OrderItem[]
   createdAt         DateTime    @default(now())
   updatedAt         DateTime    @updatedAt
@@ -169,3 +184,59 @@ model Setting {
   key   String @unique
   value String @db.Text
 }
+
+// ==========================================
+// ERP ADMIN-V2 ENTERPRISE MODELS
+// ==========================================
+
+model InventoryMovement {
+  id        String   @id @default(cuid())
+  type      String   @default("IN") // IN, OUT
+  product   String
+  sku       String
+  qty       Int      @default(1)
+  date      String
+  note      String?  @db.Text
+  user      String   @default("Super Admin")
+  createdAt DateTime @default(now())
+}
+
+model Customer {
+  id          String   @id @default(cuid())
+  name        String
+  email       String   @unique
+  phone       String?
+  ordersCount Int      @default(0)
+  totalSpent  Decimal  @default(0) @db.Decimal(10, 2)
+  status      String   @default("Activo") // Activo, Inactivo, VIP
+  address     String?
+  registered  String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Coupon {
+  id           String   @id @default(cuid())
+  code         String   @unique
+  discount     Decimal  @db.Decimal(10, 2)
+  discountType String   @default("percentage") // percentage, fixed
+  startDate    String
+  endDate      String
+  usageLimit   Int      @default(100)
+  usedCount    Int      @default(0)
+  status       String   @default("Activo") // Activo, Inactivo
+  minAmount    Decimal  @default(0) @db.Decimal(10, 2)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Backup {
+  id        String   @id @default(cuid())
+  name      String
+  size      String
+  date      String
+  type      String   @default("Manual") // Manual, Automático
+  status    String   @default("Completado")
+  createdAt DateTime @default(now())
+}
+

@@ -1,0 +1,535 @@
+/* ==========================================================================
+   Design System Tokens & Styles - Joyerialis Admin v2 (ERP Enterprise)
+   ========================================================================== */
+
+.designSystemRoot {
+  /* CSS Custom Properties - Scoped exclusively to admin-v2 */
+  --erp-bg-main: #f8fafc;
+  --erp-bg-card: #ffffff;
+  --erp-bg-sidebar: #0f172a;
+  --erp-bg-sidebar-hover: #1e293b;
+  --erp-bg-sidebar-active: #2563eb;
+  
+  --erp-text-primary: #0f172a;
+  --erp-text-secondary: #64748b;
+  --erp-text-muted: #94a3b8;
+  --erp-text-inverse: #ffffff;
+  
+  --erp-primary: #2563eb;
+  --erp-primary-hover: #1d4ed8;
+  --erp-secondary: #475569;
+  --erp-secondary-hover: #334155;
+  --erp-success: #10b981;
+  --erp-warning: #f59e0b;
+  --erp-danger: #ef4444;
+  --erp-info: #0ea5e9;
+  
+  --erp-success-bg: #ecfdf5;
+  --erp-warning-bg: #fffbeb;
+  --erp-danger-bg: #fef2f2;
+  --erp-info-bg: #f0f9ff;
+  
+  --erp-border-color: #e2e8f0;
+  --erp-radius-sm: #0.375rem;
+  --erp-radius-md: #0.5rem;
+  --erp-radius-lg: #0.75rem;
+  --erp-radius-xl: #1rem;
+  
+  --erp-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --erp-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --erp-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --erp-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  
+  --erp-transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --erp-transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color: var(--erp-text-primary);
+  background-color: var(--erp-bg-main);
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Base Card Styling */
+.card {
+  background-color: var(--erp-bg-card);
+  border: 1px solid var(--erp-border-color);
+  border-radius: var(--erp-radius-md);
+  box-shadow: var(--erp-shadow-sm);
+  transition: box-shadow var(--erp-transition-fast);
+}
+
+.card:hover {
+  box-shadow: var(--erp-shadow-md);
+}
+
+.cardHeader {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--erp-border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cardTitle {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--erp-text-primary);
+  margin: 0;
+}
+
+.cardBody {
+  padding: 1.5rem;
+}
+
+/* Button Component Styles */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  border-radius: var(--erp-radius-sm);
+  transition: all var(--erp-transition-fast);
+  cursor: pointer;
+  border: 1px solid transparent;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  text-decoration: none;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btnSm {
+  padding: 0.25rem 0.625rem;
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
+
+.btnLg {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  line-height: 1.5rem;
+}
+
+.btnPrimary {
+  background-color: var(--erp-primary);
+  color: var(--erp-text-inverse);
+}
+.btnPrimary:hover:not(:disabled) {
+  background-color: var(--erp-primary-hover);
+  color: var(--erp-text-inverse);
+}
+
+.btnSecondary {
+  background-color: var(--erp-secondary);
+  color: var(--erp-text-inverse);
+}
+.btnSecondary:hover:not(:disabled) {
+  background-color: var(--erp-secondary-hover);
+  color: var(--erp-text-inverse);
+}
+
+.btnOutline {
+  background-color: transparent;
+  border-color: var(--erp-border-color);
+  color: var(--erp-text-primary);
+}
+.btnOutline:hover:not(:disabled) {
+  background-color: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.btnGhost {
+  background-color: transparent;
+  color: var(--erp-text-secondary);
+}
+.btnGhost:hover:not(:disabled) {
+  background-color: #f1f5f9;
+  color: var(--erp-text-primary);
+}
+
+.btnDanger {
+  background-color: var(--erp-danger);
+  color: var(--erp-text-inverse);
+}
+.btnDanger:hover:not(:disabled) {
+  background-color: #dc2626;
+}
+
+/* Badge Component Styles */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.625rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 9999px;
+  line-height: 1;
+}
+
+.badgeSuccess {
+  background-color: var(--erp-success-bg);
+  color: var(--erp-success);
+  border: 1px solid #a7f3d0;
+}
+
+.badgeWarning {
+  background-color: var(--erp-warning-bg);
+  color: var(--erp-warning);
+  border: 1px solid #fde68a;
+}
+
+.badgeDanger {
+  background-color: var(--erp-danger-bg);
+  color: var(--erp-danger);
+  border: 1px solid #fecaca;
+}
+
+.badgeInfo {
+  background-color: var(--erp-info-bg);
+  color: var(--erp-info);
+  border: 1px solid #bae6fd;
+}
+
+.badgeNeutral {
+  background-color: #f1f5f9;
+  color: var(--erp-text-secondary);
+  border: 1px solid var(--erp-border-color);
+}
+
+/* Input Component Styles */
+.inputWrapper {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+  position: relative;
+}
+
+.inputLabel {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--erp-text-primary);
+  margin-bottom: 0.375rem;
+}
+
+.inputContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.inputIconPrefix {
+  position: absolute;
+  left: 0.75rem;
+  color: var(--erp-text-muted);
+}
+
+.inputIconSuffix {
+  position: absolute;
+  right: 0.75rem;
+  color: var(--erp-text-muted);
+}
+
+.inputField {
+  width: 100%;
+  border: 1px solid var(--erp-border-color);
+  border-radius: var(--erp-radius-sm);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: var(--erp-text-primary);
+  background-color: var(--erp-bg-card);
+  transition: border-color var(--erp-transition-fast), box-shadow var(--erp-transition-fast);
+}
+
+.inputFieldWithPrefix {
+  padding-left: 2.25rem;
+}
+
+.inputFieldWithSuffix {
+  padding-right: 2.25rem;
+}
+
+.inputField:focus {
+  outline: none;
+  border-color: var(--erp-primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.inputFieldError {
+  border-color: var(--erp-danger);
+}
+.inputFieldError:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
+.inputErrorMessage {
+  font-size: 0.75rem;
+  color: var(--erp-danger);
+  margin-top: 0.25rem;
+}
+
+/* Modal Styles */
+.modalBackdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(2px);
+  z-index: 1050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  animation: fadeIn var(--erp-transition-fast) forwards;
+}
+
+.modalContainer {
+  background-color: var(--erp-bg-card);
+  border-radius: var(--erp-radius-lg);
+  box-shadow: var(--erp-shadow-xl);
+  width: 100%;
+  max-width: 32rem;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transform: scale(0.95);
+  animation: scaleIn var(--erp-transition-fast) forwards;
+}
+
+.modalHeader {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--erp-border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modalTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--erp-text-primary);
+  margin: 0;
+}
+
+.modalCloseBtn {
+  background: transparent;
+  border: none;
+  color: var(--erp-text-muted);
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 0.25rem;
+  transition: color var(--erp-transition-fast);
+}
+.modalCloseBtn:hover {
+  color: var(--erp-text-primary);
+}
+
+.modalBody {
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+
+.modalFooter {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--erp-border-color);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  background-color: #f8fafc;
+}
+
+/* Drawer Styles */
+.drawerBackdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(15, 23, 42, 0.5);
+  z-index: 1040;
+  opacity: 0;
+  animation: fadeIn var(--erp-transition-fast) forwards;
+}
+
+.drawerContainer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100vh;
+  width: 100%;
+  max-width: 28rem;
+  background-color: var(--erp-bg-card);
+  box-shadow: var(--erp-shadow-xl);
+  z-index: 1045;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  animation: slideLeft var(--erp-transition-normal) forwards;
+}
+
+.drawerHeader {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--erp-border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.drawerBody {
+  padding: 1.5rem;
+  overflow-y: auto;
+  flex-grow: 1;
+}
+
+.drawerFooter {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--erp-border-color);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+/* Empty State Styles */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.emptyStateIcon {
+  font-size: 3rem;
+  color: var(--erp-text-muted);
+  margin-bottom: 1.25rem;
+}
+
+.emptyStateTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--erp-text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.emptyStateDesc {
+  font-size: 0.875rem;
+  color: var(--erp-text-secondary);
+  max-width: 24rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Spinner Styles */
+.spinnerContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.spinner {
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 3px solid var(--erp-border-color);
+  border-top-color: var(--erp-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.spinnerText {
+  margin-top: 1rem;
+  font-size: 0.875rem;
+  color: var(--erp-text-secondary);
+  font-weight: 500;
+}
+
+/* Loading State / Skeleton Styles */
+.skeletonContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.5rem;
+}
+
+.skeletonPulse {
+  background: linear-gradient(90deg, #e2e8f0 25%, #cbd5e1 50%, #e2e8f0 75%);
+  background-size: 200% 100%;
+  animation: pulse 1.5s ease-in-out infinite;
+  border-radius: var(--erp-radius-sm);
+}
+
+.skeletonTitle {
+  height: 1.75rem;
+  width: 40%;
+}
+
+.skeletonRow {
+  height: 1.25rem;
+  width: 100%;
+}
+
+/* Chart Styles */
+.chartContainer {
+  background-color: var(--erp-bg-card);
+  border: 1px solid var(--erp-border-color);
+  border-radius: var(--erp-radius-md);
+  padding: 1.5rem;
+  box-shadow: var(--erp-shadow-sm);
+}
+
+.chartHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.chartTitle {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--erp-text-primary);
+  margin: 0;
+}
+
+.chartSubtitle {
+  font-size: 0.875rem;
+  color: var(--erp-text-secondary);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.95); }
+  to { transform: scale(1); }
+}
+
+@keyframes slideLeft {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}

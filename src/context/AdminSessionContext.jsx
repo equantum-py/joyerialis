@@ -31,10 +31,17 @@ export function AdminSessionProvider({ children }) {
   };
 
   return (
+ admin-panel-v1
     <AdminSessionContext.Provider value={{ session: mockSession }}>
       {children}
     </AdminSessionContext.Provider>
   );
+
+        <AdminSessionContext.Provider value={{ session: mockSession }}>
+          {children}
+        </AdminSessionContext.Provider>AdminSessionContext.Provider>
+      );
+
 }
 
 export function useAdminSession() {

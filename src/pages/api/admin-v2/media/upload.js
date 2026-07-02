@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/prisma';
-import { put } from '@vercel/blob';
+import { v2 as cloudinary } from 'cloudinary';
 
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/avif'];
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
@@ -23,9 +23,9 @@ class UploadError extends Error {
 function safeUploadLog(level, message, context = {}) {
   const safeContext = {
     ...context,
-    hasBlobReadWriteToken: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
-    hasBlobStoreId: Boolean(process.env.BLOB_STORE_ID),
-    hasVercelOidcToken: Boolean(process.env.VERCEL_OIDC_TOKEN),
+    hasCloudinaryCloudName: Boolean(process.env.CLOUDINARY_CLOUD_NAME),
+    hasCloudinaryApiKey: Boolean(process.env.CLOUDINARY_API_KEY),
+    hasCloudinaryApiSecret: Boolean(process.env.CLOUDINARY_API_SECRET),
     nodeEnv: process.env.NODE_ENV,
   };
 
@@ -132,31 +132,50 @@ function sanitizeSegment(value, fallback) {
   );
 }
 
-function getBlobCredentialOptions() {
-  if (process.env.VERCEL_OIDC_TOKEN && process.env.BLOB_STORE_ID) {
-    return {
-      authMode: 'oidc',
-      options: {
-        oidcToken: process.env.VERCEL_OIDC_TOKEN,
-        storeId: process.env.BLOB_STORE_ID,
-      },
-    };
+function getCloudinaryConfig() {
+  const { CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET } = process.env;
+
+  if (!CLOUDINARY_CLOUD_NAME || !CLOUDINARY_API_KEY || !CLOUDINARY_API_SECRET) {
+    throw new UploadError(
+      'Faltan variables de Cloudinary: CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY y CLOUDINARY_API_SECRET.',
+      503,
+      'CLOUDINARY_CONFIG_MISSING'
+    );
   }
 
-  if (process.env.BLOB_READ_WRITE_TOKEN) {
-    return {
-      authMode: 'read-write-token',
-      options: {
-        token: process.env.BLOB_READ_WRITE_TOKEN,
-      },
-    };
-  }
+  return {
+    cloud_name: CLOUDINARY_CLOUD_NAME,
+    api_key: CLOUDINARY_API_KEY,
+    api_secret: CLOUDINARY_API_SECRET,
+    secure: true,
+  };
+}
 
-  throw new UploadError(
-    'Faltan credenciales de Vercel Blob. Configure OIDC conectando el Blob Store al proyecto (VERCEL_OIDC_TOKEN + BLOB_STORE_ID) o agregue BLOB_READ_WRITE_TOKEN.',
-    503,
-    'BLOB_CREDENTIALS_MISSING'
-  );
+function uploadBufferToCloudinary(file, { folder, filename }) {
+  cloudinary.config(getCloudinaryConfig());
+
+  return new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      {
+        folder,
+        resource_type: 'image',
+        public_id: `${Date.now()}-${filename.replace(/\.[^.]+$/, '')}`,
+        overwrite: false,
+        unique_filename: true,
+        use_filename: true,
+      },
+      (error, result) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+
+        resolve(result);
+      }
+    );
+
+    uploadStream.end(file.buffer);
+  });
 }
 
 async function logMediaUpload(payload) {
@@ -180,27 +199,13 @@ async function logMediaUpload(payload) {
   }
 }
 
-async function uploadToVercelBlob(pathname, file) {
-  const credentials = getBlobCredentialOptions();
-
-  safeUploadLog('info', 'Credenciales Blob seleccionadas.', {
-    authMode: credentials.authMode,
-  });
-
-  return put(pathname, file.buffer, {
-    access: 'public',
-    contentType: file.contentType,
-    addRandomSuffix: true,
-    ...credentials.options,
-  });
-}
-
 function errorResponse(error) {
-  const statusCode = error.statusCode || 500;
+  const statusCode = error.statusCode || error.http_code || 500;
   const code = error.code || 'UPLOAD_FAILED';
-  const message = statusCode >= 500 && !error.statusCode
-    ? 'Error interno al subir archivo.'
-    : error.message;
+  const message =
+    statusCode >= 500 && !error.statusCode && !error.http_code
+      ? 'Error interno al subir archivo.'
+      : error.message;
 
   return {
     statusCode,
@@ -255,7 +260,7 @@ export default async function handler(req, res) {
       metadata = {};
     }
 
-    safeUploadLog('info', 'Intentando subir archivo.', {
+    safeUploadLog('info', 'Intentando subir archivo a Cloudinary.', {
       filename: file.filename,
       contentType: file.contentType,
       size: file.buffer.length,
@@ -263,12 +268,16 @@ export default async function handler(req, res) {
       folder,
     });
 
-    const pathname = `${folder}/${Date.now()}-${filename}`;
-    const blob = await uploadToVercelBlob(pathname, file);
+    const cloudinaryResult = await uploadBufferToCloudinary(file, {
+      folder,
+      filename,
+    });
 
     const payload = {
-      url: blob.url,
-      pathname: blob.pathname || pathname,
+      url: cloudinaryResult.secure_url || cloudinaryResult.url,
+      secureUrl: cloudinaryResult.secure_url,
+      pathname: cloudinaryResult.public_id,
+      publicId: cloudinaryResult.public_id,
       filename: file.filename,
       contentType: file.contentType,
       size: file.buffer.length,
@@ -290,6 +299,7 @@ export default async function handler(req, res) {
       code: body.code,
       errorName: error.name,
       errorCode: error.code,
+      cloudinaryHttpCode: error.http_code,
       message: error.message,
     });
 

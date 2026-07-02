@@ -1,5 +1,4 @@
-import { prisma } from '@/lib/prisma';
-import { v2 as cloudinary } from 'cloudinary';
+let cachedCloudinary = null;
 
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/avif'];
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
@@ -18,6 +17,19 @@ class UploadError extends Error {
     this.statusCode = statusCode;
     this.code = code;
   }
+}
+
+async function getCloudinary() {
+  if (cachedCloudinary) return cachedCloudinary;
+
+  const module = await import('cloudinary');
+  cachedCloudinary = module.v2;
+  return cachedCloudinary;
+}
+
+async function getPrisma() {
+  const module = await import('@/lib/prisma');
+  return module.prisma;
 }
 
 function safeUploadLog(level, message, context = {}) {
@@ -151,7 +163,8 @@ function getCloudinaryConfig() {
   };
 }
 
-function uploadBufferToCloudinary(file, { folder, filename }) {
+async function uploadBufferToCloudinary(file, { folder, filename }) {
+  const cloudinary = await getCloudinary();
   cloudinary.config(getCloudinaryConfig());
 
   return new Promise((resolve, reject) => {
@@ -180,6 +193,8 @@ function uploadBufferToCloudinary(file, { folder, filename }) {
 
 async function logMediaUpload(payload) {
   try {
+    const prisma = await getPrisma();
+
     await prisma.activityLog.create({
       data: {
         action: 'UPLOAD_MEDIA',

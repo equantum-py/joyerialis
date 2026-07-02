@@ -29,7 +29,6 @@ function safeUploadLog(level, message, context = {}) {
     nodeEnv: process.env.NODE_ENV,
   };
 
-  // Logs de diagnóstico sin secretos para auditar runtime en Vercel.
   console[level](`[admin-v2/media/upload] ${message}`, safeContext);
 }
 
@@ -41,18 +40,21 @@ function readRequestBuffer(req) {
 
     req.on('data', (chunk) => {
       total += chunk.length;
+
       if (total > MAX_REQUEST_SIZE) {
         finished = true;
         reject(new UploadError('El archivo no debe superar 5MB.', 413, 'FILE_TOO_LARGE'));
         req.destroy();
         return;
       }
+
       chunks.push(chunk);
     });
 
     req.on('end', () => {
       if (!finished) resolve(Buffer.concat(chunks));
     });
+
     req.on('error', (error) => {
       if (!finished) reject(error);
     });
@@ -63,6 +65,7 @@ function parseContentDisposition(value = '') {
   return value.split(';').reduce((acc, part) => {
     const [rawKey, ...rawValue] = part.trim().split('=');
     if (!rawValue.length) return acc;
+
     acc[rawKey] = rawValue.join('=').replace(/^"|"$/g, '');
     return acc;
   }, {});
@@ -70,7 +73,10 @@ function parseContentDisposition(value = '') {
 
 function parseMultipart(buffer, contentType) {
   const boundaryMatch = contentType.match(/boundary=(?:(?:"([^"]+)")|([^;]+))/i);
-  if (!boundaryMatch) throw new UploadError('Formulario inválido: falta boundary multipart.', 400, 'INVALID_MULTIPART');
+
+  if (!boundaryMatch) {
+    throw new UploadError('Formulario inválido: falta boundary multipart.', 400, 'INVALID_MULTIPART');
+  }
 
   const boundary = `--${boundaryMatch[1] || boundaryMatch[2]}`;
   const body = buffer.toString('binary');
@@ -81,17 +87,21 @@ function parseMultipart(buffer, contentType) {
   parts.forEach((part) => {
     const cleanPart = part.replace(/^\r\n/, '').replace(/\r\n$/, '');
     const separatorIndex = cleanPart.indexOf('\r\n\r\n');
+
     if (separatorIndex === -1) return;
 
     const rawHeaders = cleanPart.slice(0, separatorIndex);
     const rawContent = cleanPart.slice(separatorIndex + 4);
+
     const headers = rawHeaders.split('\r\n').reduce((acc, line) => {
       const [key, ...rest] = line.split(':');
+
       if (key) acc[key.toLowerCase()] = rest.join(':').trim();
       return acc;
     }, {});
 
     const disposition = parseContentDisposition(headers['content-disposition']);
+
     if (!disposition.name) return;
 
     if (disposition.filename) {
@@ -136,7 +146,9 @@ function getBlobCredentialOptions() {
   if (process.env.BLOB_READ_WRITE_TOKEN) {
     return {
       authMode: 'read-write-token',
-      options: { token: process.env.BLOB_READ_WRITE_TOKEN },
+      options: {
+        token: process.env.BLOB_READ_WRITE_TOKEN,
+      },
     };
   }
 
@@ -171,7 +183,9 @@ async function logMediaUpload(payload) {
 async function uploadToVercelBlob(pathname, file) {
   const credentials = getBlobCredentialOptions();
 
-  safeUploadLog('info', 'Credenciales Blob seleccionadas.', { authMode: credentials.authMode });
+  safeUploadLog('info', 'Credenciales Blob seleccionadas.', {
+    authMode: credentials.authMode,
+  });
 
   return put(pathname, file.buffer, {
     access: 'public',
@@ -184,20 +198,32 @@ async function uploadToVercelBlob(pathname, file) {
 function errorResponse(error) {
   const statusCode = error.statusCode || 500;
   const code = error.code || 'UPLOAD_FAILED';
-  const message = statusCode >= 500 && !error.statusCode ? 'Error interno al subir archivo.' : error.message;
+  const message = statusCode >= 500 && !error.statusCode
+    ? 'Error interno al subir archivo.'
+    : error.message;
 
-  return { statusCode, body: { message, code } };
+  return {
+    statusCode,
+    body: {
+      message,
+      code,
+    },
+  };
 }
 
 export default async function handler(req, res) {
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
 
   if (req.method !== 'POST') {
-    return res.status(405).json({ message: 'Method Not Allowed', code: 'METHOD_NOT_ALLOWED' });
+    return res.status(405).json({
+      message: 'Method Not Allowed',
+      code: 'METHOD_NOT_ALLOWED',
+    });
   }
 
   try {
     const contentType = req.headers['content-type'] || '';
+
     if (!contentType.includes('multipart/form-data')) {
       throw new UploadError('El formulario debe ser multipart/form-data.', 400, 'INVALID_CONTENT_TYPE');
     }
@@ -205,7 +231,9 @@ export default async function handler(req, res) {
     const buffer = await readRequestBuffer(req);
     const { fields, file } = parseMultipart(buffer, contentType);
 
-    if (!file) throw new UploadError('Debe adjuntar un archivo.', 400, 'FILE_REQUIRED');
+    if (!file) {
+      throw new UploadError('Debe adjuntar un archivo.', 400, 'FILE_REQUIRED');
+    }
 
     if (!ALLOWED_IMAGE_TYPES.includes(file.contentType)) {
       throw new UploadError('Solo se permiten imágenes JPEG, PNG, WEBP o AVIF.', 400, 'INVALID_FILE_TYPE');
@@ -218,6 +246,7 @@ export default async function handler(req, res) {
     const scope = sanitizeSegment(fields.scope, 'general');
     const folder = sanitizeSegment(fields.folder, scope);
     const filename = sanitizeSegment(file.filename, `media-${Date.now()}`);
+
     let metadata = {};
 
     try {
@@ -255,6 +284,7 @@ export default async function handler(req, res) {
     return res.status(201).json(payload);
   } catch (error) {
     const { statusCode, body } = errorResponse(error);
+
     safeUploadLog(statusCode >= 500 ? 'error' : 'warn', 'Upload rechazado.', {
       statusCode,
       code: body.code,
@@ -262,6 +292,7 @@ export default async function handler(req, res) {
       errorCode: error.code,
       message: error.message,
     });
+
     return res.status(statusCode).json(body);
   }
 }

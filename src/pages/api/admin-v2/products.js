@@ -1,5 +1,149 @@
+import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
-import productsData from '@/data/joyerialis-products.json';
+
+function slugify(text) {
+  return String(text || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/[^\w-]+/g, '')
+    .replace(/--+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+function serializeProduct(product) {
+  if (!product) return null;
+  const images = [...(product.images || [])].sort((a, b) => a.sortOrder - b.sortOrder);
+  const mainImage = product.img || images[0]?.url || '';
+
+  return {
+    ...product,
+    price: Number(product.price),
+    category: product.categoryName || product.category?.name || 'General',
+    img: mainImage,
+    images: images.map((image) => ({
+      id: image.id,
+      url: image.url,
+      alt: image.alt || '',
+      sortOrder: image.sortOrder,
+    })),
+  };
+}
+
+function parseNumber(value, fieldName) {
+  const number = Number(value);
+  if (!Number.isFinite(number)) throw new Error(`${fieldName} debe ser numérico.`);
+  return number;
+}
+
+function normalizeImages(images = [], mainImageUrl = '') {
+  if (!Array.isArray(images)) return [];
+  const seen = new Set();
+  const normalized = [];
+
+  images.forEach((image) => {
+    if (!image?.url || seen.has(image.url)) return;
+    seen.add(image.url);
+    normalized.push({
+      url: image.url,
+      alt: image.alt || '',
+      sortOrder: normalized.length,
+    });
+  });
+
+  if (mainImageUrl) {
+    const mainIndex = normalized.findIndex((image) => image.url === mainImageUrl);
+    if (mainIndex > 0) {
+      const [mainImage] = normalized.splice(mainIndex, 1);
+      normalized.unshift(mainImage);
+    }
+  }
+
+  return normalized.map((image, sortOrder) => ({ ...image, sortOrder }));
+}
+
+function validateProductPayload(data, { partial = false } = {}) {
+  const errors = {};
+
+  if (!partial || data.title !== undefined) {
+    if (!String(data.title || '').trim()) errors.title = 'El nombre es obligatorio.';
+  }
+
+  if (!partial || data.price !== undefined) {
+    if (data.price === undefined || data.price === '') errors.price = 'El precio es obligatorio.';
+    else if (!Number.isFinite(Number(data.price))) errors.price = 'El precio debe ser numérico.';
+  }
+
+  if (!partial || data.quantity !== undefined) {
+    if (data.quantity === undefined || data.quantity === '') errors.quantity = 'La cantidad es obligatoria.';
+    else if (!Number.isInteger(Number(data.quantity))) errors.quantity = 'La cantidad debe ser numérica.';
+  }
+
+  if (!partial || data.status !== undefined) {
+    if (!String(data.status || '').trim()) errors.status = 'El estado es obligatorio.';
+  }
+
+  const slug = String(data.slug || '').trim() || slugify(data.title);
+  if (!partial && !slug) errors.slug = 'El slug es obligatorio.';
+
+  if (Object.keys(errors).length) {
+    const error = new Error('Datos de producto inválidos.');
+    error.statusCode = 400;
+    error.details = errors;
+    throw error;
+  }
+
+  return slug;
+}
+
+function buildProductData(data, slug) {
+  const productData = {};
+
+  if (data.sku !== undefined) productData.sku = String(data.sku || '').trim() || null;
+  if (data.title !== undefined) productData.title = String(data.title).trim();
+  if (slug) productData.slug = slug;
+  if (data.price !== undefined) productData.price = new Prisma.Decimal(parseNumber(data.price, 'El precio'));
+  if (data.quantity !== undefined) productData.quantity = parseInt(parseNumber(data.quantity, 'La cantidad'), 10);
+  if (data.status !== undefined) productData.status = String(data.status).trim();
+  if (data.category !== undefined || data.categoryName !== undefined) productData.categoryName = String(data.category || data.categoryName || 'General');
+  if (data.img !== undefined) productData.img = data.img || null;
+  if (data.description !== undefined) productData.description = data.description || '';
+  if (data.seoTitle !== undefined) productData.seoTitle = data.seoTitle || data.title || '';
+  if (data.seoDesc !== undefined) productData.seoDesc = data.seoDesc || '';
+
+  return productData;
+}
+
+async function logProductAction(action, product, details = {}) {
+  try {
+    await prisma.activityLog.create({
+      data: {
+        action,
+        details: JSON.stringify(details),
+        userName: 'Sistema ERP',
+        target: product?.title || product?.id || 'Producto',
+        module: 'Productos',
+      },
+    });
+  } catch (error) {
+    // El CRUD no debe fallar si el log no se registra.
+  }
+}
+
+function handlePrismaError(error, res) {
+  if (error.code === 'P2002') {
+    return res.status(409).json({ message: 'Ya existe un producto con el mismo SKU o slug.' });
+  }
+  if (error.code === 'P2025') {
+    return res.status(404).json({ message: 'Producto no encontrado.' });
+  }
+
+  return res.status(error.statusCode || 500).json({
+    message: error.message || 'Error de servidor.',
+    errors: error.details,
+  });
+}
 
 export default async function handler(req, res) {
   const { method } = req;
@@ -7,159 +151,115 @@ export default async function handler(req, res) {
   try {
     if (method === 'GET') {
       const { id, search = '', category = '', status = '', sortBy = 'title', sortDir = 'asc', page = 1, limit = 10 } = req.query;
+      const include = { images: true, category: true };
 
       if (id) {
-        try {
-          const product = await prisma.product.findFirst({
-            where: { OR: [{ id }, { sku: id }, { slug: id }] }
-          });
-          if (product) return res.status(200).json(product);
-        } catch (e) {
-          // Fallback if DB is unavailable
-        }
-        const fallback = productsData?.data?.find(p => p.id === id || p._id === id || p.sku === id);
-        if (!fallback) return res.status(404).json({ message: 'Producto no encontrado' });
-        return res.status(200).json(fallback);
+        const product = await prisma.product.findFirst({
+          where: { OR: [{ id }, { sku: id }, { slug: id }] },
+          include,
+        });
+        if (!product) return res.status(404).json({ message: 'Producto no encontrado.' });
+        return res.status(200).json(serializeProduct(product));
       }
 
-      let items = [];
-      try {
-        items = await prisma.product.findMany();
-      } catch (e) {
-        // Fallback to json if DB not fully seeded/unreachable during build
-      }
+      const where = {
+        AND: [
+          search ? { OR: [{ title: { contains: search, mode: 'insensitive' } }, { sku: { contains: search, mode: 'insensitive' } }] } : {},
+          category ? { categoryName: category } : {},
+          status === 'active' ? { status: 'active' } : {},
+          status === 'inactive' ? { status: 'inactive' } : {},
+          status === 'low_stock' ? { quantity: { lt: 15 } } : {},
+        ],
+      };
 
-      if (!items || items.length === 0) {
-        items = [...(productsData?.data || [])];
-      }
+      const allowedSortFields = ['title', 'sku', 'price', 'quantity', 'status', 'categoryName', 'createdAt', 'updatedAt'];
+      const orderField = sortBy === 'category' ? 'categoryName' : sortBy;
+      const orderBy = allowedSortFields.includes(orderField) ? { [orderField]: sortDir === 'desc' ? 'desc' : 'asc' } : { title: 'asc' };
+      const pageNum = Math.max(Number(page) || 1, 1);
+      const limitNum = Math.max(Number(limit) || 10, 1);
 
-      // Filtrado por búsqueda
-      if (search) {
-        const q = search.toLowerCase();
-        items = items.filter(p => p.title?.toLowerCase().includes(q) || p.sku?.toLowerCase().includes(q));
-      }
-
-      // Filtrado por categoría
-      if (category) {
-        items = items.filter(p => p.category === category || p.category_name === category || p.categoryName === category);
-      }
-
-      // Filtrado por estado
-      if (status) {
-        if (status === 'active') items = items.filter(p => p.status !== 'inactive');
-        if (status === 'low_stock') items = items.filter(p => p.quantity < 15);
-      }
-
-      // Ordenamiento
-      items.sort((a, b) => {
-        let valA = a[sortBy] || '';
-        let valB = b[sortBy] || '';
-        if (typeof valA === 'string') valA = valA.toLowerCase();
-        if (typeof valB === 'string') valB = valB.toLowerCase();
-        if (valA < valB) return sortDir === 'asc' ? -1 : 1;
-        if (valA > valB) return sortDir === 'asc' ? 1 : -1;
-        return 0;
-      });
-
-      // Paginación
-      const pageNum = Number(page);
-      const limitNum = Number(limit);
-      const total = items.length;
-      const totalPages = Math.ceil(total / limitNum);
-      const startIndex = (pageNum - 1) * limitNum;
-      const paginatedData = items.slice(startIndex, startIndex + limitNum);
+      const [items, total] = await prisma.$transaction([
+        prisma.product.findMany({ where, include, orderBy, skip: (pageNum - 1) * limitNum, take: limitNum }),
+        prisma.product.count({ where }),
+      ]);
 
       return res.status(200).json({
-        data: paginatedData,
+        data: items.map(serializeProduct),
         total,
         page: pageNum,
         limit: limitNum,
-        totalPages,
+        totalPages: Math.ceil(total / limitNum),
       });
     }
 
     if (method === 'POST') {
-      const data = req.body;
-      const slug = data.slug || `prod-${Date.now()}`;
-      try {
-        const newProduct = await prisma.product.create({
-          data: {
-            sku: data.sku || `SKU-${Date.now()}`,
-            title: data.title,
-            slug: slug,
-            price: Number(data.price || 0),
-            quantity: Number(data.quantity || 0),
-            status: data.status || 'active',
-            categoryName: data.category || 'general',
-            img: data.img || '/assets/img/product/default.jpg',
-            seoTitle: data.seoTitle || data.title,
-            seoDesc: data.seoDesc || '',
-          }
-        });
-        return res.status(201).json(newProduct);
-      } catch (e) {
-        // Fallback simulation
-        const newProduct = {
-          id: `prod-${Date.now()}`,
-          sku: data.sku || `SKU-${Date.now()}`,
-          title: data.title,
-          price: Number(data.price || 0),
-          quantity: Number(data.quantity || 0),
-          category: data.category || 'general',
-          status: data.status || 'active',
-          img: data.img || '/assets/img/product/default.jpg',
+      const data = req.body || {};
+      const slug = validateProductPayload(data);
+      const images = normalizeImages(data.images, data.img);
+      const img = data.img || images[0]?.url || null;
+
+      const newProduct = await prisma.product.create({
+        data: {
+          ...buildProductData({ ...data, img }, slug),
           seoTitle: data.seoTitle || data.title,
           seoDesc: data.seoDesc || '',
-          createdAt: new Date().toISOString(),
-        };
-        return res.status(201).json(newProduct);
-      }
+          images: images.length ? { create: images } : undefined,
+        },
+        include: { images: true, category: true },
+      });
+
+      await logProductAction('CREATE_PRODUCT', newProduct, { id: newProduct.id });
+      return res.status(201).json(serializeProduct(newProduct));
     }
 
     if (method === 'PUT') {
-      const { id, action, ids, status, ...updateData } = req.body;
+      const { id, action, ids, status, ...updateData } = req.body || {};
+
       if (action === 'bulkUpdateStatus') {
-        try {
-          await prisma.product.updateMany({
-            where: { id: { in: ids } },
-            data: { status }
-          });
-        } catch (e) {}
-        return res.status(200).json({ success: true });
+        if (!Array.isArray(ids) || !ids.length) return res.status(400).json({ message: 'Debe seleccionar productos.' });
+        if (!status) return res.status(400).json({ message: 'Debe indicar un estado.' });
+        const result = await prisma.product.updateMany({ where: { id: { in: ids } }, data: { status } });
+        return res.status(200).json({ success: true, count: result.count });
       }
 
-      try {
-        const updated = await prisma.product.update({
+      if (!id) return res.status(400).json({ message: 'Debe indicar el producto a actualizar.' });
+      const slug = validateProductPayload(updateData, { partial: true });
+      const images = normalizeImages(updateData.images, updateData.img);
+      const img = updateData.img || images[0]?.url || null;
+
+      const updated = await prisma.$transaction(async (tx) => {
+        await tx.productImage.deleteMany({ where: { productId: id } });
+        return tx.product.update({
           where: { id },
-          data: updateData
+          data: {
+            ...buildProductData({ ...updateData, img }, slug),
+            images: images.length ? { create: images } : undefined,
+          },
+          include: { images: true, category: true },
         });
-        return res.status(200).json(updated);
-      } catch (e) {
-        return res.status(200).json({ id, ...updateData });
-      }
+      });
+
+      await logProductAction('UPDATE_PRODUCT', updated, { id: updated.id });
+      return res.status(200).json(serializeProduct(updated));
     }
 
     if (method === 'DELETE') {
-      const { id, action, ids } = req.body;
+      const { id, action, ids } = req.body || {};
+
       if (action === 'bulkDelete') {
-        try {
-          await prisma.product.deleteMany({
-            where: { id: { in: ids } }
-          });
-        } catch (e) {}
-        return res.status(200).json({ success: true });
+        if (!Array.isArray(ids) || !ids.length) return res.status(400).json({ message: 'Debe seleccionar productos.' });
+        const result = await prisma.product.deleteMany({ where: { id: { in: ids } } });
+        return res.status(200).json({ success: true, count: result.count });
       }
 
-      try {
-        await prisma.product.delete({
-          where: { id }
-        });
-      } catch (e) {}
-      return res.status(200).json({ success: true });
+      if (!id) return res.status(400).json({ message: 'Debe indicar el producto a eliminar.' });
+      const deleted = await prisma.product.delete({ where: { id } });
+      await logProductAction('DELETE_PRODUCT', deleted, { id: deleted.id });
+      return res.status(200).json({ success: true, id: deleted.id });
     }
 
     return res.status(405).json({ message: 'Method Not Allowed' });
   } catch (error) {
-    return res.status(500).json({ message: error.message || 'Server error' });
+    return handlePrismaError(error, res);
   }
 }

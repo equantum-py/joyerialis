@@ -12,12 +12,12 @@ import Badge from '@/components/admin-v2/ui/Badge';
 import Button from '@/components/admin-v2/ui/Button';
 import EmptyState from '@/components/admin-v2/ui/EmptyState';
 import LoadingState from '@/components/admin-v2/ui/LoadingState';
-import FormBuilder from '@/components/admin-v2/form/FormBuilder';
-import { ValidationLayer } from '@/components/admin-v2/form/ValidationLayer';
 import { erpToast } from '@/components/admin-v2/ui/Toast';
 import { useDataProvider } from '@/components/admin-v2/crud/DataProvider';
 import { productService } from '@/services/admin-v2/productService';
 import ProductImage from '@/components/admin/shared/ProductImage';
+import MediaUploader from '@/components/admin-v2/media/MediaUploader';
+import MediaGrid from '@/components/admin-v2/media/MediaGrid';
 
 export default function AdminV2Products() {
   const [search, setSearch] = useState('');
@@ -126,14 +126,14 @@ export default function AdminV2Products() {
   // CRUD Actions
   const handleAddNew = () => {
     setEditingId(null);
-    setFormData({ title: '', sku: '', price: '', quantity: '', category: 'General', status: 'active' });
+    setFormData({ title: '', slug: '', sku: '', price: '', quantity: '', category: 'General', status: 'active', img: '', images: [] });
     setFormErrors({});
     setIsFormOpen(true);
   };
 
   const handleEdit = (row) => {
     setEditingId(row.id || row._id);
-    setFormData({ title: row.title, sku: row.sku, price: row.price, quantity: row.quantity, category: row.category, status: row.status });
+    setFormData({ title: row.title || '', slug: row.slug || '', sku: row.sku || '', price: row.price || '', quantity: row.quantity ?? '', category: row.category || row.categoryName || 'General', status: row.status || 'active', img: row.img || '', images: row.images || [] });
     setFormErrors({});
     setIsFormOpen(true);
   };
@@ -144,10 +144,14 @@ export default function AdminV2Products() {
   };
 
   const handleDelete = async () => {
-    await productService.delete(editingId);
-    erpToast.success('Producto eliminado correctamente.');
-    setIsConfirmDeleteOpen(false);
-    refetch();
+    try {
+      await productService.delete(editingId);
+      erpToast.success('Producto eliminado correctamente.');
+      setIsConfirmDeleteOpen(false);
+      refetch();
+    } catch (error) {
+      erpToast.error(error.message || 'No se pudo eliminar el producto.');
+    }
   };
 
   const handleFormChange = (key, value) => {
@@ -155,42 +159,62 @@ export default function AdminV2Products() {
   };
 
   const handleFormSubmit = async (dataToSave) => {
-    const schema = {
-      title: { required: true, requiredMessage: 'El nombre es obligatorio' },
-      price: { required: true, min: 1 },
-      quantity: { required: true, min: 0 },
-    };
-    const { isValid, errors } = ValidationLayer.validateForm(dataToSave, schema);
-    if (!isValid) {
+    const errors = {};
+    if (!dataToSave.title?.trim()) errors.title = 'El nombre es obligatorio';
+    if (!dataToSave.slug?.trim() && !dataToSave.title?.trim()) errors.slug = 'El slug es obligatorio';
+    if (dataToSave.price === '' || Number.isNaN(Number(dataToSave.price))) errors.price = 'El precio debe ser numérico';
+    if (dataToSave.quantity === '' || Number.isNaN(Number(dataToSave.quantity))) errors.quantity = 'La cantidad debe ser numérica';
+    if (!dataToSave.status) errors.status = 'El estado es obligatorio';
+
+    if (Object.keys(errors).length) {
       setFormErrors(errors);
       erpToast.error('Revise los errores en el formulario.');
       return;
     }
 
-    if (editingId) {
-      await productService.update(editingId, dataToSave);
-      erpToast.success('Producto actualizado exitosamente.');
-    } else {
-      await productService.create(dataToSave);
-      erpToast.success('Producto creado exitosamente.');
+    const payload = {
+      ...dataToSave,
+      slug: dataToSave.slug?.trim() || dataToSave.title.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '-').replace(/[^\w-]+/g, '').replace(/--+/g, '-').replace(/^-+|-+$/g, ''),
+      img: dataToSave.img || dataToSave.images?.[0]?.url || '',
+      images: (dataToSave.images || []).map((image, sortOrder) => ({ ...image, sortOrder })),
+    };
+
+    try {
+      if (editingId) {
+        await productService.update(editingId, payload);
+        erpToast.success('Producto actualizado exitosamente.');
+      } else {
+        await productService.create(payload);
+        erpToast.success('Producto creado exitosamente.');
+      }
+      setIsFormOpen(false);
+      refetch();
+    } catch (error) {
+      erpToast.error(error.message || 'No se pudo guardar el producto.');
     }
-    setIsFormOpen(false);
-    refetch();
   };
 
   // Bulk actions
   const handleBulkStatus = async (status) => {
-    await productService.bulkUpdateStatus(selectedIds, status);
-    erpToast.success(`Se actualizaron ${selectedIds.length} productos a ${status}.`);
-    setSelectedIds([]);
-    refetch();
+    try {
+      const result = await productService.bulkUpdateStatus(selectedIds, status);
+      erpToast.success(`Se actualizaron ${result.count ?? selectedIds.length} productos a ${status}.`);
+      setSelectedIds([]);
+      refetch();
+    } catch (error) {
+      erpToast.error(error.message || 'No se pudo actualizar el estado masivo.');
+    }
   };
 
   const handleBulkDelete = async () => {
-    await productService.bulkDelete(selectedIds);
-    erpToast.success(`Se eliminaron ${selectedIds.length} productos.`);
-    setSelectedIds([]);
-    refetch();
+    try {
+      const result = await productService.bulkDelete(selectedIds);
+      erpToast.success(`Se eliminaron ${result.count ?? selectedIds.length} productos.`);
+      setSelectedIds([]);
+      refetch();
+    } catch (error) {
+      erpToast.error(error.message || 'No se pudo eliminar masivamente.');
+    }
   };
 
   const bulkActionDefinitions = [
@@ -222,6 +246,7 @@ export default function AdminV2Products() {
 
   const formFields = [
     { key: 'title', label: 'Nombre del Producto', placeholder: 'Ej. Anillo de Diamante' },
+    { key: 'slug', label: 'Slug', placeholder: 'Ej. anillo-de-diamante' },
     { key: 'sku', label: 'SKU / Código', placeholder: 'Ej. SKU-9821' },
     { key: 'price', label: 'Precio ($)', type: 'number', placeholder: 'Ej. 1250' },
     { key: 'quantity', label: 'Cantidad en Stock', type: 'number', placeholder: 'Ej. 25' },
@@ -296,16 +321,82 @@ export default function AdminV2Products() {
         <Pagination page={page} totalPages={totalPages} total={total} limit={10} onPageChange={setPage} />
       </CRUDManager>
 
-      <Modal isOpen={isFormOpen} onClose={() => setIsFormOpen(false)} title={editingId ? 'Editar Producto' : 'Crear Nuevo Producto'}>
-        <FormBuilder
-          fields={formFields}
-          formData={formData}
-          errors={formErrors}
-          onChange={handleFormChange}
-          onSubmit={handleFormSubmit}
-          onCancel={() => setIsFormOpen(false)}
-          submitLabel={editingId ? 'Guardar Cambios' : 'Crear Producto'}
-        />
+      <Modal isOpen={isFormOpen} onClose={() => setIsFormOpen(false)} title={editingId ? 'Editar Producto' : 'Crear Nuevo Producto'} maxWidth="56rem">
+        <form onSubmit={(event) => { event.preventDefault(); handleFormSubmit(formData); }} className="d-flex flex-column gap-3">
+          <div className="row g-3">
+            {formFields.map((field) => (
+              <div className="col-12 col-md-6" key={field.key}>
+                <label className="form-label small font-weight-bold text-dark">{field.label}</label>
+                {field.type === 'select' ? (
+                  <select
+                    className={`form-select ${formErrors[field.key] ? 'is-invalid' : ''}`}
+                    value={formData[field.key] || ''}
+                    onChange={(event) => handleFormChange(field.key, event.target.value)}
+                  >
+                    {field.options.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+                  </select>
+                ) : (
+                  <input
+                    className={`form-control ${formErrors[field.key] ? 'is-invalid' : ''}`}
+                    type={field.type || 'text'}
+                    value={formData[field.key] || ''}
+                    onChange={(event) => handleFormChange(field.key, event.target.value)}
+                    placeholder={field.placeholder}
+                  />
+                )}
+                {formErrors[field.key] && <div className="invalid-feedback d-block">{formErrors[field.key]}</div>}
+              </div>
+            ))}
+          </div>
+
+          <div className="border-top pt-3 mt-2 d-flex flex-column gap-3">
+            <div>
+              <h6 className="mb-1 text-dark font-weight-bold">Imágenes del producto</h6>
+              <p className="mb-0 text-muted small">Sube imágenes desde tu computadora. La imagen seleccionada como principal se mostrará en la tabla.</p>
+            </div>
+            <MediaUploader
+              scope="products"
+              folder="products"
+              multiple
+              title="Subir imágenes"
+              description="Arrastra imágenes aquí o haz clic para seleccionar archivos JPEG, PNG, WEBP o AVIF."
+              onUploaded={(uploaded) => {
+                const uploadedItems = (Array.isArray(uploaded) ? uploaded : [uploaded]).map((item) => ({
+                  ...item,
+                  id: item.url,
+                  sortOrder: formData.images?.length || 0,
+                }));
+                const nextImages = [...(formData.images || []), ...uploadedItems].map((item, sortOrder) => ({ ...item, sortOrder }));
+                setFormData({ ...formData, images: nextImages, img: formData.img || nextImages[0]?.url || '' });
+              }}
+              onError={(error) => erpToast.error(error.message || 'No se pudo subir el archivo.')}
+            />
+            <MediaGrid
+              title="Galería"
+              emptyMessage="Aún no hay imágenes cargadas."
+              items={formData.images || []}
+              selectedId={formData.img}
+              selectedLabel="Principal"
+              editableAlt
+              sortable
+              selectable
+              onChange={(nextItems) => {
+                const sortedItems = nextItems.map((item, sortOrder) => ({ ...item, sortOrder }));
+                setFormData({ ...formData, images: sortedItems, img: sortedItems.some((item) => item.url === formData.img) ? formData.img : sortedItems[0]?.url || '' });
+              }}
+              onRemove={(item) => {
+                const nextImages = (formData.images || []).filter((image) => image.url !== item.url).map((image, sortOrder) => ({ ...image, sortOrder }));
+                setFormData({ ...formData, images: nextImages, img: formData.img === item.url ? nextImages[0]?.url || '' : formData.img });
+              }}
+              onSelect={(item) => setFormData({ ...formData, img: item.url })}
+            />
+          </div>
+
+          <div className="d-flex align-items-center justify-content-end gap-2 pt-3 border-top border-light">
+            <Button variant="outline" type="button" onClick={() => setIsFormOpen(false)}>Cancelar</Button>
+            <Button variant="primary" type="submit">{editingId ? 'Guardar Cambios' : 'Crear Producto'}</Button>
+          </div>
+        </form>
       </Modal>
 
       <ConfirmDialog

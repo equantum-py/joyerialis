@@ -19,7 +19,6 @@
     "@reduxjs/toolkit": "^1.9.3",
     "@stripe/react-stripe-js": "^2.1.0",
     "@stripe/stripe-js": "^1.52.1",
-    "@vercel/blob": "^2.5.0",
     "bcryptjs": "^2.4.3",
     "bootstrap": "^5.2.3",
     "dayjs": "^1.11.7",
@@ -48,7 +47,8 @@
     "sass": "^1.59.3",
     "slick-carousel": "^1.8.1",
     "swiper": "^9.1.1",
-    "yup": "^1.1.1"
+    "yup": "^1.1.1",
+    "cloudinary": "^2.10.0"
   },
   "devDependencies": {
     "prisma": "^5.10.2",

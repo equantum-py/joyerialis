@@ -132,6 +132,12 @@ async function logProductAction(action, product, details = {}) {
 }
 
 function handlePrismaError(error, res) {
+  console.error('[admin-v2/products] Prisma/API error', {
+    name: error.name,
+    code: error.code,
+    message: error.message,
+  });
+
   if (error.code === 'P2002') {
     return res.status(409).json({ message: 'Ya existe un producto con el mismo SKU o slug.' });
   }
@@ -139,8 +145,13 @@ function handlePrismaError(error, res) {
     return res.status(404).json({ message: 'Producto no encontrado.' });
   }
 
+  const isPrismaConnectionError = ['PrismaClientInitializationError', 'PrismaClientKnownRequestError', 'PrismaClientUnknownRequestError'].includes(error.name);
+
   return res.status(error.statusCode || 500).json({
-    message: error.message || 'Error de servidor.',
+    message: isPrismaConnectionError
+      ? 'Error de conexión o consulta Prisma. Verifique DATABASE_URL y DIRECT_URL en Vercel para el proyecto correcto.'
+      : error.message || 'Error de servidor.',
+    code: error.code || error.name || 'PRODUCTS_ERROR',
     errors: error.details,
   });
 }
@@ -224,16 +235,20 @@ export default async function handler(req, res) {
 
       if (!id) return res.status(400).json({ message: 'Debe indicar el producto a actualizar.' });
       const slug = validateProductPayload(updateData, { partial: true });
-      const images = normalizeImages(updateData.images, updateData.img);
-      const img = updateData.img || images[0]?.url || null;
+      const shouldReplaceImages = Object.prototype.hasOwnProperty.call(updateData, 'images');
+      const images = shouldReplaceImages ? normalizeImages(updateData.images, updateData.img) : [];
+      const img = updateData.img || (shouldReplaceImages ? images[0]?.url || null : undefined);
 
       const updated = await prisma.$transaction(async (tx) => {
-        await tx.productImage.deleteMany({ where: { productId: id } });
+        if (shouldReplaceImages) {
+          await tx.productImage.deleteMany({ where: { productId: id } });
+        }
+
         return tx.product.update({
           where: { id },
           data: {
             ...buildProductData({ ...updateData, img }, slug),
-            images: images.length ? { create: images } : undefined,
+            images: shouldReplaceImages && images.length ? { create: images } : undefined,
           },
           include: { images: true, category: true },
         });

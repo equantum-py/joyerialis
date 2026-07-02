@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/prisma';
 
-let defaultSettings = {
+const defaultSettings = {
   companyName: 'Joyerialis S.A.',
   supportEmail: 'soporte@joyerialis.com',
   phone: '+54 9 11 5555-4444',
@@ -15,6 +15,20 @@ let defaultSettings = {
   emailNotifications: true,
 };
 
+function mapSettings(settingsDb) {
+  const mapped = { ...defaultSettings };
+
+  settingsDb.forEach((setting) => {
+    try {
+      mapped[setting.key] = JSON.parse(setting.value);
+    } catch {
+      mapped[setting.key] = setting.value;
+    }
+  });
+
+  return mapped;
+}
+
 export default async function handler(req, res) {
   const { method } = req;
 
@@ -23,17 +37,14 @@ export default async function handler(req, res) {
       try {
         const settingsDb = await prisma.setting.findMany();
         if (settingsDb && settingsDb.length > 0) {
-          const mapped = { ...defaultSettings };
-          settingsDb.forEach(s => {
-            try {
-              mapped[s.key] = JSON.parse(s.value);
-            } catch (e) {
-              mapped[s.key] = s.value;
-            }
-          });
-          return res.status(200).json(mapped);
+          return res.status(200).json(mapSettings(settingsDb));
         }
-      } catch (e) {}
+      } catch (e) {
+        return res.status(500).json({
+          message: 'Error al obtener configuraciones desde la base de datos',
+          error: e.message || 'Prisma error',
+        });
+      }
 
       return res.status(200).json(defaultSettings);
     }
@@ -49,10 +60,13 @@ export default async function handler(req, res) {
             create: { key, value: val }
           });
         }
-        return res.status(200).json({ ...defaultSettings, ...data });
+        const savedSettings = await prisma.setting.findMany();
+        return res.status(200).json(mapSettings(savedSettings));
       } catch (e) {
-        defaultSettings = { ...defaultSettings, ...data };
-        return res.status(200).json(defaultSettings);
+        return res.status(500).json({
+          message: 'Error al guardar configuraciones en la base de datos',
+          error: e.message || 'Prisma error',
+        });
       }
     }
 

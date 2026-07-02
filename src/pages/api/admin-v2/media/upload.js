@@ -3,6 +3,7 @@ import { put } from '@vercel/blob';
 
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/avif'];
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
+const MAX_REQUEST_SIZE = MAX_FILE_SIZE + 1024 * 1024;
 
 export const config = {
   api: {
@@ -10,23 +11,51 @@ export const config = {
   },
 };
 
+class UploadError extends Error {
+  constructor(message, statusCode = 400, code = 'UPLOAD_ERROR') {
+    super(message);
+    this.name = 'UploadError';
+    this.statusCode = statusCode;
+    this.code = code;
+  }
+}
+
+function safeUploadLog(level, message, context = {}) {
+  const safeContext = {
+    ...context,
+    hasBlobReadWriteToken: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
+    hasBlobStoreId: Boolean(process.env.BLOB_STORE_ID),
+    hasVercelOidcToken: Boolean(process.env.VERCEL_OIDC_TOKEN),
+    nodeEnv: process.env.NODE_ENV,
+  };
+
+  // Logs de diagnóstico sin secretos para auditar runtime en Vercel.
+  console[level](`[admin-v2/media/upload] ${message}`, safeContext);
+}
+
 function readRequestBuffer(req) {
   return new Promise((resolve, reject) => {
     const chunks = [];
     let total = 0;
+    let finished = false;
 
     req.on('data', (chunk) => {
       total += chunk.length;
-      if (total > MAX_FILE_SIZE + 1024 * 1024) {
-        reject(new Error('El archivo no debe superar 5MB.'));
+      if (total > MAX_REQUEST_SIZE) {
+        finished = true;
+        reject(new UploadError('El archivo no debe superar 5MB.', 413, 'FILE_TOO_LARGE'));
         req.destroy();
         return;
       }
       chunks.push(chunk);
     });
 
-    req.on('end', () => resolve(Buffer.concat(chunks)));
-    req.on('error', reject);
+    req.on('end', () => {
+      if (!finished) resolve(Buffer.concat(chunks));
+    });
+    req.on('error', (error) => {
+      if (!finished) reject(error);
+    });
   });
 }
 
@@ -41,7 +70,7 @@ function parseContentDisposition(value = '') {
 
 function parseMultipart(buffer, contentType) {
   const boundaryMatch = contentType.match(/boundary=(?:(?:"([^"]+)")|([^;]+))/i);
-  if (!boundaryMatch) throw new Error('Formulario inválido.');
+  if (!boundaryMatch) throw new UploadError('Formulario inválido: falta boundary multipart.', 400, 'INVALID_MULTIPART');
 
   const boundary = `--${boundaryMatch[1] || boundaryMatch[2]}`;
   const body = buffer.toString('binary');
@@ -58,7 +87,7 @@ function parseMultipart(buffer, contentType) {
     const rawContent = cleanPart.slice(separatorIndex + 4);
     const headers = rawHeaders.split('\r\n').reduce((acc, line) => {
       const [key, ...rest] = line.split(':');
-      acc[key.toLowerCase()] = rest.join(':').trim();
+      if (key) acc[key.toLowerCase()] = rest.join(':').trim();
       return acc;
     }, {});
 
@@ -93,6 +122,31 @@ function sanitizeSegment(value, fallback) {
   );
 }
 
+function getBlobCredentialOptions() {
+  if (process.env.VERCEL_OIDC_TOKEN && process.env.BLOB_STORE_ID) {
+    return {
+      authMode: 'oidc',
+      options: {
+        oidcToken: process.env.VERCEL_OIDC_TOKEN,
+        storeId: process.env.BLOB_STORE_ID,
+      },
+    };
+  }
+
+  if (process.env.BLOB_READ_WRITE_TOKEN) {
+    return {
+      authMode: 'read-write-token',
+      options: { token: process.env.BLOB_READ_WRITE_TOKEN },
+    };
+  }
+
+  throw new UploadError(
+    'Faltan credenciales de Vercel Blob. Configure OIDC conectando el Blob Store al proyecto (VERCEL_OIDC_TOKEN + BLOB_STORE_ID) o agregue BLOB_READ_WRITE_TOKEN.',
+    503,
+    'BLOB_CREDENTIALS_MISSING'
+  );
+}
+
 async function logMediaUpload(payload) {
   try {
     await prisma.activityLog.create({
@@ -105,46 +159,60 @@ async function logMediaUpload(payload) {
       },
     });
   } catch (error) {
-    // La carga de media no debe fallar si el log no se puede registrar.
+    safeUploadLog('warn', 'ActivityLog falló, la subida se conserva.', {
+      errorName: error.name,
+      errorCode: error.code,
+      message: error.message,
+      filename: payload.filename,
+    });
   }
 }
 
 async function uploadToVercelBlob(pathname, file) {
-  const options = {
+  const credentials = getBlobCredentialOptions();
+
+  safeUploadLog('info', 'Credenciales Blob seleccionadas.', { authMode: credentials.authMode });
+
+  return put(pathname, file.buffer, {
     access: 'public',
     contentType: file.contentType,
     addRandomSuffix: true,
-  };
+    ...credentials.options,
+  });
+}
 
-  if (process.env.BLOB_READ_WRITE_TOKEN) {
-    options.token = process.env.BLOB_READ_WRITE_TOKEN;
-  }
+function errorResponse(error) {
+  const statusCode = error.statusCode || 500;
+  const code = error.code || 'UPLOAD_FAILED';
+  const message = statusCode >= 500 && !error.statusCode ? 'Error interno al subir archivo.' : error.message;
 
-  return put(pathname, file.buffer, options);
+  return { statusCode, body: { message, code } };
 }
 
 export default async function handler(req, res) {
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
+
   if (req.method !== 'POST') {
-    return res.status(405).json({ message: 'Method Not Allowed' });
+    return res.status(405).json({ message: 'Method Not Allowed', code: 'METHOD_NOT_ALLOWED' });
   }
 
   try {
     const contentType = req.headers['content-type'] || '';
     if (!contentType.includes('multipart/form-data')) {
-      return res.status(400).json({ message: 'El formulario debe ser multipart/form-data.' });
+      throw new UploadError('El formulario debe ser multipart/form-data.', 400, 'INVALID_CONTENT_TYPE');
     }
 
     const buffer = await readRequestBuffer(req);
     const { fields, file } = parseMultipart(buffer, contentType);
 
-    if (!file) return res.status(400).json({ message: 'Debe adjuntar un archivo.' });
+    if (!file) throw new UploadError('Debe adjuntar un archivo.', 400, 'FILE_REQUIRED');
 
     if (!ALLOWED_IMAGE_TYPES.includes(file.contentType)) {
-      return res.status(400).json({ message: 'Solo se permiten imágenes JPEG, PNG, WEBP o AVIF.' });
+      throw new UploadError('Solo se permiten imágenes JPEG, PNG, WEBP o AVIF.', 400, 'INVALID_FILE_TYPE');
     }
 
     if (file.buffer.length > MAX_FILE_SIZE) {
-      return res.status(400).json({ message: 'El archivo no debe superar 5MB.' });
+      throw new UploadError('El archivo no debe superar 5MB.', 413, 'FILE_TOO_LARGE');
     }
 
     const scope = sanitizeSegment(fields.scope, 'general');
@@ -157,6 +225,14 @@ export default async function handler(req, res) {
     } catch (error) {
       metadata = {};
     }
+
+    safeUploadLog('info', 'Intentando subir archivo.', {
+      filename: file.filename,
+      contentType: file.contentType,
+      size: file.buffer.length,
+      scope,
+      folder,
+    });
 
     const pathname = `${folder}/${Date.now()}-${filename}`;
     const blob = await uploadToVercelBlob(pathname, file);
@@ -178,6 +254,14 @@ export default async function handler(req, res) {
 
     return res.status(201).json(payload);
   } catch (error) {
-    return res.status(500).json({ message: error.message || 'Error al subir archivo.' });
+    const { statusCode, body } = errorResponse(error);
+    safeUploadLog(statusCode >= 500 ? 'error' : 'warn', 'Upload rechazado.', {
+      statusCode,
+      code: body.code,
+      errorName: error.name,
+      errorCode: error.code,
+      message: error.message,
+    });
+    return res.status(statusCode).json(body);
   }
 }

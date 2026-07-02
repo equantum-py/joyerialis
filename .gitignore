@@ -1,34 +1,39 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# dependencies
+# Dependencies
 /node_modules
 /.pnp
 .pnp.js
 
-# testing
+# Testing
 /coverage
 
-# next.js
+# Next.js
 /.next/
 /out/
 
-# production
+# Production
 /build
 
-# misc
+# Prisma
+/prisma/dev.db
+/prisma/dev.db-journal
+
+# Environment variables
+.env
+.env.local
+.env.*
+!.env.example
+
+# Vercel
+.vercel
+
+# Misc
 .DS_Store
 *.pem
 
-# debug
+# Debug logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
-
-# local env files
-.env*.local
-
-# vercel
-.vercel
-
-.vercel

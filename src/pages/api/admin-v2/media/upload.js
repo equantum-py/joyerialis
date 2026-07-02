@@ -22,14 +22,14 @@ class UploadError extends Error {
 async function getCloudinary() {
   if (cachedCloudinary) return cachedCloudinary;
 
-  const module = await import('cloudinary');
-  cachedCloudinary = module.v2;
+  const cloudinaryModule = await import('cloudinary');
+ cachedCloudinary = cloudinaryModule.v2;
   return cachedCloudinary;
 }
 
 async function getPrisma() {
-  const module = await import('@/lib/prisma');
-  return module.prisma;
+  const prismaModule = await import('@/lib/prisma');
+return prismaModule.prisma;
 }
 
 function safeUploadLog(level, message, context = {}) {

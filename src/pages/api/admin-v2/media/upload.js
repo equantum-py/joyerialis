@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { put } from '@vercel/blob';
 
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/avif'];
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
@@ -81,13 +82,15 @@ function parseMultipart(buffer, contentType) {
 }
 
 function sanitizeSegment(value, fallback) {
-  return String(value || fallback)
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9-_./]/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^[-/.]+|[-/.]+$/g, '') || fallback;
+  return (
+    String(value || fallback)
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9-_./]/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^[-/.]+|[-/.]+$/g, '') || fallback
+  );
 }
 
 async function logMediaUpload(payload) {
@@ -107,15 +110,17 @@ async function logMediaUpload(payload) {
 }
 
 async function uploadToVercelBlob(pathname, file) {
-  const moduleName = '@vercel/blob';
-  const { put } = await import(moduleName);
-
-  return put(pathname, file.buffer, {
+  const options = {
     access: 'public',
     contentType: file.contentType,
-    token: process.env.BLOB_READ_WRITE_TOKEN,
     addRandomSuffix: true,
-  });
+  };
+
+  if (process.env.BLOB_READ_WRITE_TOKEN) {
+    options.token = process.env.BLOB_READ_WRITE_TOKEN;
+  }
+
+  return put(pathname, file.buffer, options);
 }
 
 export default async function handler(req, res) {
@@ -124,10 +129,6 @@ export default async function handler(req, res) {
   }
 
   try {
-    if (!process.env.BLOB_READ_WRITE_TOKEN) {
-      return res.status(500).json({ message: 'Falta configurar BLOB_READ_WRITE_TOKEN en Vercel.' });
-    }
-
     const contentType = req.headers['content-type'] || '';
     if (!contentType.includes('multipart/form-data')) {
       return res.status(400).json({ message: 'El formulario debe ser multipart/form-data.' });
@@ -137,9 +138,11 @@ export default async function handler(req, res) {
     const { fields, file } = parseMultipart(buffer, contentType);
 
     if (!file) return res.status(400).json({ message: 'Debe adjuntar un archivo.' });
+
     if (!ALLOWED_IMAGE_TYPES.includes(file.contentType)) {
       return res.status(400).json({ message: 'Solo se permiten imágenes JPEG, PNG, WEBP o AVIF.' });
     }
+
     if (file.buffer.length > MAX_FILE_SIZE) {
       return res.status(400).json({ message: 'El archivo no debe superar 5MB.' });
     }

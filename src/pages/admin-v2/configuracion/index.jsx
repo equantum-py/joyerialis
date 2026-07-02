@@ -9,12 +9,22 @@ import { settingService } from '@/services/admin-v2/settingService';
 export default function AdminV2Settings() {
   const [formData, setFormData] = useState({});
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     async function load() {
-      const current = await settingService.getSettings();
-      setFormData(current);
-      setLoading(false);
+      try {
+        const current = await settingService.getSettings();
+        setFormData(current);
+        setError('');
+      } catch (err) {
+        const message = err.message || 'No se pudieron cargar las configuraciones.';
+        setError(message);
+        erpToast.error(message);
+      } finally {
+        setLoading(false);
+      }
     }
     load();
   }, []);
@@ -24,8 +34,20 @@ export default function AdminV2Settings() {
   };
 
   const handleSubmit = async (dataToSave) => {
-    await settingService.updateSettings(dataToSave);
-    erpToast.success('Ajustes generales actualizados correctamente.');
+    setSaving(true);
+    setError('');
+
+    try {
+      const savedSettings = await settingService.updateSettings(dataToSave);
+      setFormData(savedSettings);
+      erpToast.success('Ajustes generales actualizados correctamente.');
+    } catch (err) {
+      const message = err.message || 'No se pudieron guardar las configuraciones.';
+      setError(message);
+      erpToast.error(message);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const fields = [
@@ -42,6 +64,13 @@ export default function AdminV2Settings() {
   return (
     <AdminLayout title="Configuración del Sistema - Joyerialis ERP">
       <CRUDManager title="Ajustes Generales del ERP y Tienda" subtitle="Administración de información comercial, impuestos, preferencias de posicionamiento SEO y correos">
+        {error && (
+          <div className="alert alert-danger m-4 mb-0" role="alert">
+            <i className="fa-light fa-circle-exclamation me-2"></i>
+            {error}
+          </div>
+        )}
+
         {loading ? (
           <Spinner text="Cargando preferencias del sistema..." />
         ) : (
@@ -51,7 +80,7 @@ export default function AdminV2Settings() {
               formData={formData}
               onChange={handleFormChange}
               onSubmit={handleSubmit}
-              submitLabel="Guardar Configuraciones"
+              submitLabel={saving ? 'Guardando...' : 'Guardar Configuraciones'}
             />
           </div>
         )}

@@ -27,6 +27,7 @@ function getPublicStatus(product) {
 function serializeProduct(product) {
   const categoryName = product.categoryName || product.category?.name || 'General';
   const categorySlug = product.category?.slug || toSlug(categoryName);
+
   const galleryImages = (product.images || []).map((image) => ({
     id: image.id,
     img: image.url,

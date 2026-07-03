@@ -66,6 +66,7 @@ export default function AdminV2Products() {
               <i className="fa-light fa-image"></i>
             </div>
           )}
+
           <div className="d-flex flex-column">
             <span className="font-weight-bold text-dark text-truncate" style={{ maxWidth: '200px' }}>
               {val}
@@ -86,7 +87,11 @@ export default function AdminV2Products() {
       label: 'Precio',
       sortable: true,
       align: 'end',
-      render: (val) => <span className="font-weight-bold text-dark">Gs. {Number(val || 0).toLocaleString('es-PY')}</span>,
+      render: (val) => (
+        <span className="font-weight-bold text-dark">
+          Gs. {Number(val || 0).toLocaleString('es-PY')}
+        </span>
+      ),
     },
     {
       key: 'quantity',
@@ -119,7 +124,12 @@ export default function AdminV2Products() {
           <Button variant="ghost" size="sm" onClick={() => handleEdit(row)}>
             <i className="fa-light fa-pen"></i>
           </Button>
-          <Button variant="ghost" size="sm" className="text-danger" onClick={() => handleConfirmDelete(row.id || row._id)}>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-danger"
+            onClick={() => handleConfirmDelete(row.id || row._id)}
+          >
             <i className="fa-light fa-trash"></i>
           </Button>
         </div>
@@ -245,7 +255,11 @@ export default function AdminV2Products() {
         maxSizeMB: 6,
       });
 
-      setFormData((current) => ({ ...current, img: uploaded.url || uploaded.secureUrl || '' }));
+      setFormData((current) => ({
+        ...current,
+        img: uploaded.url || uploaded.secureUrl || '',
+      }));
+
       setImageUploadState({ uploading: false, error: '' });
       erpToast.success('Imagen subida correctamente.');
     } catch (error) {
@@ -289,6 +303,7 @@ export default function AdminV2Products() {
         ...current,
         images: [...(current.images || []), ...uploadedImages],
       }));
+
       setGalleryUploadState({ uploading: false, error: '' });
       erpToast.success('Galería actualizada correctamente.');
     } catch (error) {
@@ -320,7 +335,17 @@ export default function AdminV2Products() {
   const handleAddVariant = () => {
     setFormData((current) => ({
       ...current,
-      variants: [...(current.variants || []), { size: '', color: '', material: '', stock: 0, price: '', sku: '' }],
+      variants: [
+        ...(current.variants || []),
+        {
+          size: '',
+          color: '',
+          material: '',
+          stock: 0,
+          price: '',
+          sku: '',
+        },
+      ],
     }));
   };
 
@@ -336,8 +361,12 @@ export default function AdminV2Products() {
 
     if (!dataToSave.title?.trim()) errors.title = 'El nombre es obligatorio';
     if (!dataToSave.slug?.trim() && !dataToSave.title?.trim()) errors.slug = 'El slug es obligatorio';
-    if (dataToSave.price === '' || Number.isNaN(Number(dataToSave.price))) errors.price = 'El precio debe ser numérico';
-    if (dataToSave.quantity === '' || Number.isNaN(Number(dataToSave.quantity))) errors.quantity = 'La cantidad debe ser numérica';
+    if (dataToSave.price === '' || Number.isNaN(Number(dataToSave.price))) {
+      errors.price = 'El precio debe ser numérico';
+    }
+    if (dataToSave.quantity === '' || Number.isNaN(Number(dataToSave.quantity))) {
+      errors.quantity = 'La cantidad debe ser numérica';
+    }
     if (!dataToSave.status) errors.status = 'El estado es obligatorio';
     if (imageUploadState.uploading) errors.img = 'Espere a que termine la subida de la imagen.';
     if (galleryUploadState.uploading) errors.images = 'Espere a que termine la subida de la galería.';
@@ -418,9 +447,22 @@ export default function AdminV2Products() {
   };
 
   const bulkActionDefinitions = [
-    { label: 'Activar', icon: 'fa-light fa-circle-check', onClick: () => handleBulkStatus('active') },
-    { label: 'Desactivar', icon: 'fa-light fa-circle-xmark', onClick: () => handleBulkStatus('inactive') },
-    { label: 'Eliminar', icon: 'fa-light fa-trash', variant: 'danger', onClick: handleBulkDelete },
+    {
+      label: 'Activar',
+      icon: 'fa-light fa-circle-check',
+      onClick: () => handleBulkStatus('active'),
+    },
+    {
+      label: 'Desactivar',
+      icon: 'fa-light fa-circle-xmark',
+      onClick: () => handleBulkStatus('inactive'),
+    },
+    {
+      label: 'Eliminar',
+      icon: 'fa-light fa-trash',
+      variant: 'danger',
+      onClick: handleBulkDelete,
+    },
   ];
 
   const filterConfigs = [
@@ -446,20 +488,82 @@ export default function AdminV2Products() {
   ];
 
   const formFields = [
-    { key: 'title', label: 'Nombre del Producto', placeholder: 'Ej. Anillo de Diamante' },
-    { key: 'slug', label: 'Slug', placeholder: 'Ej. anillo-de-diamante' },
-    { key: 'img', label: 'URL de imagen principal', type: 'url', placeholder: 'https://ejemplo.com/imagen.jpg' },
-    { key: 'sku', label: 'SKU / Código', placeholder: 'Ej. SKU-9821' },
-    { key: 'brandName', label: 'Marca', placeholder: 'Ej. Joyerialis' },
-    { key: 'collectionName', label: 'Colección', placeholder: 'Ej. Novias 2026' },
-    { key: 'subcategory', label: 'Subcategoría', placeholder: 'Ej. Anillos de compromiso' },
-    { key: 'price', label: 'Precio (Gs.)', type: 'number', placeholder: 'Ej. 125000' },
-    { key: 'description', label: 'Descripción', type: 'textarea', placeholder: 'Descripción pública del producto' },
-    { key: 'metaTitle', label: 'Meta title SEO', placeholder: 'Título SEO' },
-    { key: 'metaDescription', label: 'Meta description SEO', type: 'textarea', placeholder: 'Descripción SEO' },
-    { key: 'ogImage', label: 'OG image', type: 'url', placeholder: 'https://...' },
-    { key: 'canonicalSlug', label: 'Canonical slug', placeholder: 'slug-canonico' },
-    { key: 'quantity', label: 'Cantidad en Stock', type: 'number', placeholder: 'Ej. 25' },
+    {
+      key: 'title',
+      label: 'Nombre del Producto',
+      placeholder: 'Ej. Anillo de Diamante',
+    },
+    {
+      key: 'slug',
+      label: 'Slug',
+      placeholder: 'Ej. anillo-de-diamante',
+    },
+    {
+      key: 'img',
+      label: 'URL de imagen principal',
+      type: 'url',
+      placeholder: 'https://ejemplo.com/imagen.jpg',
+    },
+    {
+      key: 'sku',
+      label: 'SKU / Código',
+      placeholder: 'Ej. SKU-9821',
+    },
+    {
+      key: 'brandName',
+      label: 'Marca',
+      placeholder: 'Ej. Joyerialis',
+    },
+    {
+      key: 'collectionName',
+      label: 'Colección',
+      placeholder: 'Ej. Novias 2026',
+    },
+    {
+      key: 'subcategory',
+      label: 'Subcategoría',
+      placeholder: 'Ej. Anillos de compromiso',
+    },
+    {
+      key: 'price',
+      label: 'Precio (Gs.)',
+      type: 'number',
+      placeholder: 'Ej. 125000',
+    },
+    {
+      key: 'description',
+      label: 'Descripción',
+      type: 'textarea',
+      placeholder: 'Descripción pública del producto',
+    },
+    {
+      key: 'metaTitle',
+      label: 'Meta title SEO',
+      placeholder: 'Título SEO',
+    },
+    {
+      key: 'metaDescription',
+      label: 'Meta description SEO',
+      type: 'textarea',
+      placeholder: 'Descripción SEO',
+    },
+    {
+      key: 'ogImage',
+      label: 'OG image',
+      type: 'url',
+      placeholder: 'https://...',
+    },
+    {
+      key: 'canonicalSlug',
+      label: 'Canonical slug',
+      placeholder: 'slug-canonico',
+    },
+    {
+      key: 'quantity',
+      label: 'Cantidad en Stock',
+      type: 'number',
+      placeholder: 'Ej. 25',
+    },
     {
       key: 'category',
       label: 'Categoría',
@@ -499,7 +603,10 @@ export default function AdminV2Products() {
             setPage(1);
           }}
           filters={filterConfigs}
-          filterValues={{ category: categoryFilter, status: statusFilter }}
+          filterValues={{
+            category: categoryFilter,
+            status: statusFilter,
+          }}
           onFilterChange={(key, val) => {
             if (key === 'category') setCategoryFilter(val);
             if (key === 'status') setStatusFilter(val);
@@ -513,7 +620,12 @@ export default function AdminV2Products() {
           }}
         />
 
-        <TableToolbar data={data} exportFilename="catalogo_productos" columns={columns} onToggleColumn={handleToggleColumn} />
+        <TableToolbar
+          data={data}
+          exportFilename="catalogo_productos"
+          columns={columns}
+          onToggleColumn={handleToggleColumn}
+        />
 
         <GenericTable
           columns={columns}
@@ -591,6 +703,7 @@ export default function AdminV2Products() {
                       placeholder={field.placeholder}
                       disabled={imageUploadState.uploading}
                     />
+
                     <input
                       className={`form-control ${formErrors.img ? 'is-invalid' : ''}`}
                       type="file"
@@ -598,8 +711,12 @@ export default function AdminV2Products() {
                       onChange={handleImageFileChange}
                       disabled={imageUploadState.uploading}
                     />
+
                     <small className="text-muted">JPEG, PNG, WEBP o AVIF. Máximo 6MB.</small>
-                    {imageUploadState.uploading && <small className="text-primary">Subiendo imagen a Cloudinary...</small>}
+
+                    {imageUploadState.uploading && (
+                      <small className="text-primary">Subiendo imagen a Cloudinary...</small>
+                    )}
                   </div>
                 ) : (
                   <input
@@ -633,6 +750,7 @@ export default function AdminV2Products() {
               <label className="form-label small font-weight-bold text-dark mb-0">Galería secundaria</label>
               {galleryUploadState.uploading && <small className="text-primary">Subiendo galería...</small>}
             </div>
+
             <input
               className={`form-control ${formErrors.images ? 'is-invalid' : ''}`}
               type="file"
@@ -641,6 +759,7 @@ export default function AdminV2Products() {
               onChange={handleGalleryFilesChange}
               disabled={galleryUploadState.uploading}
             />
+
             {formErrors.images && <div className="invalid-feedback d-block">{formErrors.images}</div>}
 
             <div className="d-flex flex-wrap gap-2 mt-2">
@@ -652,6 +771,7 @@ export default function AdminV2Products() {
                     className="rounded border"
                     style={{ width: '72px', height: '72px', objectFit: 'cover' }}
                   />
+
                   <button
                     type="button"
                     className="btn btn-sm btn-danger position-absolute top-0 end-0"
@@ -678,8 +798,15 @@ export default function AdminV2Products() {
                   {['size', 'color', 'material', 'stock', 'price', 'sku'].map((key) => (
                     <div className="col-6 col-md-2" key={key}>
                       <label className="form-label small text-muted">
-                        {key === 'size' ? 'Talle' : key === 'stock' ? 'Stock' : key === 'price' ? 'Precio' : key.toUpperCase()}
+                        {key === 'size'
+                          ? 'Talle'
+                          : key === 'stock'
+                            ? 'Stock'
+                            : key === 'price'
+                              ? 'Precio'
+                              : key.toUpperCase()}
                       </label>
+
                       <input
                         className="form-control"
                         type={key === 'stock' || key === 'price' ? 'number' : 'text'}
@@ -690,7 +817,13 @@ export default function AdminV2Products() {
                   ))}
 
                   <div className="col-12 col-md-1">
-                    <Button variant="ghost" size="sm" type="button" className="text-danger" onClick={() => handleRemoveVariant(index)}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      type="button"
+                      className="text-danger"
+                      onClick={() => handleRemoveVariant(index)}
+                    >
                       <i className="fa-light fa-trash"></i>
                     </Button>
                   </div>
@@ -703,6 +836,7 @@ export default function AdminV2Products() {
             <Button variant="outline" type="button" onClick={() => setIsFormOpen(false)}>
               Cancelar
             </Button>
+
             <Button variant="primary" type="submit" disabled={imageUploadState.uploading || galleryUploadState.uploading}>
               {editingId ? 'Guardar Cambios' : 'Crear Producto'}
             </Button>

@@ -1,5 +1,5 @@
 const DEFAULT_ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/avif'];
-const DEFAULT_MAX_SIZE_MB = 5;
+const DEFAULT_MAX_SIZE_MB = 6;
 
 async function parseResponse(res, fallbackMessage) {
   let payload = null;

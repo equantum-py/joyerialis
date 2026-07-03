@@ -14,7 +14,11 @@ function slugify(text) {
 
 function serializeProduct(product) {
   if (!product) return null;
-  const images = [...(product.images || [])].sort((a, b) => a.sortOrder - b.sortOrder);
+
+  const images = [...(product.images || [])].sort(
+    (a, b) => (a.sortOrder || 0) - (b.sortOrder || 0)
+  );
+
   const mainImage = product.img || images[0]?.url || '';
 
   return {
@@ -26,7 +30,7 @@ function serializeProduct(product) {
       id: image.id,
       url: image.url,
       alt: image.alt || '',
-      sortOrder: image.sortOrder,
+      sortOrder: image.sortOrder || 0,
     })),
   };
 }
@@ -67,6 +71,7 @@ function normalizeImages(images = [], mainImageUrl = '') {
   const pushImage = (image) => {
     const url = normalizeImageUrl(typeof image === 'string' ? image : image?.url);
     if (!url || seen.has(url)) return;
+
     seen.add(url);
     normalized.push({
       url,
@@ -80,18 +85,25 @@ function normalizeImages(images = [], mainImageUrl = '') {
   }
 
   if (mainUrl) {
-    pushImage({ url: mainUrl, alt: normalized.find((image) => image.url === mainUrl)?.alt || '' });
+    pushImage({
+      url: mainUrl,
+      alt: normalized.find((image) => image.url === mainUrl)?.alt || '',
+    });
   }
 
   if (mainUrl) {
     const mainIndex = normalized.findIndex((image) => image.url === mainUrl);
+
     if (mainIndex > 0) {
       const [mainImage] = normalized.splice(mainIndex, 1);
       normalized.unshift(mainImage);
     }
   }
 
-  return normalized.map((image, sortOrder) => ({ ...image, sortOrder }));
+  return normalized.map((image, sortOrder) => ({
+    ...image,
+    sortOrder,
+  }));
 }
 
 function validateProductPayload(data, { partial = false } = {}) {
@@ -137,7 +149,11 @@ function buildProductData(data, slug) {
   if (data.price !== undefined) productData.price = new Prisma.Decimal(parseNumber(data.price, 'El precio'));
   if (data.quantity !== undefined) productData.quantity = parseInt(parseNumber(data.quantity, 'La cantidad'), 10);
   if (data.status !== undefined) productData.status = String(data.status).trim();
-  if (data.category !== undefined || data.categoryName !== undefined) productData.categoryName = String(data.category || data.categoryName || 'General');
+
+  if (data.category !== undefined || data.categoryName !== undefined) {
+    productData.categoryName = String(data.category || data.categoryName || 'General');
+  }
+
   if (data.img !== undefined) productData.img = normalizeImageUrl(data.img) || null;
   if (data.description !== undefined) productData.description = data.description || '';
   if (data.seoTitle !== undefined) productData.seoTitle = data.seoTitle || data.title || '';
@@ -187,10 +203,17 @@ function handlePrismaError(error, res) {
   });
 
   if (error.code === 'P2002') {
-    return res.status(409).json({ code: error.code, message: getSafePrismaMessage(error) });
+    return res.status(409).json({
+      code: error.code,
+      message: getSafePrismaMessage(error),
+    });
   }
+
   if (error.code === 'P2025') {
-    return res.status(404).json({ code: error.code, message: getSafePrismaMessage(error) });
+    return res.status(404).json({
+      code: error.code,
+      message: getSafePrismaMessage(error),
+    });
   }
 
   return res.status(error.statusCode || 500).json({
@@ -205,23 +228,56 @@ export default async function handler(req, res) {
 
   try {
     if (method === 'GET') {
-      const { id, search = '', category = '', status = '', sortBy = 'title', sortDir = 'asc', page = 1, limit = 10 } = req.query;
-      const include = { images: { orderBy: { sortOrder: 'asc' } }, category: true };
+      const {
+        id,
+        search = '',
+        category = '',
+        status = '',
+        sortBy = 'title',
+        sortDir = 'asc',
+        page = 1,
+        limit = 10,
+      } = req.query;
+
+      const include = {
+        images: {
+          orderBy: {
+            sortOrder: 'asc',
+          },
+        },
+        category: true,
+      };
+
       const pageNum = Math.max(Number(page) || 1, 1);
       const limitNum = Math.max(Number(limit) || 10, 1);
 
       if (id) {
         const product = await prisma.product.findFirst({
-          where: { OR: [{ id }, { sku: id }, { slug: id }] },
+          where: {
+            OR: [{ id }, { sku: id }, { slug: id }],
+          },
           include,
         });
-        if (!product) return res.status(404).json({ message: 'Producto no encontrado.' });
+
+        if (!product) {
+          return res.status(404).json({
+            message: 'Producto no encontrado.',
+          });
+        }
+
         return res.status(200).json(serializeProduct(product));
       }
 
       const where = {
         AND: [
-          search ? { OR: [{ title: { contains: search, mode: 'insensitive' } }, { sku: { contains: search, mode: 'insensitive' } }] } : {},
+          search
+            ? {
+                OR: [
+                  { title: { contains: search, mode: 'insensitive' } },
+                  { sku: { contains: search, mode: 'insensitive' } },
+                ],
+              }
+            : {},
           category ? { categoryName: category } : {},
           status === 'active' ? { status: 'active' } : {},
           status === 'inactive' ? { status: 'inactive' } : {},
@@ -229,15 +285,34 @@ export default async function handler(req, res) {
         ],
       };
 
-      const allowedSortFields = ['title', 'sku', 'price', 'quantity', 'status', 'categoryName', 'createdAt', 'updatedAt'];
+      const allowedSortFields = [
+        'title',
+        'sku',
+        'price',
+        'quantity',
+        'status',
+        'categoryName',
+        'createdAt',
+        'updatedAt',
+      ];
+
       const orderField = sortBy === 'category' ? 'categoryName' : sortBy;
-      const orderBy = allowedSortFields.includes(orderField) ? { [orderField]: sortDir === 'desc' ? 'desc' : 'asc' } : { title: 'asc' };
+      const orderBy = allowedSortFields.includes(orderField)
+        ? { [orderField]: sortDir === 'desc' ? 'desc' : 'asc' }
+        : { title: 'asc' };
 
       let items = [];
       let total = 0;
 
       try {
-        items = await prisma.product.findMany({ where, include, orderBy, skip: (pageNum - 1) * limitNum, take: limitNum });
+        items = await prisma.product.findMany({
+          where,
+          include,
+          orderBy,
+          skip: (pageNum - 1) * limitNum,
+          take: limitNum,
+        });
+
         total = await prisma.product.count({ where });
       } catch (error) {
         console.error('[admin-v2/products] GET list fallback', {
@@ -246,7 +321,13 @@ export default async function handler(req, res) {
           message: error.message,
         });
 
-        return res.status(200).json(emptyProductsResponse({ page: pageNum, limit: limitNum, error }));
+        return res.status(200).json(
+          emptyProductsResponse({
+            page: pageNum,
+            limit: limitNum,
+            error,
+          })
+        );
       }
 
       return res.status(200).json({
@@ -276,7 +357,9 @@ export default async function handler(req, res) {
         if (images.length) {
           await tx.productImage.createMany({
             data: images.map((image) => ({
-              ...image,
+              url: image.url,
+              alt: image.alt || '',
+              sortOrder: image.sortOrder || 0,
               productId: product.id,
             })),
           });
@@ -284,11 +367,21 @@ export default async function handler(req, res) {
 
         return tx.product.findUnique({
           where: { id: product.id },
-          include: { images: { orderBy: { sortOrder: 'asc' } }, category: true },
+          include: {
+            images: {
+              orderBy: {
+                sortOrder: 'asc',
+              },
+            },
+            category: true,
+          },
         });
       });
 
-      await logProductAction('CREATE_PRODUCT', newProduct, { id: newProduct.id });
+      await logProductAction('CREATE_PRODUCT', newProduct, {
+        id: newProduct.id,
+      });
+
       return res.status(201).json(serializeProduct(newProduct));
     }
 
@@ -296,13 +389,41 @@ export default async function handler(req, res) {
       const { id, action, ids, status, ...updateData } = req.body || {};
 
       if (action === 'bulkUpdateStatus') {
-        if (!Array.isArray(ids) || !ids.length) return res.status(400).json({ message: 'Debe seleccionar productos.' });
-        if (!status) return res.status(400).json({ message: 'Debe indicar un estado.' });
-        const result = await prisma.product.updateMany({ where: { id: { in: ids } }, data: { status } });
-        return res.status(200).json({ success: true, count: result.count });
+        if (!Array.isArray(ids) || !ids.length) {
+          return res.status(400).json({
+            message: 'Debe seleccionar productos.',
+          });
+        }
+
+        if (!status) {
+          return res.status(400).json({
+            message: 'Debe indicar un estado.',
+          });
+        }
+
+        const result = await prisma.product.updateMany({
+          where: {
+            id: {
+              in: ids,
+            },
+          },
+          data: {
+            status,
+          },
+        });
+
+        return res.status(200).json({
+          success: true,
+          count: result.count,
+        });
       }
 
-      if (!id) return res.status(400).json({ message: 'Debe indicar el producto a actualizar.' });
+      if (!id) {
+        return res.status(400).json({
+          message: 'Debe indicar el producto a actualizar.',
+        });
+      }
+
       const slug = validateProductPayload(updateData, { partial: true });
       const shouldReplaceImages = Object.prototype.hasOwnProperty.call(updateData, 'images');
       const images = shouldReplaceImages ? normalizeImages(updateData.images, updateData.img) : [];
@@ -310,11 +431,17 @@ export default async function handler(req, res) {
 
       const updated = await prisma.$transaction(async (tx) => {
         if (shouldReplaceImages) {
-          await tx.productImage.deleteMany({ where: { productId: id } });
+          await tx.productImage.deleteMany({
+            where: {
+              productId: id,
+            },
+          });
         }
 
         const product = await tx.product.update({
-          where: { id },
+          where: {
+            id,
+          },
           data: {
             ...buildProductData({ ...updateData, img }, slug),
           },
@@ -323,7 +450,9 @@ export default async function handler(req, res) {
         if (shouldReplaceImages && images.length) {
           await tx.productImage.createMany({
             data: images.map((image) => ({
-              ...image,
+              url: image.url,
+              alt: image.alt || '',
+              sortOrder: image.sortOrder || 0,
               productId: product.id,
             })),
           });
@@ -331,11 +460,21 @@ export default async function handler(req, res) {
 
         return tx.product.findUnique({
           where: { id: product.id },
-          include: { images: { orderBy: { sortOrder: 'asc' } }, category: true },
+          include: {
+            images: {
+              orderBy: {
+                sortOrder: 'asc',
+              },
+            },
+            category: true,
+          },
         });
       });
 
-      await logProductAction('UPDATE_PRODUCT', updated, { id: updated.id });
+      await logProductAction('UPDATE_PRODUCT', updated, {
+        id: updated.id,
+      });
+
       return res.status(200).json(serializeProduct(updated));
     }
 
@@ -343,18 +482,51 @@ export default async function handler(req, res) {
       const { id, action, ids } = req.body || {};
 
       if (action === 'bulkDelete') {
-        if (!Array.isArray(ids) || !ids.length) return res.status(400).json({ message: 'Debe seleccionar productos.' });
-        const result = await prisma.product.deleteMany({ where: { id: { in: ids } } });
-        return res.status(200).json({ success: true, count: result.count });
+        if (!Array.isArray(ids) || !ids.length) {
+          return res.status(400).json({
+            message: 'Debe seleccionar productos.',
+          });
+        }
+
+        const result = await prisma.product.deleteMany({
+          where: {
+            id: {
+              in: ids,
+            },
+          },
+        });
+
+        return res.status(200).json({
+          success: true,
+          count: result.count,
+        });
       }
 
-      if (!id) return res.status(400).json({ message: 'Debe indicar el producto a eliminar.' });
-      const deleted = await prisma.product.delete({ where: { id } });
-      await logProductAction('DELETE_PRODUCT', deleted, { id: deleted.id });
-      return res.status(200).json({ success: true, id: deleted.id });
+      if (!id) {
+        return res.status(400).json({
+          message: 'Debe indicar el producto a eliminar.',
+        });
+      }
+
+      const deleted = await prisma.product.delete({
+        where: {
+          id,
+        },
+      });
+
+      await logProductAction('DELETE_PRODUCT', deleted, {
+        id: deleted.id,
+      });
+
+      return res.status(200).json({
+        success: true,
+        id: deleted.id,
+      });
     }
 
-    return res.status(405).json({ message: 'Method Not Allowed' });
+    return res.status(405).json({
+      message: 'Method Not Allowed',
+    });
   } catch (error) {
     return handlePrismaError(error, res);
   }

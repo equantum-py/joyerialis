@@ -15,23 +15,11 @@ function slugify(text) {
 function serializeProduct(product) {
   if (!product) return null;
 
-  const images = [...(product.images || [])].sort(
-    (a, b) => (a.sortOrder || 0) - (b.sortOrder || 0)
-  );
-
-  const mainImage = product.img || images[0]?.url || '';
-
   return {
     ...product,
     price: Number(product.price),
     category: product.categoryName || product.category?.name || 'General',
-    img: mainImage,
-    images: images.map((image) => ({
-      id: image.id,
-      url: image.url,
-      alt: image.alt || '',
-      sortOrder: image.sortOrder || 0,
-    })),
+    img: product.img || '',
   };
 }
 
@@ -55,55 +43,14 @@ function emptyProductsResponse({ page = 1, limit = 10, error } = {}) {
 
 function parseNumber(value, fieldName) {
   const number = Number(value);
-  if (!Number.isFinite(number)) throw new Error(`${fieldName} debe ser numérico.`);
+  if (!Number.isFinite(number)) {
+    throw new Error(`${fieldName} debe ser numérico.`);
+  }
   return number;
 }
 
 function normalizeImageUrl(value) {
   return String(value || '').trim();
-}
-
-function normalizeImages(images = [], mainImageUrl = '') {
-  const seen = new Set();
-  const normalized = [];
-  const mainUrl = normalizeImageUrl(mainImageUrl);
-
-  const pushImage = (image) => {
-    const url = normalizeImageUrl(typeof image === 'string' ? image : image?.url);
-    if (!url || seen.has(url)) return;
-
-    seen.add(url);
-    normalized.push({
-      url,
-      alt: typeof image === 'string' ? '' : image.alt || '',
-      sortOrder: normalized.length,
-    });
-  };
-
-  if (Array.isArray(images)) {
-    images.forEach(pushImage);
-  }
-
-  if (mainUrl) {
-    pushImage({
-      url: mainUrl,
-      alt: normalized.find((image) => image.url === mainUrl)?.alt || '',
-    });
-  }
-
-  if (mainUrl) {
-    const mainIndex = normalized.findIndex((image) => image.url === mainUrl);
-
-    if (mainIndex > 0) {
-      const [mainImage] = normalized.splice(mainIndex, 1);
-      normalized.unshift(mainImage);
-    }
-  }
-
-  return normalized.map((image, sortOrder) => ({
-    ...image,
-    sortOrder,
-  }));
 }
 
 function validateProductPayload(data, { partial = false } = {}) {
@@ -239,14 +186,7 @@ export default async function handler(req, res) {
         limit = 10,
       } = req.query;
 
-      const include = {
-        images: {
-          orderBy: {
-            sortOrder: 'asc',
-          },
-        },
-        category: true,
-      };
+      const include = { category: true };
 
       const pageNum = Math.max(Number(page) || 1, 1);
       const limitNum = Math.max(Number(limit) || 10, 1);
@@ -342,40 +282,16 @@ export default async function handler(req, res) {
     if (method === 'POST') {
       const data = req.body || {};
       const slug = validateProductPayload(data);
-      const images = normalizeImages(data.images, data.img);
-      const img = data.img || images[0]?.url || null;
 
-      const newProduct = await prisma.$transaction(async (tx) => {
-        const product = await tx.product.create({
-          data: {
-            ...buildProductData({ ...data, img }, slug),
-            seoTitle: data.seoTitle || data.title,
-            seoDesc: data.seoDesc || '',
-          },
-        });
-
-        if (images.length) {
-          await tx.productImage.createMany({
-            data: images.map((image) => ({
-              url: image.url,
-              alt: image.alt || '',
-              sortOrder: image.sortOrder || 0,
-              productId: product.id,
-            })),
-          });
-        }
-
-        return tx.product.findUnique({
-          where: { id: product.id },
-          include: {
-            images: {
-              orderBy: {
-                sortOrder: 'asc',
-              },
-            },
-            category: true,
-          },
-        });
+      const newProduct = await prisma.product.create({
+        data: {
+          ...buildProductData(data, slug),
+          seoTitle: data.seoTitle || data.title,
+          seoDesc: data.seoDesc || '',
+        },
+        include: {
+          category: true,
+        },
       });
 
       await logProductAction('CREATE_PRODUCT', newProduct, {
@@ -425,50 +341,15 @@ export default async function handler(req, res) {
       }
 
       const slug = validateProductPayload(updateData, { partial: true });
-      const shouldReplaceImages = Object.prototype.hasOwnProperty.call(updateData, 'images');
-      const images = shouldReplaceImages ? normalizeImages(updateData.images, updateData.img) : [];
-      const img = updateData.img || (shouldReplaceImages ? images[0]?.url || null : undefined);
 
-      const updated = await prisma.$transaction(async (tx) => {
-        if (shouldReplaceImages) {
-          await tx.productImage.deleteMany({
-            where: {
-              productId: id,
-            },
-          });
-        }
-
-        const product = await tx.product.update({
-          where: {
-            id,
-          },
-          data: {
-            ...buildProductData({ ...updateData, img }, slug),
-          },
-        });
-
-        if (shouldReplaceImages && images.length) {
-          await tx.productImage.createMany({
-            data: images.map((image) => ({
-              url: image.url,
-              alt: image.alt || '',
-              sortOrder: image.sortOrder || 0,
-              productId: product.id,
-            })),
-          });
-        }
-
-        return tx.product.findUnique({
-          where: { id: product.id },
-          include: {
-            images: {
-              orderBy: {
-                sortOrder: 'asc',
-              },
-            },
-            category: true,
-          },
-        });
+      const updated = await prisma.product.update({
+        where: {
+          id,
+        },
+        data: buildProductData(updateData, slug),
+        include: {
+          category: true,
+        },
       });
 
       await logProductAction('UPDATE_PRODUCT', updated, {

@@ -8,9 +8,10 @@ const BEST_TABS = ['Lab', 'Anillos', 'Pulseras', 'Aros', 'Collares', 'Piercing']
 const NEW_TABS = ['Piercing', 'Colores', 'Lab', 'Anillos', 'Aros'];
 
 const CompactCard = ({ product, badgeLabel, badgeBg }) => {
-  const { _id, img, title, price } = product;
+  const { _id, slug, img, title, price } = product;
+  const productHref = `/product-details/${slug || _id}`;
   return (
-    <Link href={`/product-details/${_id}`} style={{ textDecoration: 'none', display: 'block', color: 'inherit' }}>
+    <Link href={productHref} style={{ textDecoration: 'none', display: 'block', color: 'inherit' }}>
       <div style={{ overflow: 'hidden' }}>
         <div style={{ position: 'relative', paddingBottom: '100%', overflow: 'hidden', backgroundColor: '#F5F5F5' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}

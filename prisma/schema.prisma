@@ -1,7 +1,6 @@
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 generator client {
@@ -239,4 +238,3 @@ model Backup {
   status    String   @default("Completado")
   createdAt DateTime @default(now())
 }
-

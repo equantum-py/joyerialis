@@ -37,23 +37,36 @@ function parseNumber(value, fieldName) {
   return number;
 }
 
+function normalizeImageUrl(value) {
+  return String(value || '').trim();
+}
+
 function normalizeImages(images = [], mainImageUrl = '') {
-  if (!Array.isArray(images)) return [];
   const seen = new Set();
   const normalized = [];
+  const mainUrl = normalizeImageUrl(mainImageUrl);
 
-  images.forEach((image) => {
-    if (!image?.url || seen.has(image.url)) return;
-    seen.add(image.url);
+  const pushImage = (image) => {
+    const url = normalizeImageUrl(typeof image === 'string' ? image : image?.url);
+    if (!url || seen.has(url)) return;
+    seen.add(url);
     normalized.push({
-      url: image.url,
-      alt: image.alt || '',
+      url,
+      alt: typeof image === 'string' ? '' : image.alt || '',
       sortOrder: normalized.length,
     });
-  });
+  };
 
-  if (mainImageUrl) {
-    const mainIndex = normalized.findIndex((image) => image.url === mainImageUrl);
+  if (Array.isArray(images)) {
+    images.forEach(pushImage);
+  }
+
+  if (mainUrl) {
+    pushImage({ url: mainUrl, alt: normalized.find((image) => image.url === mainUrl)?.alt || '' });
+  }
+
+  if (mainUrl) {
+    const mainIndex = normalized.findIndex((image) => image.url === mainUrl);
     if (mainIndex > 0) {
       const [mainImage] = normalized.splice(mainIndex, 1);
       normalized.unshift(mainImage);
@@ -107,7 +120,7 @@ function buildProductData(data, slug) {
   if (data.quantity !== undefined) productData.quantity = parseInt(parseNumber(data.quantity, 'La cantidad'), 10);
   if (data.status !== undefined) productData.status = String(data.status).trim();
   if (data.category !== undefined || data.categoryName !== undefined) productData.categoryName = String(data.category || data.categoryName || 'General');
-  if (data.img !== undefined) productData.img = data.img || null;
+  if (data.img !== undefined) productData.img = normalizeImageUrl(data.img) || null;
   if (data.description !== undefined) productData.description = data.description || '';
   if (data.seoTitle !== undefined) productData.seoTitle = data.seoTitle || data.title || '';
   if (data.seoDesc !== undefined) productData.seoDesc = data.seoDesc || '';
@@ -209,14 +222,28 @@ export default async function handler(req, res) {
       const images = normalizeImages(data.images, data.img);
       const img = data.img || images[0]?.url || null;
 
-      const newProduct = await prisma.product.create({
-        data: {
-          ...buildProductData({ ...data, img }, slug),
-          seoTitle: data.seoTitle || data.title,
-          seoDesc: data.seoDesc || '',
-          images: images.length ? { create: images } : undefined,
-        },
-        include: { images: true, category: true },
+      const newProduct = await prisma.$transaction(async (tx) => {
+        const product = await tx.product.create({
+          data: {
+            ...buildProductData({ ...data, img }, slug),
+            seoTitle: data.seoTitle || data.title,
+            seoDesc: data.seoDesc || '',
+          },
+        });
+
+        if (images.length) {
+          await tx.productImage.createMany({
+            data: images.map((image) => ({
+              ...image,
+              productId: product.id,
+            })),
+          });
+        }
+
+        return tx.product.findUnique({
+          where: { id: product.id },
+          include: { images: true, category: true },
+        });
       });
 
       await logProductAction('CREATE_PRODUCT', newProduct, { id: newProduct.id });
@@ -244,12 +271,24 @@ export default async function handler(req, res) {
           await tx.productImage.deleteMany({ where: { productId: id } });
         }
 
-        return tx.product.update({
+        const product = await tx.product.update({
           where: { id },
           data: {
             ...buildProductData({ ...updateData, img }, slug),
-            images: shouldReplaceImages && images.length ? { create: images } : undefined,
           },
+        });
+
+        if (shouldReplaceImages && images.length) {
+          await tx.productImage.createMany({
+            data: images.map((image) => ({
+              ...image,
+              productId: product.id,
+            })),
+          });
+        }
+
+        return tx.product.findUnique({
+          where: { id: product.id },
           include: { images: true, category: true },
         });
       });

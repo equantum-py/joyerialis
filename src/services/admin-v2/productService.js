@@ -7,7 +7,8 @@ async function parseResponse(res, fallbackMessage) {
   }
 
   if (!res.ok) {
-    throw new Error(payload?.message || fallbackMessage);
+    const details = payload?.errors ? Object.values(payload.errors).filter(Boolean).join(' ') : '';
+    throw new Error([payload?.message || fallbackMessage, details].filter(Boolean).join(' '));
   }
 
   return payload;

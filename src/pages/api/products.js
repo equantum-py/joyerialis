@@ -33,8 +33,12 @@ function serializeProduct(product) {
     url: image.url,
     alt: image.alt || product.title,
     sortOrder: image.sortOrder,
+    publicId: image.publicId || '',
   }));
+
   const price = Number(product.price || 0);
+  const brandName = product.brandName || product.brand?.name || 'Joyerialis';
+  const collectionName = product.collectionName || product.collections?.[0]?.name || '';
 
   return {
     _id: product.id,
@@ -45,45 +49,66 @@ function serializeProduct(product) {
     price,
     discount: Number(product.discount || 0),
     description: product.description || '',
+
     metaTitle: product.metaTitle || product.seoTitle || product.title,
     metaDescription: product.metaDescription || product.seoDesc || product.description || '',
     ogImage: product.ogImage || product.img || '/assets/img/product/product-placeholder.svg',
     canonicalSlug: product.canonicalSlug || product.slug,
+
     status: getPublicStatus(product),
     adminStatus: product.status || '',
     quantity: product.quantity || 0,
     img: product.img || '/assets/img/product/product-placeholder.svg',
+
     categoryName,
     subcategoryName: product.subcategoryName || '',
-    collectionName: product.collectionName || product.collections?.[0]?.name || '',
-    collectionSlug: product.collections?.[0]?.slug || toSlug(product.collectionName),
+    collectionName,
+    collectionSlug: product.collections?.[0]?.slug || toSlug(collectionName),
+
     category: {
       name: categoryName,
       slug: categorySlug,
     },
+
     parent: categoryName,
-    children: categoryName,
+    children: product.subcategoryName || categoryName,
     productType: product.category?.productType || 'jewelry',
+
     brand: {
-      name: product.brandName || product.brand?.name || 'Joyerialis',
-      slug: product.brand?.slug || toSlug(product.brandName || 'Joyerialis'),
+      name: brandName,
+      slug: product.brand?.slug || toSlug(brandName),
     },
-    brandName: product.brandName || product.brand?.name || 'Joyerialis',
+    brandName,
+
     tags: product.tags?.length ? product.tags : [categoryName],
     reviews: [],
     rating: product.rating || 0,
     topSeller: Boolean(product.topSeller),
     new: Boolean(product.new),
     featured: Boolean(product.featured),
+
     imageURLs: [
-      ...(product.img ? [{ img: product.img, url: product.img, color: { name: 'Principal' }, alt: product.title, sortOrder: -1 }] : []),
+      ...(product.img
+        ? [
+            {
+              img: product.img,
+              url: product.img,
+              color: { name: 'Principal' },
+              alt: product.title,
+              sortOrder: -1,
+            },
+          ]
+        : []),
       ...galleryImages,
     ],
+
     images: galleryImages,
+
     variants: (product.variants || []).map((variant) => ({
       ...variant,
       price: variant.price === null || variant.price === undefined ? null : Number(variant.price),
     })),
+
     createdAt: product.createdAt,
     updatedAt: product.updatedAt,
   };
@@ -101,7 +126,17 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { id, slug, search = '', category = '', subcategory = '', brand = '', collection = '', limit = '100' } = req.query;
+    const {
+      id,
+      slug,
+      search = '',
+      category = '',
+      subcategory = '',
+      brand = '',
+      collection = '',
+      limit = '100',
+    } = req.query;
+
     const take = Math.min(Math.max(Number(limit) || 100, 1), 100);
 
     const baseWhere = {
@@ -109,8 +144,27 @@ export default async function handler(req, res) {
       quantity: { gt: 0 },
     };
 
+    applyQueryFlags(baseWhere, req.query);
+
+    const include = {
+      category: true,
+      brand: true,
+      collections: true,
+      images: {
+        orderBy: {
+          sortOrder: 'asc',
+        },
+      },
+      variants: {
+        orderBy: {
+          sortOrder: 'asc',
+        },
+      },
+    };
+
     if (id || slug) {
       const lookup = String(id || slug);
+
       const product = await prisma.product.findFirst({
         where: {
           AND: [
@@ -120,10 +174,13 @@ export default async function handler(req, res) {
             },
           ],
         },
-        include: { category: true, brand: true, collections: true, images: { orderBy: { sortOrder: 'asc' } }, variants: { orderBy: { sortOrder: 'asc' } } },
+        include,
       });
 
-      if (!product) return res.status(404).json({ message: 'Producto no encontrado.' });
+      if (!product) {
+        return res.status(404).json({ message: 'Producto no encontrado.' });
+      }
+
       return res.status(200).json(serializeProduct(product));
     }
 
@@ -145,18 +202,22 @@ export default async function handler(req, res) {
           ? {
               OR: [
                 { collectionName: collection },
-                { collections: { some: { OR: [{ slug: collection }, { name: collection }] } } },
+                {
+                  collections: {
+                    some: {
+                      OR: [{ slug: collection }, { name: collection }],
+                    },
+                  },
+                },
               ],
             }
           : {},
       ],
     };
 
-    applyQueryFlags(where.AND[0], req.query);
-
     const products = await prisma.product.findMany({
       where,
-      include: { category: true, brand: true, collections: true, images: { orderBy: { sortOrder: 'asc' } }, variants: { orderBy: { sortOrder: 'asc' } } },
+      include,
       orderBy: [{ featured: 'desc' }, { createdAt: 'desc' }],
       take,
     });

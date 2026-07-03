@@ -222,6 +222,7 @@ export default function AdminV2Products() {
 
   const handleFormChange = (key, value) => {
     setFormData({ ...formData, [key]: value });
+
     if (key === 'img') {
       setImageUploadState((current) => ({ ...current, error: '' }));
       setFormErrors((current) => ({ ...current, img: '' }));
@@ -252,18 +253,22 @@ export default function AdminV2Products() {
       setImageUploadState({ uploading: false, error: message });
       setFormErrors((current) => ({ ...current, img: message }));
       erpToast.error(message);
+    } finally {
       event.target.value = '';
     }
   };
 
   const handleGalleryFilesChange = async (event) => {
     const files = Array.from(event.target.files || []);
+
     if (!files.length) return;
 
     setGalleryUploadState({ uploading: true, error: '' });
+    setFormErrors((current) => ({ ...current, images: '' }));
 
     try {
       const uploadedImages = [];
+
       for (const file of files) {
         const uploaded = await mediaService.upload(file, {
           scope: 'products-gallery',
@@ -271,6 +276,7 @@ export default function AdminV2Products() {
           alt: formData.title || file.name,
           maxSizeMB: 6,
         });
+
         uploadedImages.push({
           url: uploaded.url || uploaded.secureUrl || '',
           alt: formData.title || file.name,
@@ -279,12 +285,16 @@ export default function AdminV2Products() {
         });
       }
 
-      setFormData((current) => ({ ...current, images: [...(current.images || []), ...uploadedImages] }));
+      setFormData((current) => ({
+        ...current,
+        images: [...(current.images || []), ...uploadedImages],
+      }));
       setGalleryUploadState({ uploading: false, error: '' });
       erpToast.success('Galería actualizada correctamente.');
     } catch (error) {
       const message = error.message || 'No se pudo subir una imagen de galería.';
       setGalleryUploadState({ uploading: false, error: message });
+      setFormErrors((current) => ({ ...current, images: message }));
       erpToast.error(message);
     } finally {
       event.target.value = '';
@@ -353,6 +363,20 @@ export default function AdminV2Products() {
           .replace(/--+/g, '-')
           .replace(/^-+|-+$/g, ''),
       img: dataToSave.img?.trim() || '',
+      images: (dataToSave.images || []).map((image, index) => ({
+        url: image.url || image.img || '',
+        alt: image.alt || dataToSave.title || '',
+        sortOrder: Number.isFinite(Number(image.sortOrder)) ? Number(image.sortOrder) : index,
+        publicId: image.publicId || image.pathname || '',
+      })),
+      variants: (dataToSave.variants || []).map((variant) => ({
+        size: variant.size || '',
+        color: variant.color || '',
+        material: variant.material || '',
+        stock: variant.stock === '' ? 0 : Number(variant.stock || 0),
+        price: variant.price === '' ? null : Number(variant.price || 0),
+        sku: variant.sku || '',
+      })),
     };
 
     try {
@@ -415,6 +439,7 @@ export default function AdminV2Products() {
       placeholder: 'Todos los Estados',
       options: [
         { label: 'Activos', value: 'active' },
+        { label: 'Inactivos', value: 'inactive' },
         { label: 'Stock Bajo (<15)', value: 'low_stock' },
       ],
     },
@@ -488,12 +513,7 @@ export default function AdminV2Products() {
           }}
         />
 
-        <TableToolbar
-          data={data}
-          exportFilename="catalogo_productos"
-          columns={columns}
-          onToggleColumn={handleToggleColumn}
-        />
+        <TableToolbar data={data} exportFilename="catalogo_productos" columns={columns} onToggleColumn={handleToggleColumn} />
 
         <GenericTable
           columns={columns}
@@ -579,9 +599,7 @@ export default function AdminV2Products() {
                       disabled={imageUploadState.uploading}
                     />
                     <small className="text-muted">JPEG, PNG, WEBP o AVIF. Máximo 6MB.</small>
-                    {imageUploadState.uploading && (
-                      <small className="text-primary">Subiendo imagen a Cloudinary...</small>
-                    )}
+                    {imageUploadState.uploading && <small className="text-primary">Subiendo imagen a Cloudinary...</small>}
                   </div>
                 ) : (
                   <input
@@ -624,6 +642,7 @@ export default function AdminV2Products() {
               disabled={galleryUploadState.uploading}
             />
             {formErrors.images && <div className="invalid-feedback d-block">{formErrors.images}</div>}
+
             <div className="d-flex flex-wrap gap-2 mt-2">
               {(formData.images || []).map((image, index) => (
                 <div key={`${image.url || image.img}-${index}`} className="position-relative">
@@ -633,7 +652,11 @@ export default function AdminV2Products() {
                     className="rounded border"
                     style={{ width: '72px', height: '72px', objectFit: 'cover' }}
                   />
-                  <button type="button" className="btn btn-sm btn-danger position-absolute top-0 end-0" onClick={() => handleRemoveGalleryImage(index)}>
+                  <button
+                    type="button"
+                    className="btn btn-sm btn-danger position-absolute top-0 end-0"
+                    onClick={() => handleRemoveGalleryImage(index)}
+                  >
                     ×
                   </button>
                 </div>
@@ -644,14 +667,19 @@ export default function AdminV2Products() {
           <div className="border-top border-light pt-3">
             <div className="d-flex align-items-center justify-content-between mb-2">
               <label className="form-label small font-weight-bold text-dark mb-0">Variantes</label>
-              <Button variant="outline" size="sm" type="button" onClick={handleAddVariant}>Agregar variante</Button>
+              <Button variant="outline" size="sm" type="button" onClick={handleAddVariant}>
+                Agregar variante
+              </Button>
             </div>
+
             <div className="d-flex flex-column gap-2">
               {(formData.variants || []).map((variant, index) => (
                 <div key={index} className="row g-2 align-items-end">
                   {['size', 'color', 'material', 'stock', 'price', 'sku'].map((key) => (
                     <div className="col-6 col-md-2" key={key}>
-                      <label className="form-label small text-muted">{key === 'size' ? 'Talle' : key === 'stock' ? 'Stock' : key === 'price' ? 'Precio' : key.toUpperCase()}</label>
+                      <label className="form-label small text-muted">
+                        {key === 'size' ? 'Talle' : key === 'stock' ? 'Stock' : key === 'price' ? 'Precio' : key.toUpperCase()}
+                      </label>
                       <input
                         className="form-control"
                         type={key === 'stock' || key === 'price' ? 'number' : 'text'}
@@ -660,6 +688,7 @@ export default function AdminV2Products() {
                       />
                     </div>
                   ))}
+
                   <div className="col-12 col-md-1">
                     <Button variant="ghost" size="sm" type="button" className="text-danger" onClick={() => handleRemoveVariant(index)}>
                       <i className="fa-light fa-trash"></i>

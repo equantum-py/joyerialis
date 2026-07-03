@@ -12,6 +12,21 @@ const tabs = [
   "Aretes"
 ];
 
+const categoryAliases = {
+  Pulseras: ['pulseras', 'bracelets'],
+  Collares: ['collares', 'necklaces'],
+  Aretes: ['aretes', 'aros', 'earrings'],
+};
+
+function matchesCategory(product, tab) {
+  const aliases = categoryAliases[tab] || [];
+  const values = [product.categoryName, product.category?.name, product.parent]
+    .filter(Boolean)
+    .map((value) => String(value).toLowerCase());
+
+  return values.some((value) => aliases.some((alias) => value.includes(alias)));
+}
+
 const ProductArea = () => {
   const [activeTab, setActiveTab] = useState(tabs[0]);
   const activeRef = useRef(null);
@@ -57,20 +72,8 @@ const ProductArea = () => {
     if (activeTab === 'Toda la Colección') {
       product_items = products.data;
     }
-    else if (activeTab === 'Pulseras') {
-      product_items = products.data.filter(
-        p => p.category.name === 'Bracelets'
-      );
-    }
-    else if (activeTab === 'Collares') {
-      product_items = products.data.filter(
-        p => p.category.name === 'Necklaces'
-      );
-    }
-    else if (activeTab === 'Aretes') {
-      product_items = products.data.filter(
-        p => p.category.name === 'Earrings'
-      );
+    else if (categoryAliases[activeTab]) {
+      product_items = products.data.filter((p) => matchesCategory(p, activeTab));
     }
 
     // Limitar catálogo para mantener estilo premium

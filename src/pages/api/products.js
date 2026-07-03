@@ -15,9 +15,7 @@ function toSlug(value) {
 }
 
 function getPublicStatus(product) {
-  const status = String(product.status || '').toLowerCase();
-
-  if (status !== PUBLIC_PRODUCT_STATUS || product.quantity <= 0) {
+  if (String(product.status || '').toLowerCase() !== PUBLIC_PRODUCT_STATUS || product.quantity <= 0) {
     return 'out-of-stock';
   }
 
@@ -60,9 +58,7 @@ function serializeProduct(product) {
     topSeller: Boolean(product.topSeller),
     new: Boolean(product.new),
     featured: Boolean(product.featured),
-    imageURLs: product.img
-      ? [{ img: product.img, color: { name: 'Principal' } }]
-      : [],
+    imageURLs: product.img ? [{ img: product.img, color: { name: 'Principal' } }] : [],
     createdAt: product.createdAt,
     updatedAt: product.updatedAt,
   };
@@ -88,8 +84,11 @@ export default async function handler(req, res) {
       quantity: { gt: 0 },
     };
 
+    applyQueryFlags(baseWhere, req.query);
+
     if (id || slug) {
       const lookup = String(id || slug);
+
       const product = await prisma.product.findFirst({
         where: {
           AND: [
@@ -102,7 +101,10 @@ export default async function handler(req, res) {
         include: { category: true },
       });
 
-      if (!product) return res.status(404).json({ message: 'Producto no encontrado.' });
+      if (!product) {
+        return res.status(404).json({ message: 'Producto no encontrado.' });
+      }
+
       return res.status(200).json(serializeProduct(product));
     }
 
@@ -120,8 +122,6 @@ export default async function handler(req, res) {
         category ? { categoryName: category } : {},
       ],
     };
-
-    applyQueryFlags(where.AND[0], req.query);
 
     const products = await prisma.product.findMany({
       where,

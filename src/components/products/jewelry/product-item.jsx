@@ -10,7 +10,8 @@ import { add_to_wishlist } from "@/redux/features/wishlist-slice";
 import { formatGs } from '@/utils/price';
 
 const ProductItem = ({ product }) => {
-  const { _id, img, title, price, tags,status } = product || {};
+  const { _id, slug, img, title, price, tags, status } = product || {};
+  const productHref = `/product-details/${slug || _id}`;
   const { cart_products } = useSelector((state) => state.cart);
   const { wishlist } = useSelector((state) => state.wishlist);
   const isAddedToCart = cart_products.some((prd) => prd._id === _id);
@@ -30,7 +31,7 @@ const ProductItem = ({ product }) => {
   return (
     <div className="tp-product-item-4 p-relative mb-40">
       <div className="tp-product-thumb-4 p-relative fix">
-        <Link href={`/product-details/${_id}`}>
+        <Link href={productHref}>
           <Image src={img} alt="imagen del producto" width={284} height={352} />
         </Link>
         <div className="tp-product-badge">
@@ -79,7 +80,7 @@ const ProductItem = ({ product }) => {
       </div>
       <div className="tp-product-content-4">
         <h3 className="tp-product-title-4">
-          <Link href={`/product-details/${_id}`}>{title}</Link>
+          <Link href={productHref}>{title}</Link>
         </h3>
         <div className="tp-product-info-4">
           <p>{tags[0]}</p>

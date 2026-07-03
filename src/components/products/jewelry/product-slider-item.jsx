@@ -10,7 +10,8 @@ import { notifyError } from "@/utils/toast";
 import { formatGs } from '@/utils/price';
 
 const ProductSliderItem = ({ product }) => {
-  const { _id, title, price, img,status } = product || {};
+  const { _id, slug, title, price, img, status } = product || {};
+  const productHref = `/product-details/${slug || _id}`;
   const { cart_products } = useSelector((state) => state.cart);
   const { wishlist } = useSelector((state) => state.wishlist);
   const isAddedToCart = cart_products.some((prd) => prd._id === _id);
@@ -82,7 +83,7 @@ const ProductSliderItem = ({ product }) => {
       </div>
       <div className="tp-category-content-4">
         <h3 className="tp-category-title-4">
-          <Link href={`/product-details/${_id}`}>{title}</Link>
+          <Link href={productHref}>{title}</Link>
         </h3>
         <div className="tp-category-price-wrapper-4">
           <span className="tp-category-price-4">{formatGs(price)}</span>

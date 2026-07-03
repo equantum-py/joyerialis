@@ -57,6 +57,9 @@ model Category {
   parent          String?   @default("Ninguna")
   order           Int       @default(1)
   products        Product[]
+  parentId        String?
+  parentCategory  Category?  @relation("CategorySubcategories", fields: [parentId], references: [id], onDelete: SetNull)
+  subcategories   Category[] @relation("CategorySubcategories")
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 }
@@ -78,15 +81,22 @@ model Product {
   tags            String[]            @default([])
   brandName       String              @default("Joyerialis")
   categoryName    String?
+  subcategoryName String?
+  collectionName  String?
   img             String?
   seoTitle        String?
   seoDesc         String?
+  ogImage         String?
+  canonicalSlug   String?
   
   // Relaciones
   categoryId      String?
   category        Category?           @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  brandId         String?
+  brand           Brand?              @relation(fields: [brandId], references: [id], onDelete: SetNull)
   images          ProductImage[]      // Relación normalizada para ordenamiento y SEO
   collections     Collection[]
+  variants        ProductVariant[]
   orderItems      OrderItem[]
   
   // SEO
@@ -102,8 +112,36 @@ model ProductImage {
   url       String
   alt       String? // Para accesibilidad web y SEO
   sortOrder Int     @default(0) // Orden de visualización
+  publicId  String?
   productId String
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model Brand {
+  id              String    @id @default(cuid())
+  name            String    @unique
+  slug            String    @unique
+  status          String    @default("active")
+  metaTitle       String?
+  metaDescription String?
+  products        Product[]
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model ProductVariant {
+  id        String   @id @default(cuid())
+  size      String?
+  color     String?
+  material  String?
+  stock     Int      @default(0)
+  price     Decimal? @db.Decimal(10, 2)
+  sku       String?  @unique
+  sortOrder Int      @default(0)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Collection {

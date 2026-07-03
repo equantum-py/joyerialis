@@ -3,20 +3,24 @@ import ReviewForm from '../forms/review-form';
 import ReviewItem from './review-item';
 
 const DetailsTabNav = ({ product }) => {
-  const {_id, description, additionalInformation, reviews } = product || {};
+  const {_id, description = '', additionalInformation = [], reviews = [] } = product || {};
   const activeRef = useRef(null)
   const marker = useRef(null);
   // handleActive
   const handleActive = (e) => {
     if (e.target.classList.contains('active')) {
-      marker.current.style.left = e.target.offsetLeft + "px";
-      marker.current.style.width = e.target.offsetWidth + "px";
+      if (marker.current) {
+        marker.current.style.left = e.target.offsetLeft + "px";
+        marker.current.style.width = e.target.offsetWidth + "px";
+      }
     }
   }
   useEffect(() => {
     if (activeRef.current?.classList.contains('active')) {
-      marker.current.style.left = activeRef.current.offsetLeft + 'px';
-      marker.current.style.width = activeRef.current.offsetWidth + 'px';
+      if (marker.current) {
+        marker.current.style.left = activeRef.current.offsetLeft + 'px';
+        marker.current.style.width = activeRef.current.offsetWidth + 'px';
+      }
     }
   }, []);
   // nav item
@@ -79,7 +83,7 @@ const DetailsTabNav = ({ product }) => {
                 <div className="col-xl-10">
                   <table>
                     <tbody>
-                      {additionalInformation?.map((item, i) => (
+                      {additionalInformation.map((item, i) => (
                         <tr key={i}>
                           <td>{item.key}</td>
                           <td>{item.value}</td>

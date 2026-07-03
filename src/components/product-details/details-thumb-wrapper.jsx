@@ -2,6 +2,8 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import PopupVideo from "../common/popup-video";
 
+const PRODUCT_PLACEHOLDER = '/assets/img/product/product-placeholder.svg';
+
 const DetailsThumbWrapper = ({
   imageURLs,
   handleImageActive,
@@ -12,19 +14,23 @@ const DetailsThumbWrapper = ({
   status
 }) => {
   const [isVideoOpen, setIsVideoOpen] = useState(false);
+  const safeImages = Array.isArray(imageURLs) && imageURLs.length
+    ? imageURLs
+    : [{ img: activeImg || PRODUCT_PLACEHOLDER, url: activeImg || PRODUCT_PLACEHOLDER }];
+  const safeActiveImg = activeImg || safeImages[0]?.img || PRODUCT_PLACEHOLDER;
   return (
     <>
       <div className="tp-product-details-thumb-wrapper tp-tab d-sm-flex">
         <nav>
           <div className="nav nav-tabs flex-sm-column">
-            {imageURLs?.map((item, i) => (
+            {safeImages.map((item, i) => (
               <button
                 key={i}
-                className={`nav-link ${item.img === activeImg ? "active" : ""}`}
-                onClick={() => handleImageActive(item)}
+                className={`nav-link ${(item.img || item.url) === safeActiveImg ? "active" : ""}`}
+                onClick={() => handleImageActive({ ...item, img: item.img || item.url || PRODUCT_PLACEHOLDER })}
               >
                 <Image
-                  src={item.img}
+                  src={item.img || item.url || PRODUCT_PLACEHOLDER}
                   alt="image"
                   width={78}
                   height={100}
@@ -38,7 +44,7 @@ const DetailsThumbWrapper = ({
           <div className="tab-pane fade show active">
             <div className="tp-product-details-nav-main-thumb p-relative">
               <Image
-                src={activeImg}
+                src={safeActiveImg}
                 alt="product img"
                 width={imgWidth}
                 height={imgHeight}

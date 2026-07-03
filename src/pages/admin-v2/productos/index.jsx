@@ -15,6 +15,7 @@ import LoadingState from '@/components/admin-v2/ui/LoadingState';
 import { erpToast } from '@/components/admin-v2/ui/Toast';
 import { useDataProvider } from '@/components/admin-v2/crud/DataProvider';
 import { productService } from '@/services/admin-v2/productService';
+import { mediaService } from '@/services/admin-v2/mediaService';
 
 export default function AdminV2Products() {
   const [search, setSearch] = useState('');
@@ -30,6 +31,8 @@ export default function AdminV2Products() {
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({});
   const [formErrors, setFormErrors] = useState({});
+  const [imageUploadState, setImageUploadState] = useState({ uploading: false, error: '' });
+  const [galleryUploadState, setGalleryUploadState] = useState({ uploading: false, error: '' });
 
   const { data, total, totalPages, loading, refetch } = useDataProvider(productService.getAll, {
     search,
@@ -154,10 +157,22 @@ export default function AdminV2Products() {
       price: '',
       quantity: '',
       category: 'General',
+      subcategory: '',
+      brandName: 'Joyerialis',
+      collectionName: '',
       status: 'active',
       img: '',
+      description: '',
+      metaTitle: '',
+      metaDescription: '',
+      ogImage: '',
+      canonicalSlug: '',
+      variants: [],
+      images: [],
     });
     setFormErrors({});
+    setImageUploadState({ uploading: false, error: '' });
+    setGalleryUploadState({ uploading: false, error: '' });
     setIsFormOpen(true);
   };
 
@@ -170,10 +185,22 @@ export default function AdminV2Products() {
       price: row.price || '',
       quantity: row.quantity ?? '',
       category: row.category || row.categoryName || 'General',
+      subcategory: row.subcategory || row.subcategoryName || '',
+      brandName: row.brandName || 'Joyerialis',
+      collectionName: row.collectionName || '',
       status: row.status || 'active',
       img: row.img || '',
+      description: row.description || '',
+      metaTitle: row.metaTitle || row.seoTitle || '',
+      metaDescription: row.metaDescription || row.seoDesc || '',
+      ogImage: row.ogImage || '',
+      canonicalSlug: row.canonicalSlug || '',
+      variants: row.variants || [],
+      images: row.images || [],
     });
     setFormErrors({});
+    setImageUploadState({ uploading: false, error: '' });
+    setGalleryUploadState({ uploading: false, error: '' });
     setIsFormOpen(true);
   };
 
@@ -195,6 +222,103 @@ export default function AdminV2Products() {
 
   const handleFormChange = (key, value) => {
     setFormData({ ...formData, [key]: value });
+    if (key === 'img') {
+      setImageUploadState((current) => ({ ...current, error: '' }));
+      setFormErrors((current) => ({ ...current, img: '' }));
+    }
+  };
+
+  const handleImageFileChange = async (event) => {
+    const file = event.target.files?.[0];
+
+    if (!file) return;
+
+    setImageUploadState({ uploading: true, error: '' });
+    setFormErrors((current) => ({ ...current, img: '' }));
+
+    try {
+      const uploaded = await mediaService.upload(file, {
+        scope: 'products',
+        folder: 'products',
+        alt: formData.title || file.name,
+        maxSizeMB: 6,
+      });
+
+      setFormData((current) => ({ ...current, img: uploaded.url || uploaded.secureUrl || '' }));
+      setImageUploadState({ uploading: false, error: '' });
+      erpToast.success('Imagen subida correctamente.');
+    } catch (error) {
+      const message = error.message || 'No se pudo subir la imagen. Intente nuevamente.';
+      setImageUploadState({ uploading: false, error: message });
+      setFormErrors((current) => ({ ...current, img: message }));
+      erpToast.error(message);
+      event.target.value = '';
+    }
+  };
+
+  const handleGalleryFilesChange = async (event) => {
+    const files = Array.from(event.target.files || []);
+    if (!files.length) return;
+
+    setGalleryUploadState({ uploading: true, error: '' });
+
+    try {
+      const uploadedImages = [];
+      for (const file of files) {
+        const uploaded = await mediaService.upload(file, {
+          scope: 'products-gallery',
+          folder: 'products/gallery',
+          alt: formData.title || file.name,
+          maxSizeMB: 6,
+        });
+        uploadedImages.push({
+          url: uploaded.url || uploaded.secureUrl || '',
+          alt: formData.title || file.name,
+          sortOrder: (formData.images || []).length + uploadedImages.length,
+          publicId: uploaded.publicId || uploaded.pathname || '',
+        });
+      }
+
+      setFormData((current) => ({ ...current, images: [...(current.images || []), ...uploadedImages] }));
+      setGalleryUploadState({ uploading: false, error: '' });
+      erpToast.success('Galería actualizada correctamente.');
+    } catch (error) {
+      const message = error.message || 'No se pudo subir una imagen de galería.';
+      setGalleryUploadState({ uploading: false, error: message });
+      erpToast.error(message);
+    } finally {
+      event.target.value = '';
+    }
+  };
+
+  const handleRemoveGalleryImage = (index) => {
+    setFormData((current) => ({
+      ...current,
+      images: (current.images || []).filter((_, imageIndex) => imageIndex !== index),
+    }));
+  };
+
+  const handleVariantChange = (index, key, value) => {
+    setFormData((current) => ({
+      ...current,
+      variants: (current.variants || []).map((variant, variantIndex) =>
+        variantIndex === index ? { ...variant, [key]: value } : variant
+      ),
+    }));
+  };
+
+  const handleAddVariant = () => {
+    setFormData((current) => ({
+      ...current,
+      variants: [...(current.variants || []), { size: '', color: '', material: '', stock: 0, price: '', sku: '' }],
+    }));
+  };
+
+  const handleRemoveVariant = (index) => {
+    setFormData((current) => ({
+      ...current,
+      variants: (current.variants || []).filter((_, variantIndex) => variantIndex !== index),
+    }));
   };
 
   const handleFormSubmit = async (dataToSave) => {
@@ -205,6 +329,10 @@ export default function AdminV2Products() {
     if (dataToSave.price === '' || Number.isNaN(Number(dataToSave.price))) errors.price = 'El precio debe ser numérico';
     if (dataToSave.quantity === '' || Number.isNaN(Number(dataToSave.quantity))) errors.quantity = 'La cantidad debe ser numérica';
     if (!dataToSave.status) errors.status = 'El estado es obligatorio';
+    if (imageUploadState.uploading) errors.img = 'Espere a que termine la subida de la imagen.';
+    if (galleryUploadState.uploading) errors.images = 'Espere a que termine la subida de la galería.';
+    if (imageUploadState.error) errors.img = imageUploadState.error;
+    if (galleryUploadState.error) errors.images = galleryUploadState.error;
 
     if (Object.keys(errors).length) {
       setFormErrors(errors);
@@ -297,7 +425,15 @@ export default function AdminV2Products() {
     { key: 'slug', label: 'Slug', placeholder: 'Ej. anillo-de-diamante' },
     { key: 'img', label: 'URL de imagen principal', type: 'url', placeholder: 'https://ejemplo.com/imagen.jpg' },
     { key: 'sku', label: 'SKU / Código', placeholder: 'Ej. SKU-9821' },
+    { key: 'brandName', label: 'Marca', placeholder: 'Ej. Joyerialis' },
+    { key: 'collectionName', label: 'Colección', placeholder: 'Ej. Novias 2026' },
+    { key: 'subcategory', label: 'Subcategoría', placeholder: 'Ej. Anillos de compromiso' },
     { key: 'price', label: 'Precio (Gs.)', type: 'number', placeholder: 'Ej. 125000' },
+    { key: 'description', label: 'Descripción', type: 'textarea', placeholder: 'Descripción pública del producto' },
+    { key: 'metaTitle', label: 'Meta title SEO', placeholder: 'Título SEO' },
+    { key: 'metaDescription', label: 'Meta description SEO', type: 'textarea', placeholder: 'Descripción SEO' },
+    { key: 'ogImage', label: 'OG image', type: 'url', placeholder: 'https://...' },
+    { key: 'canonicalSlug', label: 'Canonical slug', placeholder: 'slug-canonico' },
     { key: 'quantity', label: 'Cantidad en Stock', type: 'number', placeholder: 'Ej. 25' },
     {
       key: 'category',
@@ -405,7 +541,15 @@ export default function AdminV2Products() {
               <div className="col-12 col-md-6" key={field.key}>
                 <label className="form-label small font-weight-bold text-dark">{field.label}</label>
 
-                {field.type === 'select' ? (
+                {field.type === 'textarea' ? (
+                  <textarea
+                    className={`form-control ${formErrors[field.key] ? 'is-invalid' : ''}`}
+                    rows={3}
+                    value={formData[field.key] || ''}
+                    onChange={(event) => handleFormChange(field.key, event.target.value)}
+                    placeholder={field.placeholder}
+                  />
+                ) : field.type === 'select' ? (
                   <select
                     className={`form-select ${formErrors[field.key] ? 'is-invalid' : ''}`}
                     value={formData[field.key] || ''}
@@ -417,6 +561,28 @@ export default function AdminV2Products() {
                       </option>
                     ))}
                   </select>
+                ) : field.key === 'img' ? (
+                  <div className="d-flex flex-column gap-2">
+                    <input
+                      className={`form-control ${formErrors.img ? 'is-invalid' : ''}`}
+                      type="url"
+                      value={formData.img || ''}
+                      onChange={(event) => handleFormChange('img', event.target.value)}
+                      placeholder={field.placeholder}
+                      disabled={imageUploadState.uploading}
+                    />
+                    <input
+                      className={`form-control ${formErrors.img ? 'is-invalid' : ''}`}
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp,image/avif"
+                      onChange={handleImageFileChange}
+                      disabled={imageUploadState.uploading}
+                    />
+                    <small className="text-muted">JPEG, PNG, WEBP o AVIF. Máximo 6MB.</small>
+                    {imageUploadState.uploading && (
+                      <small className="text-primary">Subiendo imagen a Cloudinary...</small>
+                    )}
+                  </div>
                 ) : (
                   <input
                     className={`form-control ${formErrors[field.key] ? 'is-invalid' : ''}`}
@@ -430,24 +596,85 @@ export default function AdminV2Products() {
                 {formErrors[field.key] && <div className="invalid-feedback d-block">{formErrors[field.key]}</div>}
 
                 {field.key === 'img' && formData.img && (
-                  <div className="mt-2">
+                  <div className="mt-2 d-flex align-items-center gap-2">
                     <img
                       src={formData.img}
                       alt="Vista previa"
                       className="rounded border"
                       style={{ width: '80px', height: '80px', objectFit: 'cover' }}
                     />
+                    <small className="text-muted text-break">Imagen principal actual</small>
                   </div>
                 )}
               </div>
             ))}
           </div>
 
+          <div className="border-top border-light pt-3">
+            <div className="d-flex align-items-center justify-content-between mb-2">
+              <label className="form-label small font-weight-bold text-dark mb-0">Galería secundaria</label>
+              {galleryUploadState.uploading && <small className="text-primary">Subiendo galería...</small>}
+            </div>
+            <input
+              className={`form-control ${formErrors.images ? 'is-invalid' : ''}`}
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/avif"
+              multiple
+              onChange={handleGalleryFilesChange}
+              disabled={galleryUploadState.uploading}
+            />
+            {formErrors.images && <div className="invalid-feedback d-block">{formErrors.images}</div>}
+            <div className="d-flex flex-wrap gap-2 mt-2">
+              {(formData.images || []).map((image, index) => (
+                <div key={`${image.url || image.img}-${index}`} className="position-relative">
+                  <img
+                    src={image.url || image.img}
+                    alt={image.alt || 'Galería'}
+                    className="rounded border"
+                    style={{ width: '72px', height: '72px', objectFit: 'cover' }}
+                  />
+                  <button type="button" className="btn btn-sm btn-danger position-absolute top-0 end-0" onClick={() => handleRemoveGalleryImage(index)}>
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="border-top border-light pt-3">
+            <div className="d-flex align-items-center justify-content-between mb-2">
+              <label className="form-label small font-weight-bold text-dark mb-0">Variantes</label>
+              <Button variant="outline" size="sm" type="button" onClick={handleAddVariant}>Agregar variante</Button>
+            </div>
+            <div className="d-flex flex-column gap-2">
+              {(formData.variants || []).map((variant, index) => (
+                <div key={index} className="row g-2 align-items-end">
+                  {['size', 'color', 'material', 'stock', 'price', 'sku'].map((key) => (
+                    <div className="col-6 col-md-2" key={key}>
+                      <label className="form-label small text-muted">{key === 'size' ? 'Talle' : key === 'stock' ? 'Stock' : key === 'price' ? 'Precio' : key.toUpperCase()}</label>
+                      <input
+                        className="form-control"
+                        type={key === 'stock' || key === 'price' ? 'number' : 'text'}
+                        value={variant[key] ?? ''}
+                        onChange={(event) => handleVariantChange(index, key, event.target.value)}
+                      />
+                    </div>
+                  ))}
+                  <div className="col-12 col-md-1">
+                    <Button variant="ghost" size="sm" type="button" className="text-danger" onClick={() => handleRemoveVariant(index)}>
+                      <i className="fa-light fa-trash"></i>
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
           <div className="d-flex align-items-center justify-content-end gap-2 pt-3 border-top border-light">
             <Button variant="outline" type="button" onClick={() => setIsFormOpen(false)}>
               Cancelar
             </Button>
-            <Button variant="primary" type="submit">
+            <Button variant="primary" type="submit" disabled={imageUploadState.uploading || galleryUploadState.uploading}>
               {editingId ? 'Guardar Cambios' : 'Crear Producto'}
             </Button>
           </div>

@@ -12,7 +12,8 @@ import { add_to_compare } from "@/redux/features/compareSlice";
 import { formatGs, formatGsDiscount } from '@/utils/price';
 
 const ShopListItem = ({ product }) => {
-  const { _id, img, category, title, reviews, price, discount, tags, description } = product || {};
+  const { _id, slug, img, category, title, reviews, price, discount, tags, description } = product || {};
+  const productHref = `/product-details/${slug || _id}`;
   const dispatch = useDispatch()
   const [ratingVal, setRatingVal] = useState(0);
   useEffect(() => {
@@ -43,7 +44,7 @@ const ShopListItem = ({ product }) => {
   return (
     <div className="tp-product-list-item d-md-flex">
       <div className="tp-product-list-thumb p-relative fix">
-        <Link href={`/product-details/${_id}`}>
+        <Link href={productHref}>
           <Image src={img} alt="product img" width={350} height={310} />
         </Link>
 
@@ -89,7 +90,7 @@ const ShopListItem = ({ product }) => {
             {tags?.map((t, i) => <a key={i} href="#">{t}</a>)}
           </div>
           <h3 className="tp-product-title-2">
-            <Link href={`/product-details/${_id}`}>{title}</Link>
+            <Link href={productHref}>{title}</Link>
           </h3>
           <div className="tp-product-rating-icon tp-product-rating-icon-2">
             <Rating allowFraction size={16} initialValue={ratingVal} readonly={true} />

@@ -14,7 +14,8 @@ import { handleModalClose } from '@/redux/features/productModalSlice';
 import { formatGs, formatGsDiscount } from '@/utils/price';
 
 const DetailsWrapper = ({ productItem, handleImageActive, activeImg, detailsBottom = false }) => {
-  const { sku, img, title, imageURLs, category, description, discount, price, status, reviews, tags, offerDate } = productItem || {};
+  const { sku, img, title, imageURLs = [], category = { name: 'General' }, description = '', discount = 0, price = 0, status, reviews = [], tags = [], offerDate, variants = [], brand = { name: 'Joyerialis' } } = productItem || {};
+  const safeDescription = String(description || '');
   const [ratingVal, setRatingVal] = useState(0);
   const [textMore, setTextMore] = useState(false);
   const dispatch = useDispatch()
@@ -48,7 +49,7 @@ const DetailsWrapper = ({ productItem, handleImageActive, activeImg, detailsBott
   return (
     <div className="tp-product-details-wrapper">
       <div className="tp-product-details-category">
-        <span>{category.name}</span>
+        <span>{category?.name || 'General'}</span>
       </div>
       <h3 className="tp-product-details-title">{title}</h3>
 
@@ -66,7 +67,7 @@ const DetailsWrapper = ({ productItem, handleImageActive, activeImg, detailsBott
           </div>
         </div>
       </div>
-      <p>{textMore ? description : `${description.substring(0, 100)}...`}
+      <p>{textMore ? safeDescription : `${safeDescription.substring(0, 100)}...`}
         <span onClick={() => setTextMore(!textMore)}>{textMore ? 'See less' : 'See more'}</span>
       </p>
 
@@ -85,7 +86,7 @@ const DetailsWrapper = ({ productItem, handleImageActive, activeImg, detailsBott
       </div>
 
       {/* variations */}
-      {imageURLs.some(item => item?.color && item?.color?.name) && <div className="tp-product-details-variation">
+      {Array.isArray(imageURLs) && imageURLs.some(item => item?.color && item?.color?.name) && <div className="tp-product-details-variation">
         <div className="tp-product-details-variation-item">
           <h4 className="tp-product-details-variation-title">Color :</h4>
           <div className="tp-product-details-variation-list">
@@ -106,6 +107,24 @@ const DetailsWrapper = ({ productItem, handleImageActive, activeImg, detailsBott
           </div>
         </div>
       </div>}
+
+      {variants.length > 0 && (
+        <div className="tp-product-details-variation mb-20">
+          <h4 className="tp-product-details-variation-title">Variantes disponibles</h4>
+          <div className="d-flex flex-wrap gap-2">
+            {variants.map((variant, index) => (
+              <span key={variant.id || index} className="badge bg-light text-dark border">
+                {[variant.size, variant.color, variant.material].filter(Boolean).join(' / ') || `Variante ${index + 1}`}
+                {variant.stock !== undefined ? ` · Stock ${variant.stock}` : ''}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="tp-product-details-category mb-15">
+        <span>Marca: {brand?.name || 'Joyerialis'}</span>
+      </div>
 
       {/* if ProductDetailsCountdown true start */}
       {offerDate?.endDate && <ProductDetailsCountdown offerExpiryTime={offerDate?.endDate} />}
@@ -143,7 +162,7 @@ const DetailsWrapper = ({ productItem, handleImageActive, activeImg, detailsBott
       </div>
       {/* product-details-action-sm end */}
 
-      {detailsBottom && <DetailsBottomInfo category={category?.name} sku={sku} tag={tags[0]} />}
+      {detailsBottom && <DetailsBottomInfo category={category?.name || 'General'} sku={sku || 'N/A'} tag={tags[0] || category?.name || 'Producto'} />}
     </div>
   );
 };

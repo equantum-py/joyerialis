@@ -172,11 +172,19 @@ export default function AdminV2Products() {
       return;
     }
 
+    const images = (dataToSave.images || [])
+      .filter((image) => image?.url)
+      .map((image, sortOrder) => ({
+        url: image.url,
+        alt: image.alt || '',
+        sortOrder,
+      }));
+
     const payload = {
       ...dataToSave,
       slug: dataToSave.slug?.trim() || dataToSave.title.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '-').replace(/[^\w-]+/g, '').replace(/--+/g, '-').replace(/^-+|-+$/g, ''),
-      img: dataToSave.img || dataToSave.images?.[0]?.url || '',
-      images: (dataToSave.images || []).map((image, sortOrder) => ({ ...image, sortOrder })),
+      img: dataToSave.img || images[0]?.url || '',
+      images,
     };
 
     try {

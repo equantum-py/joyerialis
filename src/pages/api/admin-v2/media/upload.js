@@ -1,7 +1,7 @@
 let cachedCloudinary = null;
 
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/avif'];
-const MAX_FILE_SIZE = 5 * 1024 * 1024;
+const MAX_FILE_SIZE = 6 * 1024 * 1024;
 const MAX_REQUEST_SIZE = MAX_FILE_SIZE + 1024 * 1024;
 
 export const config = {
@@ -55,7 +55,7 @@ function readRequestBuffer(req) {
 
       if (total > MAX_REQUEST_SIZE) {
         finished = true;
-        reject(new UploadError('El archivo no debe superar 5MB.', 413, 'FILE_TOO_LARGE'));
+        reject(new UploadError('El archivo no debe superar 6MB.', 413, 'FILE_TOO_LARGE'));
         req.destroy();
         return;
       }
@@ -260,7 +260,7 @@ export default async function handler(req, res) {
     }
 
     if (file.buffer.length > MAX_FILE_SIZE) {
-      throw new UploadError('El archivo no debe superar 5MB.', 413, 'FILE_TOO_LARGE');
+      throw new UploadError('El archivo no debe superar 6MB.', 413, 'FILE_TOO_LARGE');
     }
 
     const scope = sanitizeSegment(fields.scope, 'general');

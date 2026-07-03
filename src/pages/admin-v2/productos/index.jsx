@@ -15,6 +15,7 @@ import LoadingState from '@/components/admin-v2/ui/LoadingState';
 import { erpToast } from '@/components/admin-v2/ui/Toast';
 import { useDataProvider } from '@/components/admin-v2/crud/DataProvider';
 import { productService } from '@/services/admin-v2/productService';
+import { mediaService } from '@/services/admin-v2/mediaService';
 
 export default function AdminV2Products() {
   const [search, setSearch] = useState('');
@@ -30,6 +31,7 @@ export default function AdminV2Products() {
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({});
   const [formErrors, setFormErrors] = useState({});
+  const [imageUploadState, setImageUploadState] = useState({ uploading: false, error: '' });
 
   const { data, total, totalPages, loading, refetch } = useDataProvider(productService.getAll, {
     search,
@@ -158,6 +160,7 @@ export default function AdminV2Products() {
       img: '',
     });
     setFormErrors({});
+    setImageUploadState({ uploading: false, error: '' });
     setIsFormOpen(true);
   };
 
@@ -174,6 +177,7 @@ export default function AdminV2Products() {
       img: row.img || '',
     });
     setFormErrors({});
+    setImageUploadState({ uploading: false, error: '' });
     setIsFormOpen(true);
   };
 
@@ -195,6 +199,38 @@ export default function AdminV2Products() {
 
   const handleFormChange = (key, value) => {
     setFormData({ ...formData, [key]: value });
+    if (key === 'img') {
+      setImageUploadState((current) => ({ ...current, error: '' }));
+      setFormErrors((current) => ({ ...current, img: '' }));
+    }
+  };
+
+  const handleImageFileChange = async (event) => {
+    const file = event.target.files?.[0];
+
+    if (!file) return;
+
+    setImageUploadState({ uploading: true, error: '' });
+    setFormErrors((current) => ({ ...current, img: '' }));
+
+    try {
+      const uploaded = await mediaService.upload(file, {
+        scope: 'products',
+        folder: 'products',
+        alt: formData.title || file.name,
+        maxSizeMB: 6,
+      });
+
+      setFormData((current) => ({ ...current, img: uploaded.url || uploaded.secureUrl || '' }));
+      setImageUploadState({ uploading: false, error: '' });
+      erpToast.success('Imagen subida correctamente.');
+    } catch (error) {
+      const message = error.message || 'No se pudo subir la imagen. Intente nuevamente.';
+      setImageUploadState({ uploading: false, error: message });
+      setFormErrors((current) => ({ ...current, img: message }));
+      erpToast.error(message);
+      event.target.value = '';
+    }
   };
 
   const handleFormSubmit = async (dataToSave) => {
@@ -205,6 +241,8 @@ export default function AdminV2Products() {
     if (dataToSave.price === '' || Number.isNaN(Number(dataToSave.price))) errors.price = 'El precio debe ser numérico';
     if (dataToSave.quantity === '' || Number.isNaN(Number(dataToSave.quantity))) errors.quantity = 'La cantidad debe ser numérica';
     if (!dataToSave.status) errors.status = 'El estado es obligatorio';
+    if (imageUploadState.uploading) errors.img = 'Espere a que termine la subida de la imagen.';
+    if (imageUploadState.error) errors.img = imageUploadState.error;
 
     if (Object.keys(errors).length) {
       setFormErrors(errors);
@@ -417,6 +455,28 @@ export default function AdminV2Products() {
                       </option>
                     ))}
                   </select>
+                ) : field.key === 'img' ? (
+                  <div className="d-flex flex-column gap-2">
+                    <input
+                      className={`form-control ${formErrors.img ? 'is-invalid' : ''}`}
+                      type="url"
+                      value={formData.img || ''}
+                      onChange={(event) => handleFormChange('img', event.target.value)}
+                      placeholder={field.placeholder}
+                      disabled={imageUploadState.uploading}
+                    />
+                    <input
+                      className={`form-control ${formErrors.img ? 'is-invalid' : ''}`}
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp,image/avif"
+                      onChange={handleImageFileChange}
+                      disabled={imageUploadState.uploading}
+                    />
+                    <small className="text-muted">JPEG, PNG, WEBP o AVIF. Máximo 6MB.</small>
+                    {imageUploadState.uploading && (
+                      <small className="text-primary">Subiendo imagen a Cloudinary...</small>
+                    )}
+                  </div>
                 ) : (
                   <input
                     className={`form-control ${formErrors[field.key] ? 'is-invalid' : ''}`}
@@ -430,13 +490,14 @@ export default function AdminV2Products() {
                 {formErrors[field.key] && <div className="invalid-feedback d-block">{formErrors[field.key]}</div>}
 
                 {field.key === 'img' && formData.img && (
-                  <div className="mt-2">
+                  <div className="mt-2 d-flex align-items-center gap-2">
                     <img
                       src={formData.img}
                       alt="Vista previa"
                       className="rounded border"
                       style={{ width: '80px', height: '80px', objectFit: 'cover' }}
                     />
+                    <small className="text-muted text-break">Imagen principal actual</small>
                   </div>
                 )}
               </div>
@@ -447,7 +508,7 @@ export default function AdminV2Products() {
             <Button variant="outline" type="button" onClick={() => setIsFormOpen(false)}>
               Cancelar
             </Button>
-            <Button variant="primary" type="submit">
+            <Button variant="primary" type="submit" disabled={imageUploadState.uploading}>
               {editingId ? 'Guardar Cambios' : 'Crear Producto'}
             </Button>
           </div>

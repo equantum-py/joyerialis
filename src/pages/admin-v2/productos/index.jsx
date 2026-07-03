@@ -15,9 +15,6 @@ import LoadingState from '@/components/admin-v2/ui/LoadingState';
 import { erpToast } from '@/components/admin-v2/ui/Toast';
 import { useDataProvider } from '@/components/admin-v2/crud/DataProvider';
 import { productService } from '@/services/admin-v2/productService';
-import ProductImage from '@/components/admin/shared/ProductImage';
-import MediaUploader from '@/components/admin-v2/media/MediaUploader';
-import MediaGrid from '@/components/admin-v2/media/MediaGrid';
 
 export default function AdminV2Products() {
   const [search, setSearch] = useState('');
@@ -53,7 +50,18 @@ export default function AdminV2Products() {
       sortable: true,
       render: (val, row) => (
         <div className="d-flex align-items-center gap-2">
-          <ProductImage src={row.img} title={val} size="sm" />
+          {row.img ? (
+            <img
+              src={row.img}
+              alt={val || 'Producto'}
+              className="rounded border"
+              style={{ width: '40px', height: '40px', objectFit: 'cover' }}
+            />
+          ) : (
+            <div className="rounded border bg-light d-flex align-items-center justify-content-center text-muted" style={{ width: '40px', height: '40px' }}>
+              <i className="fa-light fa-image"></i>
+            </div>
+          )}
           <div className="d-flex flex-column">
             <span className="font-weight-bold text-dark text-truncate" style={{ maxWidth: '200px' }}>{val}</span>
             <small className="text-muted font-monospace">{row.sku}</small>
@@ -126,14 +134,14 @@ export default function AdminV2Products() {
   // CRUD Actions
   const handleAddNew = () => {
     setEditingId(null);
-    setFormData({ title: '', slug: '', sku: '', price: '', quantity: '', category: 'General', status: 'active', img: '', images: [] });
+    setFormData({ title: '', slug: '', sku: '', price: '', quantity: '', category: 'General', status: 'active', img: '' });
     setFormErrors({});
     setIsFormOpen(true);
   };
 
   const handleEdit = (row) => {
     setEditingId(row.id || row._id);
-    setFormData({ title: row.title || '', slug: row.slug || '', sku: row.sku || '', price: row.price || '', quantity: row.quantity ?? '', category: row.category || row.categoryName || 'General', status: row.status || 'active', img: row.img || '', images: row.images || [] });
+    setFormData({ title: row.title || '', slug: row.slug || '', sku: row.sku || '', price: row.price || '', quantity: row.quantity ?? '', category: row.category || row.categoryName || 'General', status: row.status || 'active', img: row.img || '' });
     setFormErrors({});
     setIsFormOpen(true);
   };
@@ -175,8 +183,7 @@ export default function AdminV2Products() {
     const payload = {
       ...dataToSave,
       slug: dataToSave.slug?.trim() || dataToSave.title.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '-').replace(/[^\w-]+/g, '').replace(/--+/g, '-').replace(/^-+|-+$/g, ''),
-      img: dataToSave.img || dataToSave.images?.[0]?.url || '',
-      images: (dataToSave.images || []).map((image, sortOrder) => ({ ...image, sortOrder })),
+      img: dataToSave.img?.trim() || '',
     };
 
     try {
@@ -247,6 +254,7 @@ export default function AdminV2Products() {
   const formFields = [
     { key: 'title', label: 'Nombre del Producto', placeholder: 'Ej. Anillo de Diamante' },
     { key: 'slug', label: 'Slug', placeholder: 'Ej. anillo-de-diamante' },
+    { key: 'img', label: 'URL de imagen principal', type: 'url', placeholder: 'https://ejemplo.com/imagen.jpg' },
     { key: 'sku', label: 'SKU / Código', placeholder: 'Ej. SKU-9821' },
     { key: 'price', label: 'Precio ($)', type: 'number', placeholder: 'Ej. 1250' },
     { key: 'quantity', label: 'Cantidad en Stock', type: 'number', placeholder: 'Ej. 25' },
@@ -347,49 +355,6 @@ export default function AdminV2Products() {
                 {formErrors[field.key] && <div className="invalid-feedback d-block">{formErrors[field.key]}</div>}
               </div>
             ))}
-          </div>
-
-          <div className="border-top pt-3 mt-2 d-flex flex-column gap-3">
-            <div>
-              <h6 className="mb-1 text-dark font-weight-bold">Imágenes del producto</h6>
-              <p className="mb-0 text-muted small">Sube imágenes desde tu computadora. La imagen seleccionada como principal se mostrará en la tabla.</p>
-            </div>
-            <MediaUploader
-              scope="products"
-              folder="products"
-              multiple
-              title="Subir imágenes"
-              description="Arrastra imágenes aquí o haz clic para seleccionar archivos JPEG, PNG, WEBP o AVIF."
-              onUploaded={(uploaded) => {
-                const uploadedItems = (Array.isArray(uploaded) ? uploaded : [uploaded]).map((item) => ({
-                  ...item,
-                  id: item.url,
-                  sortOrder: formData.images?.length || 0,
-                }));
-                const nextImages = [...(formData.images || []), ...uploadedItems].map((item, sortOrder) => ({ ...item, sortOrder }));
-                setFormData({ ...formData, images: nextImages, img: formData.img || nextImages[0]?.url || '' });
-              }}
-              onError={(error) => erpToast.error(error.message || 'No se pudo subir el archivo.')}
-            />
-            <MediaGrid
-              title="Galería"
-              emptyMessage="Aún no hay imágenes cargadas."
-              items={formData.images || []}
-              selectedId={formData.img}
-              selectedLabel="Principal"
-              editableAlt
-              sortable
-              selectable
-              onChange={(nextItems) => {
-                const sortedItems = nextItems.map((item, sortOrder) => ({ ...item, sortOrder }));
-                setFormData({ ...formData, images: sortedItems, img: sortedItems.some((item) => item.url === formData.img) ? formData.img : sortedItems[0]?.url || '' });
-              }}
-              onRemove={(item) => {
-                const nextImages = (formData.images || []).filter((image) => image.url !== item.url).map((image, sortOrder) => ({ ...image, sortOrder }));
-                setFormData({ ...formData, images: nextImages, img: formData.img === item.url ? nextImages[0]?.url || '' : formData.img });
-              }}
-              onSelect={(item) => setFormData({ ...formData, img: item.url })}
-            />
           </div>
 
           <div className="d-flex align-items-center justify-content-end gap-2 pt-3 border-top border-light">

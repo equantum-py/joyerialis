@@ -12,6 +12,26 @@ import PrdDetailsLoader from '@/components/loader/prd-details-loader';
 
 const ProductDetailsPage = ({ query }) => {
   const { data: product, isLoading, isError } = useGetProductQuery(query.id);
+  const canonicalPath = product?.canonicalSlug || product?.slug || product?._id;
+  const canonicalUrl = canonicalPath ? `/product-details/${canonicalPath}` : undefined;
+  const jsonLd = product
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'Product',
+        name: product.title,
+        description: product.metaDescription || product.description,
+        image: [product.img, ...(product.images || []).map((image) => image.url)].filter(Boolean),
+        sku: product.sku || undefined,
+        brand: { '@type': 'Brand', name: product.brandName || product.brand?.name || 'Joyerialis' },
+        offers: {
+          '@type': 'Offer',
+          priceCurrency: 'PYG',
+          price: product.price,
+          availability: product.status === 'in-stock' ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+          url: canonicalUrl,
+        },
+      }
+    : null;
   // decide what to render
   let content = null;
   if (isLoading) {
@@ -30,7 +50,7 @@ const ProductDetailsPage = ({ query }) => {
   }
   return (
     <Wrapper>
-      <SEO pageTitle="Product Details" />
+      <SEO pageTitle={product?.metaTitle || product?.title || "Product Details"} description={product?.metaDescription} image={product?.ogImage || product?.img} canonical={canonicalUrl} jsonLd={jsonLd} noIndex={false} />
       <HeaderTwo style_2={true} />
       {content}
       <Footer primary_style={true} />

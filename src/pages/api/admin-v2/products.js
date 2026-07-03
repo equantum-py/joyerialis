@@ -57,9 +57,11 @@ function emptyProductsResponse({ page = 1, limit = 10, error } = {}) {
 
 function parseNumber(value, fieldName) {
   const number = Number(value);
+
   if (!Number.isFinite(number)) {
     throw new Error(`${fieldName} debe ser numérico.`);
   }
+
   return number;
 }
 
@@ -73,9 +75,11 @@ function normalizeList(value) {
 
 function buildConnectOrCreateByName(name) {
   const trimmed = String(name || '').trim();
+
   if (!trimmed) return undefined;
 
   const slug = slugify(trimmed);
+
   return {
     where: { slug },
     create: { name: trimmed, slug },
@@ -90,13 +94,19 @@ function validateProductPayload(data, { partial = false } = {}) {
   }
 
   if (!partial || data.price !== undefined) {
-    if (data.price === undefined || data.price === '') errors.price = 'El precio es obligatorio.';
-    else if (!Number.isFinite(Number(data.price))) errors.price = 'El precio debe ser numérico.';
+    if (data.price === undefined || data.price === '') {
+      errors.price = 'El precio es obligatorio.';
+    } else if (!Number.isFinite(Number(data.price))) {
+      errors.price = 'El precio debe ser numérico.';
+    }
   }
 
   if (!partial || data.quantity !== undefined) {
-    if (data.quantity === undefined || data.quantity === '') errors.quantity = 'La cantidad es obligatoria.';
-    else if (!Number.isInteger(Number(data.quantity))) errors.quantity = 'La cantidad debe ser numérica.';
+    if (data.quantity === undefined || data.quantity === '') {
+      errors.quantity = 'La cantidad es obligatoria.';
+    } else if (!Number.isInteger(Number(data.quantity))) {
+      errors.quantity = 'La cantidad debe ser numérica.';
+    }
   }
 
   if (!partial || data.status !== undefined) {
@@ -104,7 +114,10 @@ function validateProductPayload(data, { partial = false } = {}) {
   }
 
   const slug = String(data.slug || '').trim() || slugify(data.title);
-  if (!partial && !slug) errors.slug = 'El slug es obligatorio.';
+
+  if (!partial && !slug) {
+    errors.slug = 'El slug es obligatorio.';
+  }
 
   if (Object.keys(errors).length) {
     const error = new Error('Datos de producto inválidos.');
@@ -137,6 +150,7 @@ function buildProductData(data, slug) {
   if (data.brand !== undefined || data.brandName !== undefined) {
     const brandName = String(data.brand || data.brandName || 'Joyerialis').trim() || 'Joyerialis';
     productData.brandName = brandName;
+
     const brand = buildConnectOrCreateByName(brandName);
     if (brand) productData.brand = { connectOrCreate: brand };
   }
@@ -165,9 +179,10 @@ function buildVariantCreates(variants = []) {
       color: String(variant.color || '').trim() || null,
       material: String(variant.material || '').trim() || null,
       stock: Number.isInteger(Number(variant.stock)) ? parseInt(Number(variant.stock), 10) : 0,
-      price: variant.price === '' || variant.price === undefined || variant.price === null
-        ? null
-        : new Prisma.Decimal(parseNumber(variant.price, 'El precio de variante')),
+      price:
+        variant.price === '' || variant.price === undefined || variant.price === null
+          ? null
+          : new Prisma.Decimal(parseNumber(variant.price, 'El precio de variante')),
       sku: String(variant.sku || '').trim() || null,
       sortOrder: Number.isInteger(Number(variant.sortOrder)) ? parseInt(Number(variant.sortOrder), 10) : index,
     }));
@@ -186,18 +201,22 @@ function buildImageCreates(images = []) {
 
 function applyNestedProductData(productData, data, { replace = false } = {}) {
   const variants = buildVariantCreates(data.variants);
+
   if (data.variants !== undefined) {
     productData.variants = replace ? { deleteMany: {}, create: variants } : { create: variants };
   }
 
   const images = buildImageCreates(data.images);
+
   if (data.images !== undefined) {
     productData.images = replace ? { deleteMany: {}, create: images } : { create: images };
   }
 
   const collectionName = String(data.collection || data.collectionName || '').trim();
+
   if (data.collection !== undefined || data.collectionName !== undefined) {
     const collection = buildConnectOrCreateByName(collectionName);
+
     productData.collections = replace
       ? { set: [], ...(collection ? { connectOrCreate: [collection] } : {}) }
       : collection
@@ -285,7 +304,21 @@ export default async function handler(req, res) {
         limit = 10,
       } = req.query;
 
-      const include = { category: true, brand: true, collections: true, images: { orderBy: { sortOrder: 'asc' } }, variants: { orderBy: { sortOrder: 'asc' } } };
+      const include = {
+        category: true,
+        brand: true,
+        collections: true,
+        images: {
+          orderBy: {
+            sortOrder: 'asc',
+          },
+        },
+        variants: {
+          orderBy: {
+            sortOrder: 'asc',
+          },
+        },
+      };
 
       const pageNum = Math.max(Number(page) || 1, 1);
       const limitNum = Math.max(Number(limit) || 10, 1);
@@ -401,6 +434,18 @@ export default async function handler(req, res) {
         data: productData,
         include: {
           category: true,
+          brand: true,
+          collections: true,
+          images: {
+            orderBy: {
+              sortOrder: 'asc',
+            },
+          },
+          variants: {
+            orderBy: {
+              sortOrder: 'asc',
+            },
+          },
         },
       });
 
@@ -454,19 +499,30 @@ export default async function handler(req, res) {
         ...updateData,
         ...(status !== undefined ? { status } : {}),
       };
+
       const slug = validateProductPayload(productUpdateData, { partial: true });
 
       const updated = await prisma.product.update({
         where: {
           id,
         },
-        data: applyNestedProductData(buildProductData(productUpdateData, slug), productUpdateData, { replace: true }),
+        data: applyNestedProductData(buildProductData(productUpdateData, slug), productUpdateData, {
+          replace: true,
+        }),
         include: {
           category: true,
           brand: true,
           collections: true,
-          images: { orderBy: { sortOrder: 'asc' } },
-          variants: { orderBy: { sortOrder: 'asc' } },
+          images: {
+            orderBy: {
+              sortOrder: 'asc',
+            },
+          },
+          variants: {
+            orderBy: {
+              sortOrder: 'asc',
+            },
+          },
         },
       });
 

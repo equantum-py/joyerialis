@@ -34,8 +34,8 @@ const JewelryBanner = () => (
         <div className="container">
           <div className="row">
             <div className="col-lg-5 col-md-7">
-              <h1 className="jolie-hero-title">La belleza<br/>de ser tú <span>♡</span></h1>
-              <p className="jolie-hero-copy">Joyas delicadas y coloridas para expresar tu esencia en cada detalle.</p>
+              <h1 className="jolie-hero-title">Bonita y Única <span>♡</span></h1>
+              <p className="jolie-hero-copy">Porque tu esencia es tu mejor joya.</p>
               <Link href="/shop" className="jolie-hero-btn">Descubrir colección</Link>
               <div className="jolie-hero-dots" aria-hidden="true"><i className="jolie-hero-dot active"/><i className="jolie-hero-dot"/><i className="jolie-hero-dot"/></div>
             </div>

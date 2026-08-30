@@ -6,157 +6,31 @@ import HeaderFour from '@/layout/headers/header-4';
 import JewelryBanner from '@/components/banner/jewelry-banner';
 import FooterTwo from '@/layout/footers/footer-2';
 
-const collections = [
-  { name: 'Collares', href: '/shop?category=Collares', image: '/assets/img/product/jewelry/1.jpg' },
-  { name: 'Aros', href: '/shop?category=Aros', image: '/assets/img/product/jewelry/2.jpg' },
-  { name: 'Pulseras', href: '/shop?category=Pulseras', image: '/assets/img/product/jewelry/3.jpg' },
-  { name: 'Tobilleras', href: '/shop?category=Tobilleras', image: '/assets/img/product/jewelry/4.jpg' },
-  { name: 'Nuevos', href: '/shop?new=true', image: '/assets/img/product/jewelry/5.jpg' },
+const collections=[
+ {name:'Collares',href:'/shop?category=Collares',image:'/assets/img/instagram/4/instagram-1.jpg'},
+ {name:'Aros',href:'/shop?category=Aros',image:'/assets/img/instagram/4/instagram-3.jpg'},
+ {name:'Pulseras',href:'/shop?category=Pulseras',image:'/assets/img/instagram/4/instagram-4.jpg'},
+ {name:'Tobilleras',href:'/shop?category=Tobilleras',image:'/assets/img/instagram/4/instagram-6.jpg'},
+ {name:'Nuevos',href:'/shop?new=true',image:'/assets/img/slider/4/slider-1.png'}
 ];
 
-export default function Home() {
-  return (
-    <Wrapper>
-      <SEO
-        pageTitle="Jolie Jewelry | Joyas que expresan tu esencia"
-        description="Descubrí Jolie Jewelry: collares, aros, pulseras y accesorios delicados creados para acompañarte en cada momento. Envíos a todo Paraguay."
-        noIndex={false}
-      />
-      <Head>
-        <style>{`
-          :root {
-            --jolie-rose: #d98d6d;
-            --jolie-rose-dark: #a85f47;
-            --jolie-peach: #f7ddd1;
-            --jolie-cream: #fffaf7;
-            --jolie-ink: #4d3028;
-            --jolie-muted: #806a63;
-            --jolie-line: #ecd8cf;
-          }
-          body { background: var(--jolie-cream); }
-          .jolie-home { color: var(--jolie-ink); }
-          .jolie-section { padding: 72px 0; }
-          .jolie-title {
-            font-family: 'Cormorant Garamond', Georgia, serif;
-            font-size: clamp(34px, 4vw, 54px);
-            font-weight: 400;
-            text-align: center;
-            margin-bottom: 12px;
-            color: var(--jolie-ink);
-          }
-          .jolie-subtitle { text-align: center; color: var(--jolie-muted); margin-bottom: 44px; }
-          .jolie-benefits { background:#fff; border-top:1px solid var(--jolie-line); border-bottom:1px solid var(--jolie-line); }
-          .jolie-benefit-grid { display:grid; grid-template-columns:repeat(4,1fr); }
-          .jolie-benefit { padding:34px 26px; text-align:center; border-right:1px solid var(--jolie-line); }
-          .jolie-benefit:last-child { border-right:0; }
-          .jolie-benefit-icon { font-size:32px; color:var(--jolie-rose); margin-bottom:12px; }
-          .jolie-benefit h3 { font-size:16px; font-weight:500; margin:0 0 5px; }
-          .jolie-benefit p { font-size:13px; color:var(--jolie-muted); margin:0; }
-          .jolie-collections { background:#fffdfa; }
-          .jolie-collection-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:28px; }
-          .jolie-collection { text-align:center; }
-          .jolie-collection-img { width:100%; aspect-ratio:1/1; border-radius:50%; object-fit:cover; border:1px solid var(--jolie-line); background:#f8eee9; }
-          .jolie-collection h3 { margin:18px 0 10px; font-size:15px; letter-spacing:.08em; text-transform:uppercase; }
-          .jolie-outline-btn { display:inline-block; border:1px solid var(--jolie-rose); color:var(--jolie-rose-dark); padding:10px 24px; border-radius:8px; font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:.05em; }
-          .jolie-outline-btn:hover { background:var(--jolie-rose); color:#fff; }
-          .jolie-newsletter { background:linear-gradient(90deg,#fae8df,#f5d4c6); padding:28px 0; }
-          .jolie-newsletter-wrap { display:grid; grid-template-columns:1fr 1fr; gap:36px; align-items:center; }
-          .jolie-newsletter h3 { font-family:'Cormorant Garamond',Georgia,serif; font-size:30px; margin:0 0 4px; }
-          .jolie-newsletter p { margin:0; color:var(--jolie-muted); }
-          .jolie-newsletter-form { display:flex; }
-          .jolie-newsletter-form input { flex:1; border:1px solid #e2c7bc; background:#fff; padding:14px 18px; border-radius:8px 0 0 8px; }
-          .jolie-newsletter-form button { border:0; background:var(--jolie-rose); color:#fff; padding:0 26px; border-radius:0 8px 8px 0; font-weight:600; }
-          .jolie-story { display:grid; grid-template-columns:1.05fr 1fr; min-height:420px; background:#fff; }
-          .jolie-story-image { min-height:420px; background:url('/assets/img/banner/jewelry-banner-1.jpg') center/cover no-repeat; }
-          .jolie-story-copy { padding:68px; display:flex; align-items:center; }
-          .jolie-story-copy h2 { font-family:'Cormorant Garamond',Georgia,serif; font-size:48px; font-weight:400; line-height:1.05; margin-bottom:20px; }
-          .jolie-story-copy p { color:var(--jolie-muted); line-height:1.8; max-width:580px; }
-          .jolie-solid-btn { display:inline-block; margin-top:12px; background:var(--jolie-rose); color:#fff; padding:13px 24px; border-radius:8px; font-size:12px; font-weight:600; text-transform:uppercase; }
-          @media (max-width: 991px) {
-            .jolie-benefit-grid { grid-template-columns:repeat(2,1fr); }
-            .jolie-benefit:nth-child(2) { border-right:0; }
-            .jolie-collection-grid { grid-template-columns:repeat(2,1fr); }
-            .jolie-collection:last-child { grid-column:1 / -1; max-width:260px; margin:0 auto; }
-            .jolie-newsletter-wrap { grid-template-columns:1fr; }
-            .jolie-story { grid-template-columns:1fr; }
-          }
-          @media (max-width: 575px) {
-            .jolie-section { padding:50px 0; }
-            .jolie-benefit-grid { grid-template-columns:1fr 1fr; }
-            .jolie-benefit { padding:26px 14px; }
-            .jolie-newsletter-form { flex-direction:column; gap:10px; }
-            .jolie-newsletter-form input,.jolie-newsletter-form button { border-radius:8px; min-height:48px; }
-            .jolie-story-copy { padding:42px 24px; }
-            .jolie-story-copy h2 { font-size:40px; }
-          }
-        `}</style>
-      </Head>
-
-      <div className="jolie-home">
-        <HeaderFour />
-        <JewelryBanner />
-
-        <section className="jolie-benefits">
-          <div className="container">
-            <div className="jolie-benefit-grid">
-              {[
-                ['🚚','Envíos a todo Paraguay','Rápidos y seguros'],
-                ['🎁','Packaging especial','Para vos o para regalar'],
-                ['♡','Calidad garantizada','Materiales seleccionados'],
-                ['✦','Hecho con amor','Pensado en cada detalle'],
-              ].map(([icon,title,text]) => (
-                <div className="jolie-benefit" key={title}>
-                  <div className="jolie-benefit-icon">{icon}</div>
-                  <h3>{title}</h3>
-                  <p>{text}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="jolie-section jolie-collections">
-          <div className="container">
-            <h2 className="jolie-title">Colecciones que cuentan tu historia</h2>
-            <p className="jolie-subtitle">Elegí piezas que hablen de vos y acompañen tus momentos.</p>
-            <div className="jolie-collection-grid">
-              {collections.map((item) => (
-                <article className="jolie-collection" key={item.name}>
-                  <img className="jolie-collection-img" src={item.image} alt={item.name} />
-                  <h3>{item.name}</h3>
-                  <Link className="jolie-outline-btn" href={item.href}>Ver todo</Link>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="jolie-newsletter">
-          <div className="container jolie-newsletter-wrap">
-            <div>
-              <h3>10% OFF en tu primera compra</h3>
-              <p>Suscribite y recibí novedades, lanzamientos y beneficios exclusivos.</p>
-            </div>
-            <form className="jolie-newsletter-form" onSubmit={(e) => e.preventDefault()}>
-              <input type="email" placeholder="Tu correo electrónico" aria-label="Tu correo electrónico" />
-              <button type="submit">Suscribirme</button>
-            </form>
-          </div>
-        </section>
-
-        <section className="jolie-story">
-          <div className="jolie-story-image" aria-hidden="true" />
-          <div className="jolie-story-copy">
-            <div>
-              <h2>Más que joyas, pequeños recuerdos de quién sos.</h2>
-              <p>En Jolie creemos que cada detalle tiene el poder de contar tu historia. Diseños delicados, femeninos y llenos de color para acompañarte en todos tus momentos.</p>
-              <Link href="/about" className="jolie-solid-btn">Conocer más sobre Jolie</Link>
-            </div>
-          </div>
-        </section>
-
-        <FooterTwo />
-      </div>
-    </Wrapper>
-  );
+export default function Home({featured=[]}){
+ return <Wrapper>
+  <SEO pageTitle="Jolie Jewelry | Joyas que expresan tu esencia" description="Collares, aros, pulseras y accesorios Jolie. Diseños con personalidad y envíos a todo Paraguay." noIndex={false}/>
+  <Head><link rel="preconnect" href="https://fonts.googleapis.com"/><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&family=Playfair+Display:wght@400;500&display=swap" rel="stylesheet"/><style>{`
+   :root{--cream:#FFF9F5;--blush:#F5DDD4;--terra:#C98268;--brown:#795044;--gold:#C7A66A;--line:#ECD9D1}body{background:var(--cream)}.jolie-home{color:var(--brown);font-family:'Montserrat',sans-serif}.jolie-section{padding:68px 0}.jolie-heading{font:400 clamp(32px,3.2vw,45px)/1.15 'Playfair Display',Georgia,serif;text-align:center;color:#5f3b30;margin:0 0 38px}.jolie-heading:after{content:'✦';display:block;font:14px Georgia;color:var(--terra);margin-top:10px}.jolie-benefits{background:#fffdfb;border-bottom:1px solid var(--line)}.jolie-benefit-grid{display:grid;grid-template-columns:repeat(4,1fr)}.jolie-benefit{text-align:center;padding:28px 18px;border-right:1px solid var(--line)}.jolie-benefit:last-child{border:0}.jolie-benefit .icon{font-size:27px;color:var(--terra);height:38px}.jolie-benefit h3{font-size:14px;font-weight:500;margin:8px 0 5px}.jolie-benefit p{font-size:11px;color:#927c74;margin:0}.jolie-collections{background:#fffdfb}.jolie-collection-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:34px}.jolie-collection{text-align:center}.jolie-collection img{width:100%;aspect-ratio:1;border-radius:50%;object-fit:cover;background:#f5e7df}.jolie-collection h3{font-size:13px;letter-spacing:.09em;text-transform:uppercase;margin:17px 0 10px}.jolie-outline{display:inline-block;border:1px solid var(--terra);color:var(--terra);padding:9px 22px;border-radius:7px;font-size:10px;font-weight:600;text-transform:uppercase}.jolie-outline:hover{background:var(--terra);color:#fff}.jolie-products{background:#fff;padding:72px 0}.jolie-product-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:25px}.jolie-product-card{text-align:center}.jolie-product-media{aspect-ratio:1/1.12;background:#f8eee9;overflow:hidden;margin-bottom:17px}.jolie-product-media img{width:100%;height:100%;object-fit:cover}.jolie-product-card h3{font:400 20px 'Playfair Display',serif;margin:0 0 7px}.jolie-product-price{font-size:13px;color:var(--terra);font-weight:600}.jolie-newsletter{background:var(--blush);padding:24px 0}.jolie-newsletter-inner{display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:40px}.jolie-newsletter h3{font:400 27px 'Playfair Display',serif;margin:0 0 4px}.jolie-newsletter p{font-size:12px;margin:0;color:#806a63}.jolie-form{display:flex}.jolie-form input{flex:1;border:1px solid #e4c8bd;background:#fff;padding:13px 17px;border-radius:7px 0 0 7px}.jolie-form button{border:0;background:var(--terra);color:#fff;padding:0 28px;border-radius:0 7px 7px 0;font-size:11px;font-weight:600;text-transform:uppercase}.jolie-story{display:grid;grid-template-columns:1fr 1.35fr;background:#fff}.jolie-story-img{min-height:440px;background:url('/assets/img/instagram/4/instagram-1.jpg') center/cover}.jolie-story-content{display:flex;align-items:center;padding:60px 8vw}.jolie-story h2{font:400 clamp(34px,3.5vw,49px)/1.1 'Playfair Display',serif;color:#5f3b30;margin-bottom:20px}.jolie-story p{font-size:13px;line-height:1.8;color:#806a63;max-width:520px}.jolie-solid{display:inline-block;background:var(--terra);color:#fff;padding:12px 22px;border-radius:7px;font-size:10px;font-weight:600;text-transform:uppercase;margin-top:8px}.jolie-solid:hover{color:#fff;background:#ad6c54}
+   @media(max-width:991px){.jolie-benefit-grid{grid-template-columns:repeat(2,1fr)}.jolie-benefit:nth-child(2){border-right:0}.jolie-collection-grid{grid-template-columns:repeat(2,1fr)}.jolie-product-grid{grid-template-columns:repeat(2,1fr)}.jolie-newsletter-inner,.jolie-story{grid-template-columns:1fr}.jolie-story-img{min-height:360px}}
+   @media(max-width:575px){.jolie-section{padding:48px 0}.jolie-benefit{padding:22px 8px}.jolie-collection-grid{gap:25px 18px}.jolie-collection:last-child{grid-column:1/-1;width:48%;margin:auto}.jolie-product-grid{gap:22px 12px}.jolie-product-card h3{font-size:17px}.jolie-form{display:block}.jolie-form input,.jolie-form button{width:100%;min-height:46px;border-radius:7px}.jolie-form button{margin-top:8px}.jolie-story-content{padding:45px 24px}}
+  `}</style></Head>
+  <div className="jolie-home"><HeaderFour/><JewelryBanner/>
+   <section className="jolie-benefits"><div className="container jolie-benefit-grid">{[['♧','Envíos a todo Paraguay','Rápidos y seguros'],['♢','Packaging especial','Para vos o para regalar'],['♡','Selección cuidada','Materiales seleccionados'],['✦','Diseños con personalidad','Hechos con amor']].map(x=><div className="jolie-benefit" key={x[1]}><div className="icon">{x[0]}</div><h3>{x[1]}</h3><p>{x[2]}</p></div>)}</div></section>
+   <section className="jolie-section jolie-collections"><div className="container"><h2 className="jolie-heading">Colecciones que cuentan tu historia</h2><div className="jolie-collection-grid">{collections.map(c=><article className="jolie-collection" key={c.name}><img src={c.image} alt={c.name}/><h3>{c.name}</h3><Link className="jolie-outline" href={c.href}>Ver todo</Link></article>)}</div></div></section>
+   <section className="jolie-products"><div className="container"><h2 className="jolie-heading">Joyas para acompañar tus momentos</h2><div className="jolie-product-grid">{featured.length?featured.map(p=><article className="jolie-product-card" key={p.id||p.slug}><Link href={`/product-details/${p.slug||p.id}`}><div className="jolie-product-media">{p.image&&<img src={p.image} alt={p.title||p.name}/>}</div><h3>{p.title||p.name}</h3></Link><div className="jolie-product-price">{p.price?`Gs. ${Number(p.price).toLocaleString('es-PY')}`:'Ver producto'}</div></article>):collections.slice(0,4).map(c=><article className="jolie-product-card" key={c.name}><Link href={c.href}><div className="jolie-product-media"><img src={c.image} alt={c.name}/></div><h3>{c.name} Jolie</h3></Link><div className="jolie-product-price">Descubrir colección</div></article>)}</div></div></section>
+   <section className="jolie-newsletter"><div className="container jolie-newsletter-inner"><div><h3>10% OFF en tu primera compra</h3><p>Suscribite y recibí novedades, promos exclusivas y más.</p></div><form className="jolie-form" onSubmit={e=>e.preventDefault()}><input type="email" placeholder="Tu correo electrónico"/><button>Suscribirme</button></form></div></section>
+   <section className="jolie-story"><div className="jolie-story-img"/><div className="jolie-story-content"><div><h2>Más que accesorios, pequeños detalles de quién eres.</h2><p>Jolie nace para celebrar aquello que hace única a cada mujer. Piezas alegres, femeninas y llenas de personalidad para acompañarte y expresar tu estilo.</p><Link href="/about" className="jolie-solid">Conocer más sobre Jolie</Link></div></div></section>
+   <FooterTwo/>
+  </div>
+ </Wrapper>
 }
+
+export async function getServerSideProps(){try{const base=process.env.NEXTAUTH_URL||process.env.NEXT_PUBLIC_SITE_URL; if(!base)return{props:{featured:[]}};const r=await fetch(`${base}/api/products?limit=4&featured=true`);if(!r.ok)return{props:{featured:[]}};const j=await r.json();const list=(j.products||j.data||[]).slice(0,4).map(p=>({id:p.id||null,slug:p.slug||null,title:p.title||p.name||'Jolie',price:p.price||null,image:p.image||p.thumbnail||p.images?.[0]?.url||p.images?.[0]||null}));return{props:{featured:list}}}catch{return{props:{featured:[]}}}}

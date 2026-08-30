@@ -22,10 +22,10 @@ const HeaderFour = () => {
         .jolie-topbar{height:38px;background:#f6ddd3;color:#795044;font:500 12px/38px 'Montserrat',sans-serif;letter-spacing:.02em}
         .jolie-topbar-inner{display:grid;grid-template-columns:1fr 1fr 1fr;align-items:center}.jolie-topbar-center{text-align:center}.jolie-topbar-right{text-align:right}
         .jolie-header{background:#fffdfb;border-bottom:1px solid #f1e2dc;position:relative;z-index:20}
-        .jolie-header-inner{height:106px;display:grid;grid-template-columns:220px 1fr 220px;align-items:center;gap:24px;position:relative}
+        .jolie-header-inner{height:122px;display:grid;grid-template-columns:300px 1fr 220px;align-items:center;gap:24px;position:relative}
         .jolie-logo-link{display:inline-flex;align-items:center;justify-content:flex-start;text-decoration:none}
-        .jolie-logo-img{display:block;width:138px;height:76px;object-fit:contain;object-position:center}
-        .jolie-nav{display:flex;justify-content:center;gap:34px;align-items:center}.jolie-nav a{font:500 12px/1 'Montserrat',sans-serif;letter-spacing:.15em;text-transform:uppercase;color:#5a3e32;text-decoration:none;position:relative;padding:42px 0}.jolie-nav a:hover,.jolie-nav a.active{color:#c98268}.jolie-nav a.active:after{content:'';position:absolute;left:0;right:0;bottom:27px;height:1px;background:#c98268}
+        .jolie-logo-img{display:block;width:220px;height:96px;object-fit:contain;object-position:left center}
+        .jolie-nav{display:flex;justify-content:center;gap:34px;align-items:center}.jolie-nav a{font:500 12px/1 'Montserrat',sans-serif;letter-spacing:.15em;text-transform:uppercase;color:#5a3e32;text-decoration:none;position:relative;padding:50px 0}.jolie-nav a:hover,.jolie-nav a.active{color:#c98268}.jolie-nav a.active:after{content:'';position:absolute;left:0;right:0;bottom:34px;height:1px;background:#c98268}
         .jolie-actions{display:flex;justify-content:flex-end;align-items:center;gap:22px}.jolie-action{background:none;border:0;padding:0;color:#5a3e32;position:relative;display:inline-flex;cursor:pointer}.jolie-cart-count{position:absolute;right:-9px;top:-8px;background:#c98268;color:#fff;border-radius:50%;min-width:17px;height:17px;padding:0 4px;font:600 9px/17px 'Montserrat',sans-serif;text-align:center}.jolie-mobile-logo{display:none}
         @media(max-width:1199px){
           .jolie-header-inner{height:82px;display:flex;align-items:center;justify-content:space-between;position:relative;padding-left:14px;padding-right:14px}

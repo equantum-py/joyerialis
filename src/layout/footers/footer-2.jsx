@@ -1,139 +1,25 @@
 import React from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
-// internal
-import social_data from '@/data/social-data';
-import { Email, Location } from '@/svg';
-import logo from '@assets/img/logo/logo.svg';
-import pay from '@assets/img/footer/footer-pay.png';
 
-const FooterTwo = () => {
-  return (
-    <>
-      <footer>
-        <div className="tp-footer-area tp-footer-style-2 tp-footer-style-3 tp-footer-style-4" data-bg-color="#F5F5F5" style={{ backgroundColor: `rgb(245, 245, 245)` }}>
-          <div className="tp-footer-top pt-95 pb-40">
-            <div className="container">
-              <div className="row">
-                <div className="col-xl-3 col-lg-3 col-md-4 col-sm-6">
-                  <div className="tp-footer-widget footer-col-4-1 mb-50">
-                    <div className="tp-footer-logo">
-                      <Link href="/">
-                        <Image src={logo} alt="logo" />
-                      </Link>
-                    </div>
-                    <div className="tp-footer-widget-content">
-                      <div className="tp-footer-talk mb-20">
-                        <span>¿Tienes preguntas? Llámanos</span>
-                        <h4><a href="tel:+595210000000">+595 21 000 000</a></h4>
-                      </div>
-                      <div className="tp-footer-contact">
-                        <div className="tp-footer-contact-item d-flex align-items-start">
-                          <div className="tp-footer-contact-icon">
-                            <span>
-                              <Email />
-                            </span>
-                          </div>
-                          <div className="tp-footer-contact-content">
-                            <p><a href="mailto:contacto@joyerialis.com">contacto@joyerialis.com</a></p>
-                          </div>
-                        </div>
-                        <div className="tp-footer-contact-item d-flex align-items-start">
-                          <div className="tp-footer-contact-icon">
-                            <span>
-                              <Location />
-                            </span>
-                          </div>
-                          <div className="tp-footer-contact-content">
-                            <p>Asunción, Paraguay</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="col-xl-2 col-lg-3 col-md-4 col-sm-6">
-                  <div className="tp-footer-widget footer-col-4-2 mb-50">
-                    <h4 className="tp-footer-widget-title">Mi cuenta</h4>
-                    <div className="tp-footer-widget-content">
-                      <ul>
-                        <li><Link href="/profile">Rastrear pedidos</Link></li>
-                        <li><Link href="/contact">Envíos</Link></li>
-                        <li><Link href="/wishlist">Lista de deseos</Link></li>
-                        <li><Link href="/profile">Mi cuenta</Link></li>
-                        <li><Link href="/profile">Historial de pedidos</Link></li>
-                        <li><Link href="/contact">Devoluciones</Link></li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-                <div className="col-xl-3 col-lg-2 col-md-4 col-sm-5">
-                  <div className="tp-footer-widget footer-col-4-3 mb-50">
-                    <h4 className="tp-footer-widget-title">Información</h4>
-                    <div className="tp-footer-widget-content">
-                      <ul>
-                        <li><Link href="/blog">Nuestra historia</Link></li>
-                        <li><Link href="/contact">Empleos</Link></li>
-                        <li><Link href="/contact">Política de privacidad</Link></li>
-                        <li><Link href="/contact">Términos y condiciones</Link></li>
-                        <li><Link href="/blog">Últimas noticias</Link></li>
-                        <li><Link href="/contact">Contáctanos</Link></li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-                <div className="col-xl-4 col-lg-4 col-md-6 col-sm-7">
-                  <div className="tp-footer-widget footer-col-4-4 mb-50">
-                    <h4 className="tp-footer-widget-title">Suscríbete.</h4>
-                    <div className="tp-footer-widget-content">
-                      <div className="tp-footer-subscribe">
-                        <p>Mantente informado de nuestras novedades</p>
-                        <div className="tp-footer-subscribe-form mb-30">
-                          <form action="#">
-                            <div className="tp-footer-subscribe-input">
-                              <input type="email" placeholder="Ingresa tu correo" />
-                              <button type="submit">Suscribirse</button>
-                            </div>
-                          </form>
-                        </div>
-                        <div className="tp-footer-social-4 tp-footer-social">
-                          <h4 className="tp-footer-social-title-4">Síguenos en</h4>
-                          {social_data.map(s => <a href={s.link} key={s.id} target="_blank">
-                            <i className={s.icon}></i>
-                          </a>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="tp-footer-bottom">
-            <div className="container">
-              <div className="tp-footer-bottom-wrapper">
-                <div className="row align-items-center">
-                  <div className="col-md-6">
-                    <div className="tp-footer-copyright">
-                      <p>© {new Date().getFullYear()} Todos los derechos reservados | <Link href="/">Joyerialis</Link>.</p>
-                    </div>
-                  </div>
-                  <div className="col-md-6">
-                    <div className="tp-footer-payment text-md-end">
-                      <p>
-                        <Image src={pay} alt="pay" />
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </footer>
-    </>
-  );
-};
-
+const FooterTwo=()=> (
+  <footer className="jolie-footer">
+    <style>{`
+      .jolie-footer{background:#fffaf7;color:#5a3e32;border-top:1px solid #eeddd5;font-family:'Montserrat',sans-serif}
+      .jolie-footer-main{padding:58px 0 44px}.jolie-footer-grid{display:grid;grid-template-columns:1.25fr repeat(4,1fr);gap:46px}
+      .jolie-footer-logo{font-family:'Playfair Display',Georgia,serif;font-size:38px;letter-spacing:.14em;color:#c98268}.jolie-footer-logo small{display:block;font:600 8px 'Montserrat',sans-serif;letter-spacing:.4em;margin:8px 0 15px 3px}
+      .jolie-footer-brand p{font-size:13px;line-height:1.8;color:#806a63;max-width:220px}.jolie-footer h4{font-size:12px;text-transform:uppercase;letter-spacing:.13em;margin:5px 0 20px;color:#5a3e32}
+      .jolie-footer ul{list-style:none;padding:0;margin:0}.jolie-footer li{margin:0 0 11px}.jolie-footer a,.jolie-footer li,.jolie-footer p{color:#806a63;font-size:12px}.jolie-footer a:hover{color:#c98268}
+      .jolie-footer-bottom{border-top:1px solid #eeddd5;background:#f8e1d7;padding:16px 0}.jolie-footer-bottom-inner{display:flex;justify-content:space-between;font-size:11px;color:#806a63}
+      @media(max-width:991px){.jolie-footer-grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:575px){.jolie-footer-grid{grid-template-columns:1fr;gap:28px}.jolie-footer-main{padding:42px 0}.jolie-footer-bottom-inner{display:block;text-align:center;line-height:2}}
+    `}</style>
+    <div className="jolie-footer-main"><div className="container jolie-footer-grid">
+      <div className="jolie-footer-brand"><Link href="/" className="jolie-footer-logo">JOLIE<small>JEWELRY</small></Link><p>Joyas que expresan tu esencia.<br/>Hechas con amor para vos.</p><p>Instagram &nbsp; Facebook</p></div>
+      <div><h4>Tienda</h4><ul><li><Link href="/shop?category=Collares">Collares</Link></li><li><Link href="/shop?category=Aros">Aros</Link></li><li><Link href="/shop?category=Pulseras">Pulseras</Link></li><li><Link href="/shop?category=Tobilleras">Tobilleras</Link></li><li><Link href="/shop?new=true">Nuevos ingresos</Link></li></ul></div>
+      <div><h4>Información</h4><ul><li><Link href="/about">Sobre Jolie</Link></li><li><Link href="/contact">Envíos y entregas</Link></li><li><Link href="/contact">Cambios y devoluciones</Link></li><li><Link href="/contact">Preguntas frecuentes</Link></li><li><Link href="/contact">Contacto</Link></li></ul></div>
+      <div><h4>Ayuda</h4><ul><li><Link href="/contact">¿Cómo comprar?</Link></li><li><Link href="/contact">Formas de pago</Link></li><li><Link href="/contact">Términos y condiciones</Link></li><li><Link href="/contact">Políticas de privacidad</Link></li></ul></div>
+      <div><h4>Contacto</h4><ul><li>WhatsApp Paraguay</li><li>hola@joliejewelry.com.py</li><li>Paraguay</li></ul></div>
+    </div></div>
+    <div className="jolie-footer-bottom"><div className="container jolie-footer-bottom-inner"><span>© {new Date().getFullYear()} Jolie Jewelry. Todos los derechos reservados.</span><span>Joyas que expresan tu esencia ♡</span></div></div>
+  </footer>
+);
 export default FooterTwo;

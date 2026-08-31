@@ -1,0 +1,30 @@
+import Head from 'next/head';
+import Link from 'next/link';
+import {useRouter} from 'next/router';
+import SEO from '@/components/seo';
+import Wrapper from '@/layout/wrapper';
+import HeaderFour from '@/layout/headers/header-4';
+import FooterTwo from '@/layout/footers/footer-2';
+
+const products={
+  'collar-amalfi':{name:'Collar Amalfi',category:'Collares',price:89000,image:'/assets/img/instagram/4/instagram-1.jpg',description:'Un collar delicado pensado para sumar un detalle especial a tus looks de todos los días.'},
+  'aros-soleil':{name:'Aros Soleil',category:'Aros',price:65000,image:'/assets/img/instagram/4/instagram-3.jpg',description:'Aros femeninos y versátiles para acompañarte con un toque de luz y personalidad.'},
+  'pulsera-marina':{name:'Pulsera Marina',category:'Pulseras',price:75000,image:'/assets/img/instagram/4/instagram-4.jpg',description:'Una pulsera delicada y alegre, ideal para combinar y expresar tu esencia.'},
+  'tobillera-serena':{name:'Tobillera Serena',category:'Tobilleras',price:69000,image:'/assets/img/instagram/4/instagram-6.jpg',description:'Una tobillera sutil para sumar un detalle femenino y especial.'},
+  'collar-coral':{name:'Collar Coral',category:'Collares',price:95000,image:'/assets/img/slider/4/slider-1.png',description:'Una pieza Jolie con personalidad, pensada para destacar sin perder delicadeza.'},
+  'aros-estrella':{name:'Aros Estrella',category:'Aros',price:72000,image:'/assets/img/instagram/4/instagram-3.jpg',description:'Aros con carácter delicado para iluminar tus momentos.'},
+  'pulsera-capri':{name:'Pulsera Capri',category:'Pulseras',price:79000,image:'/assets/img/instagram/4/instagram-4.jpg',description:'Color, detalle y estilo en una pieza ideal para usar sola o combinada.'},
+  'collar-oceana':{name:'Collar Oceana',category:'Collares',price:99000,image:'/assets/img/instagram/4/instagram-1.jpg',description:'Un collar elegante y fresco inspirado en esos detalles que hacen único tu estilo.'},
+  'collar-aurora':{name:'Collar Aurora',category:'Collares',price:105000,image:'/assets/img/instagram/4/instagram-6.jpg',description:'Una pieza especial para acompañarte de día o de noche.'},
+  'aros-luna':{name:'Aros Luna',category:'Aros',price:68000,image:'/assets/img/instagram/4/instagram-3.jpg',description:'Diseño delicado, femenino y fácil de combinar.'},
+  'pulsera-esencia':{name:'Pulsera Esencia',category:'Pulseras',price:82000,image:'/assets/img/instagram/4/instagram-4.jpg',description:'Una pulsera pensada para recordarte que tu esencia es tu mejor joya.'},
+  'tobillera-mar':{name:'Tobillera Mar',category:'Tobilleras',price:74000,image:'/assets/img/instagram/4/instagram-1.jpg',description:'Una tobillera ligera y femenina para acompañar tus días.'}
+};
+
+export default function ProductPDP(){
+  const router=useRouter();
+  const product=products[router.query.slug];
+  if(!product) return <Wrapper><HeaderFour/><main className="jpdp-empty"><h1>Producto no encontrado</h1><Link href="/shop">Volver a la tienda</Link></main><FooterTwo/><style jsx>{`.jpdp-empty{min-height:50vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:#fffaf7;color:#5f3b30}`}</style></Wrapper>;
+  const wa=`https://wa.me/595986934997?text=${encodeURIComponent('Hola Jolie, quiero consultar por '+product.name)}`;
+  return <Wrapper><SEO pageTitle={`${product.name} | Jolie Jewelry`} description={`${product.name} de Jolie Jewelry. Bonita y Única.`} noIndex={false}/><Head><style>{`.jpdp{background:#fffaf7;color:#5f3b30;padding:62px 0 82px}.jpdp-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:64px;align-items:center}.jpdp-media{background:#f7ebe5;border-radius:18px;overflow:hidden}.jpdp-media img{display:block;width:100%;aspect-ratio:1/1.08;object-fit:cover}.jpdp-kicker{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#a48b81;margin-bottom:12px}.jpdp h1{font:400 clamp(42px,5vw,64px)/1.02 'Playfair Display',serif;margin:0 0 16px}.jpdp-price{font-size:20px;font-weight:600;color:#c98268;margin-bottom:24px}.jpdp-copy{font-size:14px;line-height:1.8;color:#806a63;max-width:540px;margin-bottom:28px}.jpdp-benefits{display:grid;gap:10px;font-size:12px;color:#7b655c;margin-bottom:28px}.jpdp-actions{display:flex;gap:12px;flex-wrap:wrap}.jpdp-wa,.jpdp-back{display:inline-block;padding:14px 22px;border-radius:8px;font-size:10px;font-weight:600;text-transform:uppercase}.jpdp-wa{background:#c98268;color:#fff!important}.jpdp-back{border:1px solid #c98268;color:#c98268}.jpdp-trust{margin-top:35px;padding-top:24px;border-top:1px solid #ead6ce;display:grid;grid-template-columns:repeat(3,1fr);gap:14px;font-size:10px;color:#8f766c}.jpdp-trust div{background:#fff;padding:14px;border-radius:10px;text-align:center}@media(max-width:767px){.jpdp{padding:30px 0 55px}.jpdp-grid{grid-template-columns:1fr;gap:28px}.jpdp h1{font-size:39px}.jpdp-copy{font-size:13px}.jpdp-actions{display:grid}.jpdp-wa,.jpdp-back{text-align:center}.jpdp-trust{grid-template-columns:1fr 1fr}.jpdp-trust div:last-child{grid-column:1/-1}}`}</style></Head><HeaderFour/><main className="jpdp"><div className="container"><div className="jpdp-grid"><div className="jpdp-media"><img src={product.image} alt={product.name}/></div><div><div className="jpdp-kicker">{product.category} · Jolie Jewelry</div><h1>{product.name}</h1><div className="jpdp-price">Gs. {product.price.toLocaleString('es-PY')}</div><p className="jpdp-copy">{product.description}</p><div className="jpdp-benefits"><span>♡ Selección cuidada</span><span>✦ Packaging especial</span><span>🚚 Envíos a todo Paraguay</span></div><div className="jpdp-actions"><a className="jpdp-wa" href={wa} target="_blank" rel="noreferrer">Consultar por WhatsApp</a><Link className="jpdp-back" href="/shop">Seguir viendo joyas</Link></div><div className="jpdp-trust"><div>Bonita y Única</div><div>Atención personalizada</div><div>Compra con confianza</div></div></div></div></div></main><FooterTwo/></Wrapper>;
+}

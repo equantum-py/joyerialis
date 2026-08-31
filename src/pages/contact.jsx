@@ -1,23 +1,6 @@
-import React from "react";
-import SEO from "@/components/seo";
-import HeaderTwo from "@/layout/headers/header-2";
-import Wrapper from "@/layout/wrapper";
-import Footer from "@/layout/footers/footer";
-import ContactBreadcrumb from "@/components/breadcrumb/contact-breadcrumb";
-import ContactArea from "@/components/contact/contact-area";
-import ContactMap from "@/components/contact/contact-map";
-
-const ContactPage = () => {
-  return (
-    <Wrapper>
-      <SEO pageTitle="Contact" />
-      <HeaderTwo style_2={true} />
-      <ContactBreadcrumb />
-      <ContactArea/>
-      <ContactMap/>
-      <Footer primary_style={true} />
-    </Wrapper>
-  );
-};
-
-export default ContactPage;
+import Head from 'next/head';
+import SEO from '@/components/seo';
+import Wrapper from '@/layout/wrapper';
+import HeaderFour from '@/layout/headers/header-4';
+import FooterTwo from '@/layout/footers/footer-2';
+export default function Contact(){return <Wrapper><SEO pageTitle="Contacto | Jolie Jewelry" noIndex={false}/><Head><style>{`.jc{background:#fffaf7;padding:70px 0 90px;color:#5f3b30}.jc-head{text-align:center;max-width:650px;margin:auto}.jc h1{font:400 48px 'Playfair Display',serif;margin-bottom:12px}.jc-head p{color:#8c736a}.jc-grid{display:grid;grid-template-columns:1fr 1fr;gap:55px;margin-top:48px}.jc-card{background:#fff;border:1px solid #edd9d0;border-radius:18px;padding:38px}.jc-card h2{font:400 30px 'Playfair Display',serif;margin-bottom:20px}.jc-info{display:grid;gap:15px;color:#795044}.jc-wa{display:inline-block;background:#c98268;color:#fff!important;padding:13px 22px;border-radius:8px;margin-top:22px;font-size:11px;text-transform:uppercase}.jc-form{display:grid;gap:13px}.jc-form input,.jc-form textarea{border:1px solid #e5cec4;background:#fffaf7;border-radius:8px;padding:14px;width:100%}.jc-form button{background:#c98268;color:#fff;border:0;border-radius:8px;padding:14px;text-transform:uppercase;font-size:11px}@media(max-width:767px){.jc{padding:42px 0 60px}.jc h1{font-size:36px}.jc-grid{grid-template-columns:1fr;gap:20px;margin-top:30px}.jc-card{padding:25px 20px}}`}</style></Head><HeaderFour/><main className="jc"><div className="container"><div className="jc-head"><h1>Estamos para ayudarte</h1><p>¿Querés consultar por una joya, envío o disponibilidad? Escribinos y te respondemos.</p></div><div className="jc-grid"><section className="jc-card"><h2>Contacto Jolie</h2><div className="jc-info"><span>WhatsApp: +595 986 934997</span><span>Envíos a todo Paraguay</span><span>Jolie Jewelry · Bonita y Única</span></div><a className="jc-wa" href="https://wa.me/595986934997?text=Hola%20Jolie%2C%20quiero%20hacer%20una%20consulta" target="_blank" rel="noreferrer">Hablar por WhatsApp</a></section><section className="jc-card"><h2>Dejanos tu mensaje</h2><form className="jc-form" onSubmit={e=>e.preventDefault()}><input placeholder="Nombre y apellido"/><input type="email" placeholder="Correo electrónico"/><textarea rows="5" placeholder="¿En qué podemos ayudarte?"/><button>Enviar consulta</button></form></section></div></div></main><FooterTwo/></Wrapper>}

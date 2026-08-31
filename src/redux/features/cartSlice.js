@@ -20,18 +20,15 @@ export const cartSlice = createSlice({
           orderQuantity: state.orderQuantity,
         };
         state.cart_products.push(newItem);
-        notifySuccess(`${state.orderQuantity} ${payload.title} added to cart`);
+        notifySuccess(`${state.orderQuantity} ${payload.title} agregado al carrito`);
       } else {
         state.cart_products.map((item) => {
           if (item._id === payload._id) {
             if (item.quantity >= item.orderQuantity + state.orderQuantity) {
-              item.orderQuantity =
-                state.orderQuantity !== 1
-                  ? state.orderQuantity + item.orderQuantity
-                  : item.orderQuantity + 1;
-              notifySuccess(`${state.orderQuantity} ${item.title} added to cart`);
+              item.orderQuantity = state.orderQuantity !== 1 ? state.orderQuantity + item.orderQuantity : item.orderQuantity + 1;
+              notifySuccess(`${state.orderQuantity} ${item.title} agregado al carrito`);
             } else {
-              notifyError("No more quantity available for this product!");
+              notifyError("No hay más unidades disponibles de este producto");
               state.orderQuantity = 1;
             }
           }
@@ -40,65 +37,28 @@ export const cartSlice = createSlice({
       }
       setLocalStorage("cart_products", state.cart_products);
     },
-    increment: (state, { payload }) => {
-      state.orderQuantity = state.orderQuantity + 1;
-    },
-    decrement: (state, { payload }) => {
-      state.orderQuantity =
-        state.orderQuantity > 1
-          ? state.orderQuantity - 1
-          : (state.orderQuantity = 1);
+    increment: (state) => { state.orderQuantity = state.orderQuantity + 1; },
+    decrement: (state) => { state.orderQuantity = state.orderQuantity > 1 ? state.orderQuantity - 1 : 1; },
+    quantityIncrement: (state, { payload }) => {
+      state.cart_products = state.cart_products.map((item) => item._id === payload._id ? {...item,orderQuantity:Math.min(item.orderQuantity+1,item.quantity || 99)} : item);
+      setLocalStorage("cart_products", state.cart_products);
     },
     quantityDecrement: (state, { payload }) => {
-      state.cart_products.map((item) => {
-        if (item._id === payload._id) {
-          if (item.orderQuantity > 1) {
-            item.orderQuantity = item.orderQuantity - 1;
-          }
-        }
-        return { ...item };
-      });
+      state.cart_products = state.cart_products.map((item) => item._id === payload._id ? {...item,orderQuantity:Math.max(1,item.orderQuantity-1)} : item);
       setLocalStorage("cart_products", state.cart_products);
     },
     remove_product: (state, { payload }) => {
-      state.cart_products = state.cart_products.filter(
-        (item) => item._id !== payload.id
-      );
+      state.cart_products = state.cart_products.filter((item) => item._id !== payload.id);
       setLocalStorage("cart_products", state.cart_products);
-      notifyError(`${payload.title} Remove from cart`);
+      notifyError(`${payload.title} eliminado del carrito`);
     },
-    get_cart_products: (state, action) => {
-      state.cart_products = getLocalStorage("cart_products");
-    },
-    initialOrderQuantity: (state, { payload }) => {
-      state.orderQuantity = 1;
-    },
-    clearCart:(state) => {
-      const isClearCart = window.confirm('Are you sure you want to remove all items ?');
-      if(isClearCart){
-        state.cart_products = []
-      }
-      setLocalStorage("cart_products", state.cart_products);
-    },
-    openCartMini:(state,{payload}) => {
-      state.cartMiniOpen = true
-    },
-    closeCartMini:(state,{payload}) => {
-      state.cartMiniOpen = false
-    },
+    get_cart_products: (state) => { state.cart_products = getLocalStorage("cart_products"); },
+    initialOrderQuantity: (state) => { state.orderQuantity = 1; },
+    clearCart:(state) => { state.cart_products = []; setLocalStorage("cart_products", state.cart_products); },
+    openCartMini:(state) => { state.cartMiniOpen = true; },
+    closeCartMini:(state) => { state.cartMiniOpen = false; },
   },
 });
 
-export const {
-  add_cart_product,
-  increment,
-  decrement,
-  get_cart_products,
-  remove_product,
-  quantityDecrement,
-  initialOrderQuantity,
-  clearCart,
-  closeCartMini,
-  openCartMini,
-} = cartSlice.actions;
+export const { add_cart_product, increment, decrement, get_cart_products, remove_product, quantityIncrement, quantityDecrement, initialOrderQuantity, clearCart, closeCartMini, openCartMini } = cartSlice.actions;
 export default cartSlice.reducer;

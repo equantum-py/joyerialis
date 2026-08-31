@@ -1,32 +1,17 @@
-import React,{useEffect} from 'react';
-import Cookies from 'js-cookie';
-import { useRouter } from 'next/router';
-// internal
+import {useState} from 'react';
+import {useRouter} from 'next/router';
+import {useDispatch,useSelector} from 'react-redux';
 import SEO from '@/components/seo';
 import Wrapper from '@/layout/wrapper';
-import HeaderTwo from '@/layout/headers/header-2';
-import Footer from '@/layout/footers/footer';
-import CommonBreadcrumb from '@/components/breadcrumb/common-breadcrumb';
-import CheckoutArea from '@/components/checkout/checkout-area';
+import HeaderFour from '@/layout/headers/header-4';
+import FooterTwo from '@/layout/footers/footer-2';
+import useCartInfo from '@/hooks/use-cart-info';
+import {clearCart} from '@/redux/features/cartSlice';
 
-
-const CheckoutPage = () => {
-  const router = useRouter();
-  useEffect(() => {
-    const isAuthenticate = Cookies.get("userInfo");
-    if(!isAuthenticate){
-      router.push("/login")
-    }
-  },[router])
-  return (
-    <Wrapper>
-      <SEO pageTitle="Checkout" />
-      <HeaderTwo style_2={true} />
-      <CommonBreadcrumb title="Checkout" subtitle="Checkout" bg_clr={true} />
-      <CheckoutArea/>
-      <Footer style_2={true} />
-    </Wrapper>
-  );
-};
-
-export default CheckoutPage;
+const EXPRESS_COST=25000;
+export default function Checkout(){
+ const router=useRouter(),dispatch=useDispatch(); const {cart_products}=useSelector(s=>s.cart); const {total}=useCartInfo(); const [shipping,setShipping]=useState('bolt'); const [receipt,setReceipt]=useState('');
+ const shippingCost=shipping==='express'?EXPRESS_COST:0; const grand=total+shippingCost;
+ const submit=e=>{e.preventDefault();if(!cart_products.length)return router.push('/shop');if(!receipt)return alert('Adjuntá tu comprobante de transferencia para confirmar el pedido.');const data=new FormData(e.currentTarget);const order={number:`JOL-${Date.now().toString().slice(-6)}`,customer:Object.fromEntries(data.entries()),items:cart_products,total:grand,shipping,createdAt:new Date().toISOString()};localStorage.setItem('jolie_last_order',JSON.stringify(order));dispatch(clearCart());router.push('/gracias-por-tu-pedido')};
+ return <Wrapper><SEO pageTitle="Finalizar compra | Jolie Jewelry"/><HeaderFour/><main className="jco"><div className="container"><div className="jco-head"><span>FINALIZAR COMPRA</span><h1>Entrega y pago</h1><p>Completá tus datos para preparar tu pedido Jolie.</p></div><form onSubmit={submit} className="jco-grid"><section className="jform"><h2>1. Datos de entrega</h2><div className="fields"><label>Nombre y apellido<input required name="name" placeholder="Tu nombre"/></label><label>WhatsApp<input required name="phone" type="tel" placeholder="09xx xxx xxx"/></label><label>Correo electrónico<input required name="email" type="email" placeholder="tu@email.com"/></label><label>Ciudad<input required name="city" placeholder="Ej. Asunción"/></label><label>Barrio<input required name="neighborhood" placeholder="Tu barrio"/></label><label>Dirección<input required name="address" placeholder="Calle, número, edificio..."/></label><label className="full">Referencia para llegar<textarea name="reference" rows="3" placeholder="Casa, portón, esquina, piso, etc."/></label></div><h2>2. Elegí tu envío</h2><div className="shipping"><label className={shipping==='bolt'?'active':''}><input type="radio" name="shippingMethod" value="bolt" checked={shipping==='bolt'} onChange={()=>setShipping('bolt')}/><div><strong>Moto / Bolt</strong><span>Coordinamos el envío con vos. El costo se confirma según destino.</span></div></label><label className={shipping==='express'?'active':''}><input type="radio" name="shippingMethod" value="express" checked={shipping==='express'} onChange={()=>setShipping('express')}/><div><strong>Envío Express · Gs. {EXPRESS_COST.toLocaleString('es-PY')}</strong><span>Prioridad de preparación y despacho.</span></div></label></div><h2>3. Pago por transferencia</h2><div className="bank"><strong>Transferencia bancaria</strong><p>Realizá la transferencia a la cuenta indicada por Jolie y adjuntá el comprobante para confirmar tu pedido.</p><label className="upload">Adjuntar comprobante<input required name="receipt" type="file" accept="image/*,.pdf" onChange={e=>setReceipt(e.target.files?.[0]?.name||'')}/><span>{receipt||'Seleccionar imagen o PDF'}</span></label></div><label className="notes">Observaciones<textarea name="notes" rows="3" placeholder="¿Querés agregar una indicación para tu pedido?"/></label></section><aside className="order"><h2>Tu pedido</h2>{cart_products.map(p=><div className="order-item" key={p._id}><img src={p.img} alt=""/><span>{p.title}<small>Cantidad: {p.orderQuantity}</small></span><strong>Gs. {(p.price*p.orderQuantity).toLocaleString('es-PY')}</strong></div>)}<hr/><div><span>Subtotal</span><strong>Gs. {total.toLocaleString('es-PY')}</strong></div><div><span>Envío</span><strong>{shipping==='express'?`Gs. ${shippingCost.toLocaleString('es-PY')}`:'A coordinar'}</strong></div><div className="grand"><span>Total</span><strong>Gs. {grand.toLocaleString('es-PY')}</strong></div><button type="submit">Confirmar pedido</button><p>Al confirmar, Jolie recibirá los datos necesarios para preparar tu compra.</p></aside></form></div></main><FooterTwo/><style jsx>{`.jco{background:#fffaf7;color:#5f3b30;padding:55px 0 85px}.jco-head{text-align:center;margin-bottom:42px}.jco-head span{font-size:10px;letter-spacing:.18em;color:#c98268}.jco-head h1{font:400 48px 'Playfair Display',serif;margin:8px}.jco-head p{color:#8a7168}.jco-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:42px}.jform,.order{background:#fff;border:1px solid #efd9d0;border-radius:16px;padding:30px}.jform h2,.order h2{font:400 27px 'Playfair Display',serif;margin:5px 0 24px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:38px}.fields label,.notes{font-size:11px;letter-spacing:.04em}.fields input,.fields textarea,.notes textarea{display:block;width:100%;margin-top:8px;border:1px solid #ead7cf;border-radius:8px;padding:13px;background:#fffaf8}.full{grid-column:1/-1}.shipping{display:grid;gap:12px;margin-bottom:38px}.shipping label{display:flex;gap:14px;border:1px solid #ead7cf;padding:18px;border-radius:10px;cursor:pointer}.shipping label.active{border-color:#c98268;background:#fff8f4}.shipping strong,.shipping span{display:block}.shipping span{font-size:11px;color:#927b72;margin-top:5px}.bank{background:#fff8f4;padding:20px;border-radius:10px;margin-bottom:22px}.bank p{font-size:12px;line-height:1.6}.upload{display:block;border:1px dashed #c98268;padding:15px;border-radius:8px;text-align:center;cursor:pointer}.upload input{display:none}.upload span{display:block;font-size:11px;color:#a16d5b;margin-top:5px}.order{height:max-content;position:sticky;top:25px}.order-item{display:grid;grid-template-columns:60px 1fr auto;gap:12px;align-items:center;margin:15px 0}.order-item img{width:60px;height:70px;object-fit:cover;border-radius:8px}.order-item span{font-size:12px}.order-item small{display:block;color:#a28b82}.order-item strong{font-size:12px}.order>div:not(.order-item){display:flex;justify-content:space-between;margin:16px 0;font-size:13px}.grand{font-size:17px!important}.order button{width:100%;border:0;background:#c98268;color:#fff;padding:16px;border-radius:8px;text-transform:uppercase;font-size:11px;font-weight:600}.order>p{text-align:center;font-size:10px;color:#9a8178;margin-top:15px}@media(max-width:767px){.jco{padding:35px 0 60px}.jco-head h1{font-size:38px}.jco-grid{grid-template-columns:1fr}.jform,.order{padding:20px}.fields{grid-template-columns:1fr}.full{grid-column:auto}.order{position:static}.order-item{grid-template-columns:55px 1fr}.order-item strong{grid-column:2}}`}</style></Wrapper>
+}

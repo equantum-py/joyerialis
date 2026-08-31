@@ -1,21 +1,13 @@
-import React from 'react';
+import Link from 'next/link';
+import {useDispatch,useSelector} from 'react-redux';
 import SEO from '@/components/seo';
-import HeaderTwo from '@/layout/headers/header-2';
-import Footer from '@/layout/footers/footer';
 import Wrapper from '@/layout/wrapper';
-import CartArea from '@/components/cart-wishlist/cart-area';
-import CommonBreadcrumb from '@/components/breadcrumb/common-breadcrumb';
+import HeaderFour from '@/layout/headers/header-4';
+import FooterTwo from '@/layout/footers/footer-2';
+import {quantityIncrement,quantityDecrement,remove_product} from '@/redux/features/cartSlice';
+import useCartInfo from '@/hooks/use-cart-info';
 
-const CartPage = () => {
-  return (
-    <Wrapper>
-      <SEO pageTitle="Cart" />
-      <HeaderTwo style_2={true} />
-      <CommonBreadcrumb title="Shopping Cart" subtitle="Shopping Cart" />
-      <CartArea/>
-      <Footer primary_style={true} />
-    </Wrapper>
-  );
-};
-
-export default CartPage;
+export default function CartPage(){
+ const dispatch=useDispatch(); const {cart_products}=useSelector(s=>s.cart); const {total}=useCartInfo();
+ return <Wrapper><SEO pageTitle="Carrito | Jolie Jewelry"/><HeaderFour/><main className="jcart"><div className="container"><div className="jcart-head"><span>TU SELECCIÓN</span><h1>Mi carrito</h1><p>Revisá tus joyas antes de continuar con la entrega.</p></div>{!cart_products.length?<div className="jempty"><h2>Tu carrito está vacío</h2><p>Encontrá esa pieza que expresa tu esencia.</p><Link href="/shop">Ver joyas</Link></div>:<div className="jcart-grid"><section>{cart_products.map(p=><article className="jitem" key={p._id}><img src={p.img} alt={p.title}/><div className="jitem-info"><small>JOLIE JEWELRY</small><h2>{p.title}</h2><strong>Gs. {Number(p.price).toLocaleString('es-PY')}</strong><div className="jqty"><button onClick={()=>dispatch(quantityDecrement(p))}>−</button><span>{p.orderQuantity}</span><button onClick={()=>dispatch(quantityIncrement(p))}>+</button></div><button className="jremove" onClick={()=>dispatch(remove_product({id:p._id,title:p.title}))}>Eliminar</button></div></article>)}</section><aside className="jsummary"><h2>Resumen</h2><div><span>Subtotal</span><strong>Gs. {total.toLocaleString('es-PY')}</strong></div><div><span>Envío</span><span>Se calcula en el siguiente paso</span></div><hr/><div className="jtotal"><span>Total parcial</span><strong>Gs. {total.toLocaleString('es-PY')}</strong></div><Link className="jcheckout" href="/checkout">Continuar con la compra</Link><Link className="jcontinue" href="/shop">Seguir viendo joyas</Link><p>🔒 Compra segura · Atención personalizada</p></aside></div>}</div></main><FooterTwo/><style jsx>{`.jcart{background:#fffaf7;color:#5f3b30;padding:58px 0 90px;min-height:60vh}.jcart-head{text-align:center;margin-bottom:45px}.jcart-head span{font-size:10px;letter-spacing:.18em;color:#c98268}.jcart-head h1{font:400 48px 'Playfair Display',serif;margin:8px 0}.jcart-head p{color:#8a7168}.jcart-grid{display:grid;grid-template-columns:1.4fr .6fr;gap:45px}.jitem{display:grid;grid-template-columns:180px 1fr;gap:25px;padding:20px 0;border-bottom:1px solid #ead8d0}.jitem img{width:180px;height:180px;object-fit:cover;border-radius:14px}.jitem small{letter-spacing:.15em;color:#a58c82}.jitem h2{font:400 28px 'Playfair Display',serif;margin:8px 0}.jitem strong{color:#c98268}.jqty{display:flex;align-items:center;gap:18px;margin-top:18px}.jqty button{width:34px;height:34px;border:1px solid #ddad9a;background:#fff;border-radius:50%}.jremove{border:0;background:none;color:#96766b;text-decoration:underline;margin-top:15px;padding:0}.jsummary{background:#fff;padding:28px;border:1px solid #efd9d0;border-radius:16px;height:max-content;position:sticky;top:25px}.jsummary h2{font:400 30px 'Playfair Display',serif}.jsummary>div{display:flex;justify-content:space-between;gap:20px;margin:18px 0;font-size:13px}.jtotal{font-size:16px!important}.jcheckout,.jcontinue,.jempty a{display:block;text-align:center;padding:15px;border-radius:8px;margin-top:15px;text-transform:uppercase;font-size:11px;font-weight:600}.jcheckout,.jempty a{background:#c98268;color:#fff!important}.jcontinue{border:1px solid #c98268;color:#c98268}.jsummary p{text-align:center;font-size:11px;color:#927b72;margin-top:20px}.jempty{max-width:560px;margin:auto;text-align:center;background:#fff;padding:55px;border-radius:16px}.jempty h2{font:400 35px 'Playfair Display',serif}@media(max-width:767px){.jcart{padding:35px 0 60px}.jcart-head h1{font-size:38px}.jcart-grid{grid-template-columns:1fr;gap:28px}.jitem{grid-template-columns:110px 1fr}.jitem img{width:110px;height:130px}.jitem h2{font-size:23px}.jsummary{position:static}}`}</style></Wrapper>
+}
